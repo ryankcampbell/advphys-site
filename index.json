@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-10-29T21:14:55+00:00",
+ "published": "2026-10-29T21:33:53+00:00",
  "units": [
   {
    "n": 1,
@@ -14,6 +14,7 @@
      "date": null,
      "label": null,
      "code": "1.1",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -34,14 +35,16 @@
        "label": "Entry ticket, day 2",
        "file": "p/1-1-ticket-day-2-warmup1-1.pdf",
        "hash": "20ace515b3ce33fd74f56b190181cabd68342b81522f06d9f22007422f32d550",
-       "bytes": 81875
+       "bytes": 81875,
+       "day": 2
       },
       {
        "kind": "ticket",
        "label": "Entry ticket, day 3",
        "file": "p/1-1-ticket-day-3-warmup1-1.pdf",
        "hash": "7d561b65e27261ad064e7fe1cf1e4c467e407e56bee8179ce687ef753fd256d2",
-       "bytes": 93203
+       "bytes": 93203,
+       "day": 3
       }
      ]
     },
@@ -52,6 +55,7 @@
      "date": null,
      "label": null,
      "code": "1.2",
+     "part": 1,
      "items": [
       {
        "kind": "quarto",
@@ -86,14 +90,16 @@
        "label": "Entry ticket, day 2",
        "file": "p/1-2-ticket-day-2-warmup1-2.pdf",
        "hash": "10b575eac9601a50818a3f77a2ba17c705ae01a49e71a30a919a4a7771f0d6d3",
-       "bytes": 99861
+       "bytes": 99861,
+       "day": 2
       },
       {
        "kind": "ticket",
        "label": "Entry ticket, day 3",
        "file": "p/1-2-ticket-day-3-warmup1-2.pdf",
        "hash": "a40c88b490d0d3fcb5a1c81fefb96a6304dabca02bb2a95d488bf905f2f61e42",
-       "bytes": 87072
+       "bytes": 87072,
+       "day": 3
       }
      ]
     },
@@ -121,6 +127,7 @@
      "date": null,
      "label": null,
      "code": "1.3",
+     "part": 1,
      "items": [
       {
        "kind": "quarto",
@@ -148,7 +155,8 @@
        "label": "Entry ticket, day 2",
        "file": "p/1-3-ticket-day-2-warmup1-3.pdf",
        "hash": "08f833d97857d43d115c65f0c8a50a33d9d3f44b8e9484a6303decb1e70235bb",
-       "bytes": 94061
+       "bytes": 94061,
+       "day": 2
       }
      ]
     },
@@ -183,6 +191,7 @@
      "date": null,
      "label": null,
      "code": "1.4",
+     "part": 1,
      "items": [
       {
        "kind": "quarto",
@@ -210,14 +219,16 @@
        "label": "Entry ticket, day 2",
        "file": "p/1-4-ticket-day-2-warmup1-4.pdf",
        "hash": "356f6435f07bd7af07107e68dc9fce7231846eb2c029ba1294c0c4a096fb113c",
-       "bytes": 91738
+       "bytes": 91738,
+       "day": 2
       },
       {
        "kind": "ticket",
        "label": "Entry ticket, day 3",
        "file": "p/1-4-ticket-day-3-warmup1-4.pdf",
        "hash": "5e761bf6c4a91e901715f74cbc95aca283c4bfe3ed6f9cf2caf9dd6eb733fd90",
-       "bytes": 96760
+       "bytes": 96760,
+       "day": 3
       }
      ]
     },
@@ -228,6 +239,7 @@
      "date": null,
      "label": null,
      "code": "1.5",
+     "part": 1,
      "items": [
       {
        "kind": "quarto",
@@ -255,14 +267,16 @@
        "label": "Entry ticket, day 2",
        "file": "p/1-5-ticket-day-2-warmup1-5.pdf",
        "hash": "d1ec8e0c54a2353faa805a50475983646cd7bb2ee631b19548289ec9bb67ff9e",
-       "bytes": 111929
+       "bytes": 111929,
+       "day": 2
       },
       {
        "kind": "ticket",
        "label": "Entry ticket, day 3",
        "file": "p/1-5-ticket-day-3-warmup1-5.pdf",
        "hash": "6421db8b265b1d3c8d1fd05a848b64e7be9947fd2fd346ab5ae71a23eaef0b8c",
-       "bytes": 167008
+       "bytes": 167008,
+       "day": 3
       }
      ]
     },
@@ -290,6 +304,32 @@
      "date": "2026-11-02",
      "label": "Mon 11/2",
      "code": "1.6",
+     "part": 1,
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.6a",
+       "file": "q/1-6-quarto-l1-6a.html",
+       "hash": "a1e6e8dd2a774e8e9ad79394fc8798526607924ce560202deb066eec31a2f4f5",
+       "bytes": 3759789
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-6-notes-l1-6.pdf",
+       "hash": "553d56d2455a35be3b2006be7b2da905603a4903110144ec9df168d78c9c6af9",
+       "bytes": 1646169
+      }
+     ]
+    },
+    {
+     "kind": "lesson",
+     "name": "Lenses",
+     "topics": "continued",
+     "date": "2026-11-04",
+     "label": "Wed 11/4",
+     "code": "1.6",
+     "part": 2,
      "items": [
       {
        "kind": "quarto",
@@ -306,6 +346,25 @@
        "bytes": 1646169
       },
       {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-6-ticket-day-2-warmup1-6.pdf",
+       "hash": "3a5c1198238bc6aaccdeef1654a7db5328d29e4d8ff918931e6c9ea436bf40b5",
+       "bytes": 97659,
+       "day": 2
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §1.6 homework in class",
+     "date": "2026-11-06",
+     "label": "Fri 11/6",
+     "code": "1.6",
+     "title": "Lenses",
+     "items": [
+      {
        "kind": "hw",
        "label": "Homework",
        "file": "p/1-6-hw-hw1-6.pdf",
@@ -314,17 +373,11 @@
       },
       {
        "kind": "ticket",
-       "label": "Entry ticket, day 2",
-       "file": "p/1-6-ticket-day-2-warmup1-6.pdf",
-       "hash": "3a5c1198238bc6aaccdeef1654a7db5328d29e4d8ff918931e6c9ea436bf40b5",
-       "bytes": 97659
-      },
-      {
-       "kind": "ticket",
        "label": "Entry ticket, day 3",
        "file": "p/1-6-ticket-day-3-warmup1-6.pdf",
        "hash": "9e5f39ca9c5721f76b4410f4785a735090b49bf907b2b39704d01f9ef2ba4902",
-       "bytes": 107432
+       "bytes": 107432,
+       "day": 3
       },
       {
        "kind": "worksheet",
@@ -339,8 +392,8 @@
      "kind": "lab",
      "name": "Thin Lenses",
      "topics": "Create images with lenses; parallax",
-     "date": "2026-11-04",
-     "label": "Wed 11/4",
+     "date": "2026-11-09",
+     "label": "Mon 11/9",
      "code": "Lab 5",
      "items": [
       {
@@ -353,19 +406,24 @@
      ]
     },
     {
+     "kind": "break",
+     "text": "Wed 11/11 — Veterans Day, no school"
+    },
+    {
      "kind": "quiz",
      "name": "Quiz 2",
      "topics": "",
-     "date": "2026-11-06",
-     "label": "Fri 11/6"
+     "date": "2026-11-13",
+     "label": "Fri 11/13"
     },
     {
      "kind": "lesson",
      "name": "Optical Systems",
      "topics": "telescope; microscope; eye",
-     "date": "2026-11-09",
-     "label": "Mon 11/9",
+     "date": "2026-11-16",
+     "label": "Mon 11/16",
      "code": "1.7",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -373,7 +431,18 @@
        "file": "p/1-7-notes-l1-7.pdf",
        "hash": "a10cf0bdba03348de9d709457df1b3a502cadddd0134feb6427dc11fabe12bd3",
        "bytes": 2209252
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §1.7 homework in class",
+     "date": "2026-11-18",
+     "label": "Wed 11/18",
+     "code": "1.7",
+     "title": "Optical Systems",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -385,14 +454,14 @@
     },
     {
      "kind": "break",
-     "text": "Wed 11/11 — Veterans Day, no school"
+     "text": "11/19–11/24 Conferences · 11/25–11/27 Fall Break — no class"
     },
     {
      "kind": "lab",
      "name": "Telescopes",
      "topics": "",
-     "date": "2026-11-13",
-     "label": "Fri 11/13",
+     "date": "2026-11-30",
+     "label": "Mon 11/30",
      "code": "Lab 6",
      "items": [
       {
@@ -408,19 +477,15 @@
      "kind": "review",
      "name": "Review for Test 1",
      "topics": "",
-     "date": "2026-11-16",
-     "label": "Mon 11/16"
+     "date": "2026-12-02",
+     "label": "Wed 12/2"
     },
     {
      "kind": "test",
      "name": "Test 1",
      "topics": "",
-     "date": "2026-11-18",
-     "label": "Wed 11/18"
-    },
-    {
-     "kind": "break",
-     "text": "11/19–11/24 Conferences · 11/25–11/27 Fall Break — no class"
+     "date": "2026-12-04",
+     "label": "Fri 12/4"
     }
    ]
   },
@@ -432,9 +497,10 @@
      "kind": "lesson",
      "name": "Superposition",
      "topics": "Superposition; velocity on strings; nodes; Wave Impedance; transmitted and reflected amplitudes",
-     "date": "2026-11-30",
-     "label": "Mon 11/30",
+     "date": "2026-12-07",
+     "label": "Mon 12/7",
      "code": "2.1",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -442,7 +508,18 @@
        "file": "p/2-1-notes-l2-1.pdf",
        "hash": "568917144b993d7939d0ad44fec994e3ffec71eeac9e03b6a448fa4814ce9f51",
        "bytes": 2770937
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.1 homework in class",
+     "date": "2026-12-09",
+     "label": "Wed 12/9",
+     "code": "2.1",
+     "title": "Superposition",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -456,9 +533,10 @@
      "kind": "lesson",
      "name": "Standing Waves",
      "topics": "adding traveling waves; standing wave equation",
-     "date": "2026-12-02",
-     "label": "Wed 12/2",
+     "date": "2026-12-11",
+     "label": "Fri 12/11",
      "code": "2.2",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -466,7 +544,18 @@
        "file": "p/2-2-notes-l2-2.pdf",
        "hash": "90e0050c7660b083ba3ee4f134818a76e4ba2301d7e98b39878195f508733809",
        "bytes": 2045772
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.2 homework in class",
+     "date": "2026-12-14",
+     "label": "Mon 12/14",
+     "code": "2.2",
+     "title": "Standing Waves",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -480,8 +569,8 @@
      "kind": "lab",
      "name": "Standing Waves",
      "topics": "Use a wave driver to make standing waves",
-     "date": "2026-12-04",
-     "label": "Fri 12/4",
+     "date": "2026-12-16",
+     "label": "Wed 12/16",
      "code": "Lab 7",
      "items": [
       {
@@ -497,9 +586,10 @@
      "kind": "lesson",
      "name": "1D Interference",
      "topics": "constructive; destructive; phase vs. path difference; speakers",
-     "date": "2026-12-07",
-     "label": "Mon 12/7",
+     "date": "2026-12-18",
+     "label": "Fri 12/18",
      "code": "2.3",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -507,7 +597,22 @@
        "file": "p/2-3-notes-l2-3.pdf",
        "hash": "7cd09786dae04fbc664a254061de9d10f68fa13c7dd02f154e3f5b71f54bb936",
        "bytes": 2674956
-      },
+      }
+     ]
+    },
+    {
+     "kind": "break",
+     "text": "12/21–1/1 Winter Break — no class"
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.3 homework in class",
+     "date": "2027-01-04",
+     "label": "Mon 1/4",
+     "code": "2.3",
+     "title": "1D Interference",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -521,9 +626,10 @@
      "kind": "lesson",
      "name": "Thin Film",
      "topics": "Thin film interference; Michelson-Morley interferometer",
-     "date": "2026-12-09",
-     "label": "Wed 12/9",
+     "date": "2027-01-06",
+     "label": "Wed 1/6",
      "code": "2.4",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -531,7 +637,18 @@
        "file": "p/2-4-notes-l2-4.pdf",
        "hash": "6bb7ae1770f01229f4c201f25971385fdb32006c9f21e46f7867b93ac390ad50",
        "bytes": 1786049
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.4 homework in class",
+     "date": "2027-01-08",
+     "label": "Fri 1/8",
+     "code": "2.4",
+     "title": "Thin Film",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -542,19 +659,24 @@
      ]
     },
     {
+     "kind": "break",
+     "text": "1/11–1/14 Fall Finals · 1/15 Grading Day · 1/18 MLK Day — no class"
+    },
+    {
      "kind": "quiz",
      "name": "Quiz 3",
      "topics": "",
-     "date": "2026-12-11",
-     "label": "Fri 12/11"
+     "date": "2027-01-20",
+     "label": "Wed 1/20"
     },
     {
      "kind": "lesson",
      "name": "Double Slit",
      "topics": "Young's double slit; maxima and minima; intensity equation",
-     "date": "2026-12-14",
-     "label": "Mon 12/14",
+     "date": "2027-01-22",
+     "label": "Fri 1/22",
      "code": "2.5",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -562,13 +684,6 @@
        "file": "p/2-5-notes-l2-5.pdf",
        "hash": "ac7858accd7af0d02f132a89a28eff78e86d00de95901a8b2d77da560b3acc55",
        "bytes": 2360389
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/2-5-hw-hw2-5.pdf",
-       "hash": "f1ca01bce9720dc5c95ccc4561d09f490f92945a6c9c73454380eadb2dc29eb2",
-       "bytes": 225443
       },
       {
        "kind": "sim",
@@ -594,18 +709,75 @@
      ]
     },
     {
+     "kind": "lesson",
+     "name": "Double Slit",
+     "topics": "continued",
+     "date": "2027-01-25",
+     "label": "Mon 1/25",
+     "code": "2.5",
+     "part": 2,
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-5-notes-l2-5.pdf",
+       "hash": "ac7858accd7af0d02f132a89a28eff78e86d00de95901a8b2d77da560b3acc55",
+       "bytes": 2360389
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: double slit",
+       "file": "q/2-5-sim-double-slit.html",
+       "hash": "983f9a090c031798a035d49268c18aabd0ca948cea69ae178a58d9dbb7e08d0c",
+       "bytes": 53020
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: fresnel",
+       "file": "q/2-5-sim-fresnel.html",
+       "hash": "960a623998a704fa8696d5d493491eb5fcf7d63ac63440503294b723386dbae7",
+       "bytes": 29388
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: interference",
+       "file": "q/2-5-sim-interference.html",
+       "hash": "fd581ce211d52801e754054c0e751c2ed1df7ff906eccdfc6ab613c579532e2c",
+       "bytes": 26016
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.5 homework in class",
+     "date": "2027-01-27",
+     "label": "Wed 1/27",
+     "code": "2.5",
+     "title": "Double Slit",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-5-hw-hw2-5.pdf",
+       "hash": "f1ca01bce9720dc5c95ccc4561d09f490f92945a6c9c73454380eadb2dc29eb2",
+       "bytes": 225443
+      }
+     ]
+    },
+    {
      "kind": "other",
      "name": "UW Tutorial",
      "topics": "Two-Source Interference",
-     "date": "2026-12-16",
-     "label": "Wed 12/16"
+     "date": "2027-01-29",
+     "label": "Fri 1/29"
     },
     {
      "kind": "lab",
      "name": "Two-Slit Interference",
      "topics": "Study the double slit with the diffraction apparatus",
-     "date": "2026-12-18",
-     "label": "Fri 12/18",
+     "date": "2027-02-01",
+     "label": "Mon 2/1",
      "code": "Lab 8",
      "items": [
       {
@@ -618,16 +790,13 @@
      ]
     },
     {
-     "kind": "break",
-     "text": "12/21–1/1 Winter Break — no class"
-    },
-    {
      "kind": "lesson",
      "name": "Single Slit",
      "topics": "Diffraction; Poisson spot; diffraction gratings; intensity",
-     "date": "2027-01-04",
-     "label": "Mon 1/4",
+     "date": "2027-02-03",
+     "label": "Wed 2/3",
      "code": "2.6",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -635,13 +804,6 @@
        "file": "p/2-6-notes-l2-6.pdf",
        "hash": "17299bb164820c03547afea08d12c5bb3355f63f09285230c23eb447c30b7b4a",
        "bytes": 2100904
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/2-6-hw-hw2-6.pdf",
-       "hash": "01ede72025d661b9a4f011404b5a7430183236472079d4080fe7555c75100127",
-       "bytes": 114516
       },
       {
        "kind": "sim",
@@ -653,21 +815,69 @@
      ]
     },
     {
+     "kind": "lesson",
+     "name": "Single Slit",
+     "topics": "continued",
+     "date": "2027-02-05",
+     "label": "Fri 2/5",
+     "code": "2.6",
+     "part": 2,
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-6-notes-l2-6.pdf",
+       "hash": "17299bb164820c03547afea08d12c5bb3355f63f09285230c23eb447c30b7b4a",
+       "bytes": 2100904
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: single slit",
+       "file": "q/2-6-sim-single-slit.html",
+       "hash": "f2acd1558601741c35a67e75f229eef2c710947244a28d2da635e8b07ecb6b6e",
+       "bytes": 136650
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.6 homework in class",
+     "date": "2027-02-08",
+     "label": "Mon 2/8",
+     "code": "2.6",
+     "title": "Single Slit",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-6-hw-hw2-6.pdf",
+       "hash": "01ede72025d661b9a4f011404b5a7430183236472079d4080fe7555c75100127",
+       "bytes": 114516
+      }
+     ]
+    },
+    {
      "kind": "lab",
      "name": "Diffraction",
      "topics": "Study the single slit with the diffraction apparatus",
-     "date": "2027-01-06",
-     "label": "Wed 1/6",
+     "date": "2027-02-10",
+     "label": "Wed 2/10",
      "code": "Lab 9",
      "items": []
+    },
+    {
+     "kind": "break",
+     "text": "Fri 2/12 In-Service · Mon 2/15 Presidents' Day — no school"
     },
     {
      "kind": "lesson",
      "name": "Applications of Diffraction",
      "topics": "Two-slit diffraction; point spread functions; Rayleigh criterion; x-ray scattering",
-     "date": "2027-01-08",
-     "label": "Fri 1/8",
+     "date": "2027-02-17",
+     "label": "Wed 2/17",
      "code": "2.7",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -675,13 +885,6 @@
        "file": "p/2-7-notes-l2-7.pdf",
        "hash": "068777f02067e8cc302f57685e30adffdcc9bf91a2f245e93162457b8ed1090a",
        "bytes": 2075693
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/2-7-hw-hw2-7.pdf",
-       "hash": "2652f0aef2e64f1acdb723604e9dd29793ef3df719c20e257f83a994716f61de",
-       "bytes": 281299
       },
       {
        "kind": "sim",
@@ -700,29 +903,75 @@
      ]
     },
     {
-     "kind": "break",
-     "text": "1/11–1/14 Fall Finals · 1/15 Grading Day · 1/18 MLK Day — no class"
+     "kind": "lesson",
+     "name": "Applications of Diffraction",
+     "topics": "continued",
+     "date": "2027-02-19",
+     "label": "Fri 2/19",
+     "code": "2.7",
+     "part": 2,
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-7-notes-l2-7.pdf",
+       "hash": "068777f02067e8cc302f57685e30adffdcc9bf91a2f245e93162457b8ed1090a",
+       "bytes": 2075693
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: diffraction",
+       "file": "q/2-7-sim-diffraction.html",
+       "hash": "fbd5631049d33d0e54ff71e3c55a421b116f8a999f737826347b91be12272b07",
+       "bytes": 167447
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: dna",
+       "file": "q/2-7-sim-dna.html",
+       "hash": "eeb70c9fab73604032ae512c4f563bda3f851998062fc79a05328a4c2daaae4a",
+       "bytes": 16167
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §2.7 homework in class",
+     "date": "2027-02-22",
+     "label": "Mon 2/22",
+     "code": "2.7",
+     "title": "Applications of Diffraction",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-7-hw-hw2-7.pdf",
+       "hash": "2652f0aef2e64f1acdb723604e9dd29793ef3df719c20e257f83a994716f61de",
+       "bytes": 281299
+      }
+     ]
     },
     {
      "kind": "quiz",
      "name": "Quiz 4",
      "topics": "",
-     "date": "2027-01-20",
-     "label": "Wed 1/20"
+     "date": "2027-02-24",
+     "label": "Wed 2/24"
     },
     {
      "kind": "review",
      "name": "Review for Test 2",
      "topics": "",
-     "date": "2027-01-22",
-     "label": "Fri 1/22"
+     "date": "2027-02-26",
+     "label": "Fri 2/26"
     },
     {
      "kind": "test",
      "name": "Test 2",
      "topics": "",
-     "date": "2027-01-25",
-     "label": "Mon 1/25"
+     "date": "2027-03-01",
+     "label": "Mon 3/1"
     }
    ]
   },
@@ -734,9 +983,10 @@
      "kind": "lesson",
      "name": "Galilean Relativity",
      "topics": "Reference frames; inertial vs. non-inertial; invariance; principle of relativity; velocity transform",
-     "date": "2027-01-27",
-     "label": "Wed 1/27",
+     "date": "2027-03-03",
+     "label": "Wed 3/3",
      "code": "3.1",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -744,13 +994,6 @@
        "file": "p/3-1-notes-l3-1.pdf",
        "hash": "a75cc8fddc8427fed8ad3ae3f28eda2394adafaf930111d93639f2b9cc0012d5",
        "bytes": 2771541
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/3-1-hw-hw3-1.pdf",
-       "hash": "201a794c6bc1bd69040b26ecb388239f6e4579ca9c472310c6d97d158f5f9d1d",
-       "bytes": 69286
       },
       {
        "kind": "sim",
@@ -762,12 +1005,31 @@
      ]
     },
     {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.1 homework in class",
+     "date": "2027-03-05",
+     "label": "Fri 3/5",
+     "code": "3.1",
+     "title": "Galilean Relativity",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-1-hw-hw3-1.pdf",
+       "hash": "201a794c6bc1bd69040b26ecb388239f6e4579ca9c472310c6d97d158f5f9d1d",
+       "bytes": 69286
+      }
+     ]
+    },
+    {
      "kind": "lesson",
      "name": "Special Relativity",
      "topics": "Postulates of SR; velocity transform; simultaneity",
-     "date": "2027-01-29",
-     "label": "Fri 1/29",
+     "date": "2027-03-08",
+     "label": "Mon 3/8",
      "code": "3.2",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -775,13 +1037,6 @@
        "file": "p/3-2-notes-l3-2.pdf",
        "hash": "69333177dd5e76b373a3254ea9bec421397254dd4916ee9aac23c9f458301e0e",
        "bytes": 1697091
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/3-2-hw-hw3-2.pdf",
-       "hash": "9f5cea7a3d408849e439df730e8978344e94dfe72508ed64f9694741d27ce7f9",
-       "bytes": 52352
       },
       {
        "kind": "sim",
@@ -793,12 +1048,31 @@
      ]
     },
     {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.2 homework in class",
+     "date": "2027-03-10",
+     "label": "Wed 3/10",
+     "code": "3.2",
+     "title": "Special Relativity",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-2-hw-hw3-2.pdf",
+       "hash": "9f5cea7a3d408849e439df730e8978344e94dfe72508ed64f9694741d27ce7f9",
+       "bytes": 52352
+      }
+     ]
+    },
+    {
      "kind": "lesson",
      "name": "Time Dilation",
      "topics": "Time dilation; length contraction; why c is constant",
-     "date": "2027-02-01",
-     "label": "Mon 2/1",
+     "date": "2027-03-12",
+     "label": "Fri 3/12",
      "code": "3.3",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -806,7 +1080,18 @@
        "file": "p/3-3-notes-l3-3.pdf",
        "hash": "6b366b3e3ae4eacd84caab5ecd6948799da088958e9ca9a9f2de7042e072b9c4",
        "bytes": 772251
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.3 homework in class",
+     "date": "2027-03-15",
+     "label": "Mon 3/15",
+     "code": "3.3",
+     "title": "Time Dilation",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -827,16 +1112,17 @@
      "kind": "quiz",
      "name": "Quiz 5",
      "topics": "",
-     "date": "2027-02-03",
-     "label": "Wed 2/3"
+     "date": "2027-03-17",
+     "label": "Wed 3/17"
     },
     {
      "kind": "lesson",
      "name": "Spacetime Diagrams",
      "topics": "spacetime intervals; worldlines; two-observer diagrams; calibrating t' and x'; proper time as worldline length",
-     "date": "2027-02-05",
-     "label": "Fri 2/5",
+     "date": "2027-03-19",
+     "label": "Fri 3/19",
      "code": "3.4",
+     "part": 1,
      "items": [
       {
        "kind": "quarto",
@@ -853,11 +1139,40 @@
        "bytes": 2472776
       },
       {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/3-4-hw-hw3-4.pdf",
-       "hash": "24ff71cb7905bc7236e06500d8622452e8639aeaf24e5663196c7d93f624310f",
-       "bytes": 88517
+       "kind": "sim",
+       "label": "Simulation: spacetime",
+       "file": "q/3-4-sim-spacetime.html",
+       "hash": "5f08538ec6dbd2764ff6262ba82de3f20697e21286a6a806ff67430d175f98ff",
+       "bytes": 89768
+      }
+     ]
+    },
+    {
+     "kind": "break",
+     "text": "3/22–4/2 Spring Break — no class"
+    },
+    {
+     "kind": "lesson",
+     "name": "Spacetime Diagrams",
+     "topics": "continued",
+     "date": "2027-04-05",
+     "label": "Mon 4/5",
+     "code": "3.4",
+     "part": 2,
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson",
+       "file": "q/3-4-quarto-spacetime.html",
+       "hash": "2cef239a2c81be24069ad91e4e3cc7633c2ea87e56284e501745c26c0903a26c",
+       "bytes": 2028981
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-4-notes-3-4.pdf",
+       "hash": "579f8c2619785f1b29bfc05f0dad48286a4146c448cbc6e8686a55b63fbdf036",
+       "bytes": 2472776
       },
       {
        "kind": "sim",
@@ -869,12 +1184,35 @@
      ]
     },
     {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.4 homework in class",
+     "date": "2027-04-07",
+     "label": "Wed 4/7",
+     "code": "3.4",
+     "title": "Spacetime Diagrams",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-4-hw-hw3-4.pdf",
+       "hash": "24ff71cb7905bc7236e06500d8622452e8639aeaf24e5663196c7d93f624310f",
+       "bytes": 88517
+      }
+     ]
+    },
+    {
+     "kind": "break",
+     "text": "Fri 4/9 Grading Day, no school"
+    },
+    {
      "kind": "lesson",
      "name": "Lorentz Transformation",
      "topics": "matrix form of the Lorentz transform; inverse transform",
-     "date": "2027-02-08",
-     "label": "Mon 2/8",
+     "date": "2027-04-12",
+     "label": "Mon 4/12",
      "code": "3.5",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -882,13 +1220,6 @@
        "file": "p/3-5-notes-l3-5.pdf",
        "hash": "9cfbb99255d6ccf24f6f2e521c12a613c407bb316c10bc06c78f156ac7fe42f0",
        "bytes": 1635080
-      },
-      {
-       "kind": "hw",
-       "label": "Homework",
-       "file": "p/3-5-hw-hw3-5.pdf",
-       "hash": "11ae84f754766356f741581c050b70cad5fc7503dbe06aef4289908e05c0bc8c",
-       "bytes": 110475
       },
       {
        "kind": "sim",
@@ -900,23 +1231,38 @@
      ]
     },
     {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.5 homework in class",
+     "date": "2027-04-14",
+     "label": "Wed 4/14",
+     "code": "3.5",
+     "title": "Lorentz Transformation",
+     "items": [
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-5-hw-hw3-5.pdf",
+       "hash": "11ae84f754766356f741581c050b70cad5fc7503dbe06aef4289908e05c0bc8c",
+       "bytes": 110475
+      }
+     ]
+    },
+    {
      "kind": "quiz",
      "name": "Quiz 6",
      "topics": "",
-     "date": "2027-02-10",
-     "label": "Wed 2/10"
-    },
-    {
-     "kind": "break",
-     "text": "Fri 2/12 In-Service · Mon 2/15 Presidents' Day — no school"
+     "date": "2027-04-16",
+     "label": "Fri 4/16"
     },
     {
      "kind": "lesson",
      "name": "The Twin Paradox",
      "topics": "Two resolutions: length of worldlines; and tilted planes of simultaneity",
-     "date": "2027-02-17",
-     "label": "Wed 2/17",
+     "date": "2027-04-19",
+     "label": "Mon 4/19",
      "code": "3.6",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -924,7 +1270,18 @@
        "file": "p/3-6-notes-l3-6.pdf",
        "hash": "804bdafbe38c02682fd68d206d897a0380ceda223ec5d62458909ea9897ec78d",
        "bytes": 2715760
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.6 homework in class",
+     "date": "2027-04-21",
+     "label": "Wed 4/21",
+     "code": "3.6",
+     "title": "The Twin Paradox",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -938,9 +1295,10 @@
      "kind": "lesson",
      "name": "Four Vectors",
      "topics": "4-velocity; 4-momentum; with the Lorentz transformation",
-     "date": "2027-02-19",
-     "label": "Fri 2/19",
+     "date": "2027-04-23",
+     "label": "Fri 4/23",
      "code": "3.7",
+     "part": 1,
      "items": [
       {
        "kind": "notes",
@@ -948,7 +1306,18 @@
        "file": "p/3-7-notes-l3-7.pdf",
        "hash": "02b3eab1c97b150afd37d8b2796ceb898614dcbee3be827612c5c1bf12f49510",
        "bytes": 2901078
-      },
+      }
+     ]
+    },
+    {
+     "kind": "hwday",
+     "name": "HW day",
+     "topics": "Work on the §3.7 homework in class",
+     "date": "2027-04-26",
+     "label": "Mon 4/26",
+     "code": "3.7",
+     "title": "Four Vectors",
+     "items": [
       {
        "kind": "hw",
        "label": "Homework",
@@ -969,22 +1338,26 @@
      "kind": "quiz",
      "name": "Quiz 7",
      "topics": "",
-     "date": "2027-02-22",
-     "label": "Mon 2/22"
+     "date": "2027-04-28",
+     "label": "Wed 4/28"
     },
     {
      "kind": "review",
      "name": "Review for Test 3",
      "topics": "",
-     "date": "2027-02-24",
-     "label": "Wed 2/24"
+     "date": "2027-04-30",
+     "label": "Fri 4/30"
+    },
+    {
+     "kind": "break",
+     "text": "Mon 5/3 In-Service, no school"
     },
     {
      "kind": "test",
      "name": "Test 3",
      "topics": "",
-     "date": "2027-02-26",
-     "label": "Fri 2/26"
+     "date": "2027-05-05",
+     "label": "Wed 5/5"
     }
    ]
   }
@@ -1048,8 +1421,8 @@
    "kind": "lab",
    "name": "Thin Lenses",
    "topics": "Create images with lenses; parallax",
-   "date": "2026-11-04",
-   "label": "Wed 11/4",
+   "date": "2026-11-09",
+   "label": "Mon 11/9",
    "code": "Lab 5",
    "items": [
     {
@@ -1066,8 +1439,8 @@
    "kind": "lab",
    "name": "Telescopes",
    "topics": "",
-   "date": "2026-11-13",
-   "label": "Fri 11/13",
+   "date": "2026-11-30",
+   "label": "Mon 11/30",
    "code": "Lab 6",
    "items": [
     {
@@ -1084,8 +1457,8 @@
    "kind": "lab",
    "name": "Standing Waves",
    "topics": "Use a wave driver to make standing waves",
-   "date": "2026-12-04",
-   "label": "Fri 12/4",
+   "date": "2026-12-16",
+   "label": "Wed 12/16",
    "code": "Lab 7",
    "items": [
     {
@@ -1102,8 +1475,8 @@
    "kind": "lab",
    "name": "Two-Slit Interference",
    "topics": "Study the double slit with the diffraction apparatus",
-   "date": "2026-12-18",
-   "label": "Fri 12/18",
+   "date": "2027-02-01",
+   "label": "Mon 2/1",
    "code": "Lab 8",
    "items": [
     {
@@ -1120,8 +1493,8 @@
    "kind": "lab",
    "name": "Diffraction",
    "topics": "Study the single slit with the diffraction apparatus",
-   "date": "2027-01-06",
-   "label": "Wed 1/6",
+   "date": "2027-02-10",
+   "label": "Wed 2/10",
    "code": "Lab 9",
    "items": [],
    "unit": 2

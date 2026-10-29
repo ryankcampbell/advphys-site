@@ -71,20 +71,25 @@ function rowHTML(r, next) {
   if (r.kind === 'break') return `<div class="brk">${esc(r.text)}</div>`;
   const today = r.date === todayISO();
   const past = r.date && r.date < todayISO();
-  const code = r.kind === 'lesson' ? `<span class="code">${esc(r.code)}</span>` : '';
-  const title = r.kind === 'lab' ? `${r.code}: ${r.name}` : r.name;
-  const tag = (r.kind === 'lab' ? '<span class="tag lab">Lab</span>' : '') +
+  const code = (r.kind === 'lesson' || r.kind === 'hwday') ? `<span class="code">${esc(r.code)}</span>` : '';
+  const title = r.kind === 'lab' ? `${r.code}: ${r.name}`
+    : r.kind === 'hwday' ? `${r.title}` : r.name;
+  const part = r.kind === 'hwday' ? '<span class="tag hw">HW day</span>'
+    : (r.part > 1 || (r.kind === 'lesson' && sectionHasHW(r.code))) ? `<span class="tag day">Day ${r.part}</span>` : '';
+  const tag = part + (r.kind === 'lab' ? '<span class="tag lab">Lab</span>' : '') +
               (today ? '<span class="tag today">Today</span>' : '');
   const exam = (r.kind === 'quiz' || r.kind === 'test') ? ` class="tag ${r.kind}"` : '';
   const name = exam ? `<span${exam}>${esc(title)}</span>` : `${code}${esc(title)}`;
   const items = r.items || [];
   let body = r.topics ? `<div class="topics">${esc(r.topics)}</div>` : '';
   if (items.length) body += `<div class="items">${items.map(itemLink).join('')}</div>`;
-  else if (r.kind === 'lesson' || r.kind === 'lab') body += '<div class="coming">Materials coming</div>';
+  else if (r.kind === 'lesson' || r.kind === 'lab' || r.kind === 'hwday') body += '<div class="coming">Materials coming</div>';
   const cls = ['row', r.date && r.date === next ? 'next' : '', past ? 'past' : ''].join(' ');
   return `<div class="${cls}" ${r.date === next ? 'id="next"' : ''}>
     <div class="rhead"><span class="date">${esc(r.label || '')}</span><span class="name">${name}${tag}</span></div>${body}</div>`;
 }
+
+const sectionHasHW = code => allRows().some(r => r.kind === 'hwday' && r.code === code);
 
 function renderSchedule() {
   const next = nextDate();
@@ -147,7 +152,7 @@ function renderSearch() {
   const q = fold(S.q.trim());
   const hits = [];
   for (const r of allRows()) {
-    if (r.kind === 'break') continue;
+    if (r.kind === 'break' || r.kind === 'hwday' || r.part > 1) continue;
     const title = r.kind === 'lesson' ? `${r.code} ${r.name}` : r.kind === 'lab' ? `${r.code}: ${r.name}` : r.name;
     if (fold(title).includes(q) || fold(r.topics || '').includes(q))
       hits.push(`<div class="hit"><b>${hl(title, q)}</b><small>${esc(r.label || 'Earlier')} · ${hl(r.topics || '', q)}</small>
@@ -235,11 +240,12 @@ function toast(msg) { $('#toastmsg').textContent = msg; $('#toast').classList.ad
 $('#toastbtn').addEventListener('click', () => location.reload());
 
 if ('serviceWorker' in navigator) {
+  const hadWorker = !!navigator.serviceWorker.controller;   // first install is not an update
   navigator.serviceWorker.register('sw.js').then(reg => {
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;
       w && w.addEventListener('statechange', () => {
-        if (w.state === 'activated' && navigator.serviceWorker.controller) toast('A new version is ready.');
+        if (w.state === 'activated' && hadWorker) toast('A new version is ready.');
       });
     });
   }).catch(() => { /* file:// or blocked: the app still works online */ });
