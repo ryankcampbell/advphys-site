@@ -1,0 +1,619 @@
+{
+ "course": "Advanced Physics",
+ "meets": "Mon/Wed/Fri · Block 3",
+ "published": "2026-10-29T20:43:29+00:00",
+ "units": [
+  {
+   "n": 1,
+   "title": "Geometric Optics",
+   "rows": [
+    {
+     "kind": "lesson",
+     "name": "Waves",
+     "topics": "Transverse; Longitudinal; velocity; Period; Frequency; Wavenumber; ω",
+     "date": null,
+     "label": null,
+     "code": "1.1",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Light",
+     "topics": "c = const; Poynting Vector; EM Traveling Waves; Radiation Pressure",
+     "date": null,
+     "label": null,
+     "code": "1.2",
+     "items": []
+    },
+    {
+     "kind": "lab",
+     "name": "Intensity",
+     "topics": "Measuring 1/r² dependence of Intensity",
+     "date": null,
+     "label": null,
+     "code": "Lab 2",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Malus's Law",
+     "topics": "Polarization; Index of Refraction",
+     "date": null,
+     "label": null,
+     "code": "1.3",
+     "items": []
+    },
+    {
+     "kind": "lab",
+     "name": "Malus's Law",
+     "topics": "Derive Malus's Law",
+     "date": null,
+     "label": null,
+     "code": "Lab 3",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 1",
+     "topics": "",
+     "date": null,
+     "label": null
+    },
+    {
+     "kind": "lesson",
+     "name": "Reflection and Refraction",
+     "topics": "Law of Reflection; Fermat's Least Time; Snell's Law; Total Internal Reflection; dispersion; rainbows",
+     "date": null,
+     "label": null,
+     "code": "1.4",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Mirrors",
+     "topics": "Images; Ray Tracing; mirror equation; virtual vs. real",
+     "date": null,
+     "label": null,
+     "code": "1.5",
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.5a",
+       "file": "q/1-5-quarto-l1-5a.html",
+       "hash": "3adb2b1d91ccc27b1f99e6f223ad176e184cd1954330f92093bbb1c8c327c573",
+       "bytes": 3739874
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-5-hw-hw1-5.pdf",
+       "hash": "57cde3849cb1bc3f539e9d8e4984ad50b2a4b6e0b52762c8e1559cb329e6b8e4",
+       "bytes": 157770
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-5-ticket-day-2-warmup1-5.pdf",
+       "hash": "d1ec8e0c54a2353faa805a50475983646cd7bb2ee631b19548289ec9bb67ff9e",
+       "bytes": 111929
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 3",
+       "file": "p/1-5-ticket-day-3-warmup1-5.pdf",
+       "hash": "6421db8b265b1d3c8d1fd05a848b64e7be9947fd2fd346ab5ae71a23eaef0b8c",
+       "bytes": 167008
+      }
+     ]
+    },
+    {
+     "kind": "lab",
+     "name": "Curved Mirrors and Images",
+     "topics": "Experimentally confirm mirror equation",
+     "date": null,
+     "label": null,
+     "code": "Lab 4",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Lenses",
+     "topics": "Ray tracing; lens makers; optics worksheet",
+     "date": "2026-11-02",
+     "label": "Mon 11/2",
+     "code": "1.6",
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.6a",
+       "file": "q/1-6-quarto-l1-6a.html",
+       "hash": "a1e6e8dd2a774e8e9ad79394fc8798526607924ce560202deb066eec31a2f4f5",
+       "bytes": 3759789
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-6-hw-hw1-6.pdf",
+       "hash": "cf791eedd8d9c8632a97b7c492bb5ce6ddd42b3367e3c7777f862e75c5db92d6",
+       "bytes": 132197
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-6-ticket-day-2-warmup1-6.pdf",
+       "hash": "3a5c1198238bc6aaccdeef1654a7db5328d29e4d8ff918931e6c9ea436bf40b5",
+       "bytes": 97659
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 3",
+       "file": "p/1-6-ticket-day-3-warmup1-6.pdf",
+       "hash": "9e5f39ca9c5721f76b4410f4785a735090b49bf907b2b39704d01f9ef2ba4902",
+       "bytes": 107432
+      }
+     ]
+    },
+    {
+     "kind": "lab",
+     "name": "Thin Lenses",
+     "topics": "Create images with lenses; parallax",
+     "date": "2026-11-04",
+     "label": "Wed 11/4",
+     "code": "Lab 5",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 2",
+     "topics": "",
+     "date": "2026-11-06",
+     "label": "Fri 11/6"
+    },
+    {
+     "kind": "lesson",
+     "name": "Optical Systems",
+     "topics": "telescope; microscope; eye",
+     "date": "2026-11-09",
+     "label": "Mon 11/9",
+     "code": "1.7",
+     "items": []
+    },
+    {
+     "kind": "break",
+     "text": "Wed 11/11 — Veterans Day, no school"
+    },
+    {
+     "kind": "lab",
+     "name": "Telescopes",
+     "topics": "",
+     "date": "2026-11-13",
+     "label": "Fri 11/13",
+     "code": "Lab 6",
+     "items": []
+    },
+    {
+     "kind": "review",
+     "name": "Review for Test 1",
+     "topics": "",
+     "date": "2026-11-16",
+     "label": "Mon 11/16"
+    },
+    {
+     "kind": "test",
+     "name": "Test 1",
+     "topics": "",
+     "date": "2026-11-18",
+     "label": "Wed 11/18"
+    },
+    {
+     "kind": "break",
+     "text": "11/19–11/24 Conferences · 11/25–11/27 Fall Break — no class"
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Physical Optics",
+   "rows": [
+    {
+     "kind": "lesson",
+     "name": "Superposition",
+     "topics": "Superposition; velocity on strings; nodes; Wave Impedance; transmitted and reflected amplitudes",
+     "date": "2026-11-30",
+     "label": "Mon 11/30",
+     "code": "2.1",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Standing Waves",
+     "topics": "adding traveling waves; standing wave equation",
+     "date": "2026-12-02",
+     "label": "Wed 12/2",
+     "code": "2.2",
+     "items": []
+    },
+    {
+     "kind": "lab",
+     "name": "Standing Waves",
+     "topics": "Use a wave driver to make standing waves",
+     "date": "2026-12-04",
+     "label": "Fri 12/4",
+     "code": "Lab 7",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "1D Interference",
+     "topics": "constructive; destructive; phase vs. path difference; speakers",
+     "date": "2026-12-07",
+     "label": "Mon 12/7",
+     "code": "2.3",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Thin Film",
+     "topics": "Thin film interference; Michelson-Morley interferometer",
+     "date": "2026-12-09",
+     "label": "Wed 12/9",
+     "code": "2.4",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 3",
+     "topics": "",
+     "date": "2026-12-11",
+     "label": "Fri 12/11"
+    },
+    {
+     "kind": "lesson",
+     "name": "Double Slit",
+     "topics": "Young's double slit; maxima and minima; intensity equation",
+     "date": "2026-12-14",
+     "label": "Mon 12/14",
+     "code": "2.5",
+     "items": []
+    },
+    {
+     "kind": "other",
+     "name": "UW Tutorial",
+     "topics": "Two-Source Interference",
+     "date": "2026-12-16",
+     "label": "Wed 12/16"
+    },
+    {
+     "kind": "lab",
+     "name": "Two-Slit Interference",
+     "topics": "Study the double slit with the diffraction apparatus",
+     "date": "2026-12-18",
+     "label": "Fri 12/18",
+     "code": "Lab 8",
+     "items": []
+    },
+    {
+     "kind": "break",
+     "text": "12/21–1/1 Winter Break — no class"
+    },
+    {
+     "kind": "lesson",
+     "name": "Single Slit",
+     "topics": "Diffraction; Poisson spot; diffraction gratings; intensity",
+     "date": "2027-01-04",
+     "label": "Mon 1/4",
+     "code": "2.6",
+     "items": []
+    },
+    {
+     "kind": "lab",
+     "name": "Diffraction",
+     "topics": "Study the single slit with the diffraction apparatus",
+     "date": "2027-01-06",
+     "label": "Wed 1/6",
+     "code": "Lab 9",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Applications of Diffraction",
+     "topics": "Two-slit diffraction; point spread functions; Rayleigh criterion; x-ray scattering",
+     "date": "2027-01-08",
+     "label": "Fri 1/8",
+     "code": "2.7",
+     "items": []
+    },
+    {
+     "kind": "break",
+     "text": "1/11–1/14 Fall Finals · 1/15 Grading Day · 1/18 MLK Day — no class"
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 4",
+     "topics": "",
+     "date": "2027-01-20",
+     "label": "Wed 1/20"
+    },
+    {
+     "kind": "review",
+     "name": "Review for Test 2",
+     "topics": "",
+     "date": "2027-01-22",
+     "label": "Fri 1/22"
+    },
+    {
+     "kind": "test",
+     "name": "Test 2",
+     "topics": "",
+     "date": "2027-01-25",
+     "label": "Mon 1/25"
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Special Relativity",
+   "rows": [
+    {
+     "kind": "lesson",
+     "name": "Galilean Relativity",
+     "topics": "Reference frames; inertial vs. non-inertial; invariance; principle of relativity; velocity transform",
+     "date": "2027-01-27",
+     "label": "Wed 1/27",
+     "code": "3.1",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Special Relativity",
+     "topics": "Postulates of SR; velocity transform; simultaneity",
+     "date": "2027-01-29",
+     "label": "Fri 1/29",
+     "code": "3.2",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Time Dilation",
+     "topics": "Time dilation; length contraction; why c is constant",
+     "date": "2027-02-01",
+     "label": "Mon 2/1",
+     "code": "3.3",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 5",
+     "topics": "",
+     "date": "2027-02-03",
+     "label": "Wed 2/3"
+    },
+    {
+     "kind": "lesson",
+     "name": "Spacetime Diagrams",
+     "topics": "spacetime intervals; worldlines; two-observer diagrams; calibrating t' and x'; proper time as worldline length",
+     "date": "2027-02-05",
+     "label": "Fri 2/5",
+     "code": "3.4",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Lorentz Transformation",
+     "topics": "matrix form of the Lorentz transform; inverse transform",
+     "date": "2027-02-08",
+     "label": "Mon 2/8",
+     "code": "3.5",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 6",
+     "topics": "",
+     "date": "2027-02-10",
+     "label": "Wed 2/10"
+    },
+    {
+     "kind": "break",
+     "text": "Fri 2/12 In-Service · Mon 2/15 Presidents' Day — no school"
+    },
+    {
+     "kind": "lesson",
+     "name": "The Twin Paradox",
+     "topics": "Two resolutions: length of worldlines; and tilted planes of simultaneity",
+     "date": "2027-02-17",
+     "label": "Wed 2/17",
+     "code": "3.6",
+     "items": []
+    },
+    {
+     "kind": "lesson",
+     "name": "Four Vectors",
+     "topics": "4-velocity; 4-momentum; with the Lorentz transformation",
+     "date": "2027-02-19",
+     "label": "Fri 2/19",
+     "code": "3.7",
+     "items": []
+    },
+    {
+     "kind": "quiz",
+     "name": "Quiz 7",
+     "topics": "",
+     "date": "2027-02-22",
+     "label": "Mon 2/22"
+    },
+    {
+     "kind": "review",
+     "name": "Review for Test 3",
+     "topics": "",
+     "date": "2027-02-24",
+     "label": "Wed 2/24"
+    },
+    {
+     "kind": "test",
+     "name": "Test 3",
+     "topics": "",
+     "date": "2027-02-26",
+     "label": "Fri 2/26"
+    }
+   ]
+  }
+ ],
+ "labs": [
+  {
+   "kind": "lab",
+   "name": "Intensity",
+   "topics": "Measuring 1/r² dependence of Intensity",
+   "date": null,
+   "label": null,
+   "code": "Lab 2",
+   "items": [],
+   "unit": 1
+  },
+  {
+   "kind": "lab",
+   "name": "Malus's Law",
+   "topics": "Derive Malus's Law",
+   "date": null,
+   "label": null,
+   "code": "Lab 3",
+   "items": [],
+   "unit": 1
+  },
+  {
+   "kind": "lab",
+   "name": "Curved Mirrors and Images",
+   "topics": "Experimentally confirm mirror equation",
+   "date": null,
+   "label": null,
+   "code": "Lab 4",
+   "items": [],
+   "unit": 1
+  },
+  {
+   "kind": "lab",
+   "name": "Thin Lenses",
+   "topics": "Create images with lenses; parallax",
+   "date": "2026-11-04",
+   "label": "Wed 11/4",
+   "code": "Lab 5",
+   "items": [],
+   "unit": 1
+  },
+  {
+   "kind": "lab",
+   "name": "Telescopes",
+   "topics": "",
+   "date": "2026-11-13",
+   "label": "Fri 11/13",
+   "code": "Lab 6",
+   "items": [],
+   "unit": 1
+  },
+  {
+   "kind": "lab",
+   "name": "Standing Waves",
+   "topics": "Use a wave driver to make standing waves",
+   "date": "2026-12-04",
+   "label": "Fri 12/4",
+   "code": "Lab 7",
+   "items": [],
+   "unit": 2
+  },
+  {
+   "kind": "lab",
+   "name": "Two-Slit Interference",
+   "topics": "Study the double slit with the diffraction apparatus",
+   "date": "2026-12-18",
+   "label": "Fri 12/18",
+   "code": "Lab 8",
+   "items": [],
+   "unit": 2
+  },
+  {
+   "kind": "lab",
+   "name": "Diffraction",
+   "topics": "Study the single slit with the diffraction apparatus",
+   "date": "2027-01-06",
+   "label": "Wed 1/6",
+   "code": "Lab 9",
+   "items": [],
+   "unit": 2
+  }
+ ],
+ "reference": [],
+ "search": [
+  {
+   "code": "1.5",
+   "file": "q/1-5-quarto-l1-5a.html",
+   "hash": "3adb2b1d91ccc27b1f99e6f223ad176e184cd1954330f92093bbb1c8c327c573",
+   "sections": [
+    {
+     "id": "recall-flat-mirrors",
+     "text": "Recall: flat mirrors"
+    },
+    {
+     "id": "curved-mirrors",
+     "text": "Curved mirrors"
+    },
+    {
+     "id": "the-mirror-equation",
+     "text": "The mirror equation"
+    },
+    {
+     "id": "objects-at-infinity-the-focal-point",
+     "text": "Objects at infinity: the focal point"
+    },
+    {
+     "id": "clean-ray-diagrams",
+     "text": "Clean ray diagrams"
+    },
+    {
+     "id": "how-a-computer-draws-a-mirror-ray-tracing",
+     "text": "How a computer draws a mirror: ray tracing"
+    },
+    {
+     "id": "practice",
+     "text": "Practice"
+    }
+   ],
+   "title": "1.5 Mirrors"
+  },
+  {
+   "code": "1.6",
+   "file": "q/1-6-quarto-l1-6a.html",
+   "hash": "a1e6e8dd2a774e8e9ad79394fc8798526607924ce560202deb066eec31a2f4f5",
+   "sections": [
+    {
+     "id": "how-a-converging-lens-works",
+     "text": "How a converging lens works"
+    },
+    {
+     "id": "what-if-the-source-is-off-axis",
+     "text": "What if the source is off axis?"
+    },
+    {
+     "id": "the-thin-lens-equation",
+     "text": "The thin-lens equation"
+    },
+    {
+     "id": "in-the-lab-measure-f-with-a-straight-line",
+     "text": "In the lab: measure f with a straight line"
+    },
+    {
+     "id": "the-lens-makers-equation",
+     "text": "The lens maker’s equation"
+    },
+    {
+     "id": "ray-diagrams",
+     "text": "Ray diagrams"
+    },
+    {
+     "id": "practice",
+     "text": "Practice"
+    }
+   ],
+   "title": "1.6 Lenses"
+  }
+ ]
+}
