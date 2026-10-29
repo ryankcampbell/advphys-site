@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-10-29T20:43:29+00:00",
+ "published": "2026-10-29T21:14:55+00:00",
  "units": [
   {
    "n": 1,
@@ -14,7 +14,36 @@
      "date": null,
      "label": null,
      "code": "1.1",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-1-notes-l1-1.pdf",
+       "hash": "782183cbde6f4f1accd86e9dc6c23df96193322e0036d5eca1b96fb11dfac995",
+       "bytes": 1851166
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-1-hw-hw1-1.pdf",
+       "hash": "6b9a8fab01b9098223ae9fff71f4e485d4b1e260c0fdd4656802e502f1216e6e",
+       "bytes": 122362
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-1-ticket-day-2-warmup1-1.pdf",
+       "hash": "20ace515b3ce33fd74f56b190181cabd68342b81522f06d9f22007422f32d550",
+       "bytes": 81875
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 3",
+       "file": "p/1-1-ticket-day-3-warmup1-1.pdf",
+       "hash": "7d561b65e27261ad064e7fe1cf1e4c467e407e56bee8179ce687ef753fd256d2",
+       "bytes": 93203
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -23,7 +52,50 @@
      "date": null,
      "label": null,
      "code": "1.2",
-     "items": []
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.2a",
+       "file": "q/1-2-quarto-l1-2a.html",
+       "hash": "5b32ef231b541eda5801f44192c1632ccff1f1af5a75a5bda9d021c550da4e37",
+       "bytes": 3760060
+      },
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.2b",
+       "file": "q/1-2-quarto-l1-2b.html",
+       "hash": "c915e3aaf6895e9579d33f53f74307e3b20342a67e182a8c62efa9ec8304cf5c",
+       "bytes": 3727792
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-2-notes-l1-2.pdf",
+       "hash": "7a01fc0c77beab2c15bdf38692af9fd50bc663fff8309c1dd26be950978078de",
+       "bytes": 2820151
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-2-hw-hw1-2.pdf",
+       "hash": "de982f946570c62f7175d7fc7f032687f9cc7e16b88fd844a0ea7a5560760cc6",
+       "bytes": 155966
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-2-ticket-day-2-warmup1-2.pdf",
+       "hash": "10b575eac9601a50818a3f77a2ba17c705ae01a49e71a30a919a4a7771f0d6d3",
+       "bytes": 99861
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 3",
+       "file": "p/1-2-ticket-day-3-warmup1-2.pdf",
+       "hash": "a40c88b490d0d3fcb5a1c81fefb96a6304dabca02bb2a95d488bf905f2f61e42",
+       "bytes": 87072
+      }
+     ]
     },
     {
      "kind": "lab",
@@ -32,7 +104,15 @@
      "date": null,
      "label": null,
      "code": "Lab 2",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-2-lab-intensity-students.pdf",
+       "hash": "570809a7cdd1cf39de8bf63035c71d91a272daa9d09855d656216b83e592689d",
+       "bytes": 974543
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -41,7 +121,36 @@
      "date": null,
      "label": null,
      "code": "1.3",
-     "items": []
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.3a",
+       "file": "q/1-3-quarto-l1-3a.html",
+       "hash": "7557781b57686ef4d03fa8818a6f97baa735750e891514625b7340c61fff0216",
+       "bytes": 3725138
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-3-notes-l1-3.pdf",
+       "hash": "aeb9d2639d61917b3555b7edfef3c9cd5a81f556155367dc59f74018043ad96e",
+       "bytes": 1177221
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-3-hw-hw1-3.pdf",
+       "hash": "2563b2bbd92cbfe839ad36d350c6f1fae687ccfc22c71454149380e78aaa7103",
+       "bytes": 173406
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-3-ticket-day-2-warmup1-3.pdf",
+       "hash": "08f833d97857d43d115c65f0c8a50a33d9d3f44b8e9484a6303decb1e70235bb",
+       "bytes": 94061
+      }
+     ]
     },
     {
      "kind": "lab",
@@ -50,7 +159,15 @@
      "date": null,
      "label": null,
      "code": "Lab 3",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-3-lab-malus-students.pdf",
+       "hash": "da5f4b7e04709b8ec0fdfd2bf226bf396db7312aea0388365eb796e27bdab0f0",
+       "bytes": 851941
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -66,7 +183,43 @@
      "date": null,
      "label": null,
      "code": "1.4",
-     "items": []
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.4a",
+       "file": "q/1-4-quarto-l1-4a.html",
+       "hash": "224505d6af52949b7114132bed8c564595f61c2e350f8cabdfc860306ebfaa90",
+       "bytes": 3745440
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-4-notes-l1-4.pdf",
+       "hash": "1f726e21699a42532a593d4f737c1317f57091f94ee4d107aaf14dfe67f8c41e",
+       "bytes": 2343552
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-4-hw-hw1-4.pdf",
+       "hash": "8a0645080f3999f032bf513c76d8a14a767802c2c8b29d686dddd7cb64a9a861",
+       "bytes": 113403
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-4-ticket-day-2-warmup1-4.pdf",
+       "hash": "356f6435f07bd7af07107e68dc9fce7231846eb2c029ba1294c0c4a096fb113c",
+       "bytes": 91738
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 3",
+       "file": "p/1-4-ticket-day-3-warmup1-4.pdf",
+       "hash": "5e761bf6c4a91e901715f74cbc95aca283c4bfe3ed6f9cf2caf9dd6eb733fd90",
+       "bytes": 96760
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -82,6 +235,13 @@
        "file": "q/1-5-quarto-l1-5a.html",
        "hash": "3adb2b1d91ccc27b1f99e6f223ad176e184cd1954330f92093bbb1c8c327c573",
        "bytes": 3739874
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-5-notes-l1-5.pdf",
+       "hash": "ec688a929a7d710431c6bc057512d7402f0a8985020fc339f61fbf34ec9c3ec7",
+       "bytes": 1141056
       },
       {
        "kind": "hw",
@@ -113,7 +273,15 @@
      "date": null,
      "label": null,
      "code": "Lab 4",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-4-lab-mirrors-students.pdf",
+       "hash": "73e0d210a81f53d4bcf8476c50c8e3b4b119bc6c6e2fa56e7d7058183b6317ca",
+       "bytes": 860169
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -129,6 +297,13 @@
        "file": "q/1-6-quarto-l1-6a.html",
        "hash": "a1e6e8dd2a774e8e9ad79394fc8798526607924ce560202deb066eec31a2f4f5",
        "bytes": 3759789
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-6-notes-l1-6.pdf",
+       "hash": "553d56d2455a35be3b2006be7b2da905603a4903110144ec9df168d78c9c6af9",
+       "bytes": 1646169
       },
       {
        "kind": "hw",
@@ -150,6 +325,13 @@
        "file": "p/1-6-ticket-day-3-warmup1-6.pdf",
        "hash": "9e5f39ca9c5721f76b4410f4785a735090b49bf907b2b39704d01f9ef2ba4902",
        "bytes": 107432
+      },
+      {
+       "kind": "worksheet",
+       "label": "Worksheet",
+       "file": "p/1-6-worksheet-wsgeomoptics.pdf",
+       "hash": "63ce6eeb40512597e2328bc4568c8a2a5fe16c734f95c7d5dfa2310e26df4985",
+       "bytes": 102099
       }
      ]
     },
@@ -160,7 +342,15 @@
      "date": "2026-11-04",
      "label": "Wed 11/4",
      "code": "Lab 5",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-5-lab-thin-lens-students.pdf",
+       "hash": "0f36236bc35470ffc5f92b2b65aee575df5c23eccc2db8b38ccae2bb2e34963d",
+       "bytes": 733295
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -176,7 +366,22 @@
      "date": "2026-11-09",
      "label": "Mon 11/9",
      "code": "1.7",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/1-7-notes-l1-7.pdf",
+       "hash": "a10cf0bdba03348de9d709457df1b3a502cadddd0134feb6427dc11fabe12bd3",
+       "bytes": 2209252
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/1-7-hw-hw1-7.pdf",
+       "hash": "522e27e156f17258249a7cd2bc5a56521ead8d8e2654897a30239ea04e656760",
+       "bytes": 74783
+      }
+     ]
     },
     {
      "kind": "break",
@@ -189,7 +394,15 @@
      "date": "2026-11-13",
      "label": "Fri 11/13",
      "code": "Lab 6",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-6-lab-telescope-students.pdf",
+       "hash": "b954ff68c962d041b39373eed74c394e53ffe37a2cdd79cee6453cfd8c1fc88f",
+       "bytes": 475717
+      }
+     ]
     },
     {
      "kind": "review",
@@ -222,7 +435,22 @@
      "date": "2026-11-30",
      "label": "Mon 11/30",
      "code": "2.1",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-1-notes-l2-1.pdf",
+       "hash": "568917144b993d7939d0ad44fec994e3ffec71eeac9e03b6a448fa4814ce9f51",
+       "bytes": 2770937
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-1-hw-hw2-1.pdf",
+       "hash": "7260277be50ad32249713e917f03aa21fa22eaa8a79cc31ac11538bb731cfab4",
+       "bytes": 183010
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -231,7 +459,22 @@
      "date": "2026-12-02",
      "label": "Wed 12/2",
      "code": "2.2",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-2-notes-l2-2.pdf",
+       "hash": "90e0050c7660b083ba3ee4f134818a76e4ba2301d7e98b39878195f508733809",
+       "bytes": 2045772
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-2-hw-hw2-2.pdf",
+       "hash": "2e7d760311c4abcaca4f270b23f84dd8fd9c8887242a38f01fed2e923f58e799",
+       "bytes": 217798
+      }
+     ]
     },
     {
      "kind": "lab",
@@ -240,7 +483,15 @@
      "date": "2026-12-04",
      "label": "Fri 12/4",
      "code": "Lab 7",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-7-lab-lab-8-waves.pdf",
+       "hash": "927875a2a5c6bedaa357bc85526d6f7c4fe2e6b0ad9864f44a3e03114b0735b6",
+       "bytes": 136341
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -249,7 +500,22 @@
      "date": "2026-12-07",
      "label": "Mon 12/7",
      "code": "2.3",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-3-notes-l2-3.pdf",
+       "hash": "7cd09786dae04fbc664a254061de9d10f68fa13c7dd02f154e3f5b71f54bb936",
+       "bytes": 2674956
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-3-hw-hw2-3.pdf",
+       "hash": "ba10417f5905726fa5ac48f97e6a50f006c6347cc2f18247ffdb4ffa30e28c52",
+       "bytes": 73036
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -258,7 +524,22 @@
      "date": "2026-12-09",
      "label": "Wed 12/9",
      "code": "2.4",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-4-notes-l2-4.pdf",
+       "hash": "6bb7ae1770f01229f4c201f25971385fdb32006c9f21e46f7867b93ac390ad50",
+       "bytes": 1786049
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-4-hw-hw2-4.pdf",
+       "hash": "7fa4ea6ba9ccb050b5d4b2ae52d850cdd25d1a5ba60766fd8ec514ec85dcb7e3",
+       "bytes": 94437
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -274,7 +555,43 @@
      "date": "2026-12-14",
      "label": "Mon 12/14",
      "code": "2.5",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-5-notes-l2-5.pdf",
+       "hash": "ac7858accd7af0d02f132a89a28eff78e86d00de95901a8b2d77da560b3acc55",
+       "bytes": 2360389
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-5-hw-hw2-5.pdf",
+       "hash": "f1ca01bce9720dc5c95ccc4561d09f490f92945a6c9c73454380eadb2dc29eb2",
+       "bytes": 225443
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: double slit",
+       "file": "q/2-5-sim-double-slit.html",
+       "hash": "983f9a090c031798a035d49268c18aabd0ca948cea69ae178a58d9dbb7e08d0c",
+       "bytes": 53020
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: fresnel",
+       "file": "q/2-5-sim-fresnel.html",
+       "hash": "960a623998a704fa8696d5d493491eb5fcf7d63ac63440503294b723386dbae7",
+       "bytes": 29388
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: interference",
+       "file": "q/2-5-sim-interference.html",
+       "hash": "fd581ce211d52801e754054c0e751c2ed1df7ff906eccdfc6ab613c579532e2c",
+       "bytes": 26016
+      }
+     ]
     },
     {
      "kind": "other",
@@ -290,7 +607,15 @@
      "date": "2026-12-18",
      "label": "Fri 12/18",
      "code": "Lab 8",
-     "items": []
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-8-lab-lab8-student.pdf",
+       "hash": "49192b6f9f9fc414c04730a6ca4e9fd943f8d0810c2e5ff1cd8bda01e91f3bae",
+       "bytes": 61406
+      }
+     ]
     },
     {
      "kind": "break",
@@ -303,7 +628,29 @@
      "date": "2027-01-04",
      "label": "Mon 1/4",
      "code": "2.6",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-6-notes-l2-6.pdf",
+       "hash": "17299bb164820c03547afea08d12c5bb3355f63f09285230c23eb447c30b7b4a",
+       "bytes": 2100904
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-6-hw-hw2-6.pdf",
+       "hash": "01ede72025d661b9a4f011404b5a7430183236472079d4080fe7555c75100127",
+       "bytes": 114516
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: single slit",
+       "file": "q/2-6-sim-single-slit.html",
+       "hash": "f2acd1558601741c35a67e75f229eef2c710947244a28d2da635e8b07ecb6b6e",
+       "bytes": 136650
+      }
+     ]
     },
     {
      "kind": "lab",
@@ -321,7 +668,36 @@
      "date": "2027-01-08",
      "label": "Fri 1/8",
      "code": "2.7",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/2-7-notes-l2-7.pdf",
+       "hash": "068777f02067e8cc302f57685e30adffdcc9bf91a2f245e93162457b8ed1090a",
+       "bytes": 2075693
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/2-7-hw-hw2-7.pdf",
+       "hash": "2652f0aef2e64f1acdb723604e9dd29793ef3df719c20e257f83a994716f61de",
+       "bytes": 281299
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: diffraction",
+       "file": "q/2-7-sim-diffraction.html",
+       "hash": "fbd5631049d33d0e54ff71e3c55a421b116f8a999f737826347b91be12272b07",
+       "bytes": 167447
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: dna",
+       "file": "q/2-7-sim-dna.html",
+       "hash": "eeb70c9fab73604032ae512c4f563bda3f851998062fc79a05328a4c2daaae4a",
+       "bytes": 16167
+      }
+     ]
     },
     {
      "kind": "break",
@@ -361,7 +737,29 @@
      "date": "2027-01-27",
      "label": "Wed 1/27",
      "code": "3.1",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-1-notes-l3-1.pdf",
+       "hash": "a75cc8fddc8427fed8ad3ae3f28eda2394adafaf930111d93639f2b9cc0012d5",
+       "bytes": 2771541
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-1-hw-hw3-1.pdf",
+       "hash": "201a794c6bc1bd69040b26ecb388239f6e4579ca9c472310c6d97d158f5f9d1d",
+       "bytes": 69286
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: simulation",
+       "file": "q/3-1-sim-index.html",
+       "hash": "9291bb1b5d7407667d70160b3c2a5ed8472cab929ee9360bb9ebfe7bfe4d1b0d",
+       "bytes": 33651
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -370,7 +768,29 @@
      "date": "2027-01-29",
      "label": "Fri 1/29",
      "code": "3.2",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-2-notes-l3-2.pdf",
+       "hash": "69333177dd5e76b373a3254ea9bec421397254dd4916ee9aac23c9f458301e0e",
+       "bytes": 1697091
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-2-hw-hw3-2.pdf",
+       "hash": "9f5cea7a3d408849e439df730e8978344e94dfe72508ed64f9694741d27ce7f9",
+       "bytes": 52352
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: sr",
+       "file": "q/3-2-sim-sr.html",
+       "hash": "0489a5c836f866a9b601a013b29d31f20b45a083df2c962d7b0250607e0c1ef1",
+       "bytes": 51726
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -379,7 +799,29 @@
      "date": "2027-02-01",
      "label": "Mon 2/1",
      "code": "3.3",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-3-notes-l3-3.pdf",
+       "hash": "6b366b3e3ae4eacd84caab5ecd6948799da088958e9ca9a9f2de7042e072b9c4",
+       "bytes": 772251
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-3-hw-hw3-3.pdf",
+       "hash": "f5fb54670a6fe274f56cab4ebe796a280f6394e7af942b70c58b6d22740e4a07",
+       "bytes": 74766
+      },
+      {
+       "kind": "worksheet",
+       "label": "Worksheet",
+       "file": "p/3-3-worksheet-ws3-3.pdf",
+       "hash": "6be6a6f8cf5b539a269e3d1c093244de5c0b032a4add2e3002ff4429ace0e8bd",
+       "bytes": 57118
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -395,7 +837,36 @@
      "date": "2027-02-05",
      "label": "Fri 2/5",
      "code": "3.4",
-     "items": []
+     "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson",
+       "file": "q/3-4-quarto-spacetime.html",
+       "hash": "2cef239a2c81be24069ad91e4e3cc7633c2ea87e56284e501745c26c0903a26c",
+       "bytes": 2028981
+      },
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-4-notes-3-4.pdf",
+       "hash": "579f8c2619785f1b29bfc05f0dad48286a4146c448cbc6e8686a55b63fbdf036",
+       "bytes": 2472776
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-4-hw-hw3-4.pdf",
+       "hash": "24ff71cb7905bc7236e06500d8622452e8639aeaf24e5663196c7d93f624310f",
+       "bytes": 88517
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: spacetime",
+       "file": "q/3-4-sim-spacetime.html",
+       "hash": "5f08538ec6dbd2764ff6262ba82de3f20697e21286a6a806ff67430d175f98ff",
+       "bytes": 89768
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -404,7 +875,29 @@
      "date": "2027-02-08",
      "label": "Mon 2/8",
      "code": "3.5",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-5-notes-l3-5.pdf",
+       "hash": "9cfbb99255d6ccf24f6f2e521c12a613c407bb316c10bc06c78f156ac7fe42f0",
+       "bytes": 1635080
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-5-hw-hw3-5.pdf",
+       "hash": "11ae84f754766356f741581c050b70cad5fc7503dbe06aef4289908e05c0bc8c",
+       "bytes": 110475
+      },
+      {
+       "kind": "sim",
+       "label": "Simulation: lorentz",
+       "file": "q/3-5-sim-lorentz.html",
+       "hash": "ab674db7b0e7d73619fb34e7420c6ef24ca1c8bdc6360819e2537f263d4348d6",
+       "bytes": 53647
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -424,7 +917,22 @@
      "date": "2027-02-17",
      "label": "Wed 2/17",
      "code": "3.6",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-6-notes-l3-6.pdf",
+       "hash": "804bdafbe38c02682fd68d206d897a0380ceda223ec5d62458909ea9897ec78d",
+       "bytes": 2715760
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-6-hw-hw3-6.pdf",
+       "hash": "1cc97d04ebdfd12d2d099b8cb5ce768d7fa47907caa8f475de0e514aa83c671f",
+       "bytes": 67558
+      }
+     ]
     },
     {
      "kind": "lesson",
@@ -433,7 +941,29 @@
      "date": "2027-02-19",
      "label": "Fri 2/19",
      "code": "3.7",
-     "items": []
+     "items": [
+      {
+       "kind": "notes",
+       "label": "Class notes",
+       "file": "p/3-7-notes-l3-7.pdf",
+       "hash": "02b3eab1c97b150afd37d8b2796ceb898614dcbee3be827612c5c1bf12f49510",
+       "bytes": 2901078
+      },
+      {
+       "kind": "hw",
+       "label": "Homework",
+       "file": "p/3-7-hw-hw3-7.pdf",
+       "hash": "6d3ce3cc9178199cc85ca62679840584e11d588ad2ee12392168bf1809c8cb36",
+       "bytes": 82600
+      },
+      {
+       "kind": "worksheet",
+       "label": "Worksheet",
+       "file": "p/3-7-worksheet-ws3-7.pdf",
+       "hash": "279050b5f9c48d8abadab9a90c663cac82be26b3f7203cd73a49289ae1b127f1",
+       "bytes": 108218
+      }
+     ]
     },
     {
      "kind": "quiz",
@@ -467,7 +997,15 @@
    "date": null,
    "label": null,
    "code": "Lab 2",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-2-lab-intensity-students.pdf",
+     "hash": "570809a7cdd1cf39de8bf63035c71d91a272daa9d09855d656216b83e592689d",
+     "bytes": 974543
+    }
+   ],
    "unit": 1
   },
   {
@@ -477,7 +1015,15 @@
    "date": null,
    "label": null,
    "code": "Lab 3",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-3-lab-malus-students.pdf",
+     "hash": "da5f4b7e04709b8ec0fdfd2bf226bf396db7312aea0388365eb796e27bdab0f0",
+     "bytes": 851941
+    }
+   ],
    "unit": 1
   },
   {
@@ -487,7 +1033,15 @@
    "date": null,
    "label": null,
    "code": "Lab 4",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-4-lab-mirrors-students.pdf",
+     "hash": "73e0d210a81f53d4bcf8476c50c8e3b4b119bc6c6e2fa56e7d7058183b6317ca",
+     "bytes": 860169
+    }
+   ],
    "unit": 1
   },
   {
@@ -497,7 +1051,15 @@
    "date": "2026-11-04",
    "label": "Wed 11/4",
    "code": "Lab 5",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-5-lab-thin-lens-students.pdf",
+     "hash": "0f36236bc35470ffc5f92b2b65aee575df5c23eccc2db8b38ccae2bb2e34963d",
+     "bytes": 733295
+    }
+   ],
    "unit": 1
   },
   {
@@ -507,7 +1069,15 @@
    "date": "2026-11-13",
    "label": "Fri 11/13",
    "code": "Lab 6",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-6-lab-telescope-students.pdf",
+     "hash": "b954ff68c962d041b39373eed74c394e53ffe37a2cdd79cee6453cfd8c1fc88f",
+     "bytes": 475717
+    }
+   ],
    "unit": 1
   },
   {
@@ -517,7 +1087,15 @@
    "date": "2026-12-04",
    "label": "Fri 12/4",
    "code": "Lab 7",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-7-lab-lab-8-waves.pdf",
+     "hash": "927875a2a5c6bedaa357bc85526d6f7c4fe2e6b0ad9864f44a3e03114b0735b6",
+     "bytes": 136341
+    }
+   ],
    "unit": 2
   },
   {
@@ -527,7 +1105,15 @@
    "date": "2026-12-18",
    "label": "Fri 12/18",
    "code": "Lab 8",
-   "items": [],
+   "items": [
+    {
+     "kind": "lab",
+     "label": "Lab handout",
+     "file": "p/lab-8-lab-lab8-student.pdf",
+     "hash": "49192b6f9f9fc414c04730a6ca4e9fd943f8d0810c2e5ff1cd8bda01e91f3bae",
+     "bytes": 61406
+    }
+   ],
    "unit": 2
   },
   {
@@ -541,8 +1127,212 @@
    "unit": 2
   }
  ],
- "reference": [],
+ "reference": [
+  {
+   "kind": "reference",
+   "label": "Calculus primer",
+   "file": "p/ref-reference-calcprimer.pdf",
+   "hash": "b86b9bec9d924bcdb436804f65a253723fc0ab83657c8a4404a2869433097291",
+   "bytes": 473544
+  }
+ ],
  "search": [
+  {
+   "code": "1.2",
+   "file": "q/1-2-quarto-l1-2a.html",
+   "hash": "5b32ef231b541eda5801f44192c1632ccff1f1af5a75a5bda9d021c550da4e37",
+   "sections": [
+    {
+     "id": "the-speed-of-light-is-constant",
+     "text": "The speed of light is constant"
+    },
+    {
+     "id": "how-could-anyone-measure-that",
+     "text": "How could anyone measure that?"
+    },
+    {
+     "id": "galileo-two-hills-two-lanterns",
+     "text": "Galileo — two hills, two lanterns"
+    },
+    {
+     "id": "rømer-use-a-bigger-baseline",
+     "text": "Rømer — use a bigger baseline"
+    },
+    {
+     "id": "two-fields-two-forces",
+     "text": "Two fields, two forces"
+    },
+    {
+     "id": "vece-the-electric-field",
+     "text": "\\vec{E} — the electric field"
+    },
+    {
+     "id": "vecb-the-magnetic-field",
+     "text": "\\vec{B} — the magnetic field"
+    },
+    {
+     "id": "right-handed-coordinates-and-the-right-hand-rule",
+     "text": "Right-handed coordinates and the right-hand rule"
+    },
+    {
+     "id": "so-what-is-light",
+     "text": "So what is light?"
+    },
+    {
+     "id": "which-way-does-it-go-the-poynting-vector",
+     "text": "Which way does it go? The Poynting vector"
+    },
+    {
+     "id": "the-two-constants-of-empty-space",
+     "text": "The two constants of empty space"
+    },
+    {
+     "id": "why-does-it-keep-going",
+     "text": "Why does it keep going?"
+    },
+    {
+     "id": "but-that-alone-isnt-enough",
+     "text": "But that alone isn’t enough"
+    },
+    {
+     "id": "light-is-a-double-traveling-wave",
+     "text": "Light is a double traveling wave"
+    },
+    {
+     "id": "where-we-landed",
+     "text": "Where we landed"
+    }
+   ],
+   "title": "1.2 Light"
+  },
+  {
+   "code": "1.2",
+   "file": "q/1-2-quarto-l1-2b.html",
+   "hash": "c915e3aaf6895e9579d33f53f74307e3b20342a67e182a8c62efa9ec8304cf5c",
+   "sections": [
+    {
+     "id": "the-electromagnetic-spectrum",
+     "text": "The electromagnetic spectrum"
+    },
+    {
+     "id": "intensity",
+     "text": "Intensity"
+    },
+    {
+     "id": "intensity-from-the-fields",
+     "text": "Intensity from the fields"
+    },
+    {
+     "id": "light-carries-momentum",
+     "text": "Light carries momentum"
+    },
+    {
+     "id": "how-a-wave-pushes-a-charge-forward",
+     "text": "How a wave pushes a charge forward"
+    },
+    {
+     "id": "the-forward-speed-is-a-square",
+     "text": "The forward speed is a square"
+    },
+    {
+     "id": "radiation-pressure",
+     "text": "Radiation pressure"
+    },
+    {
+     "id": "where-we-landed",
+     "text": "Where we landed"
+    }
+   ],
+   "title": "1.2 Light"
+  },
+  {
+   "code": "1.3",
+   "file": "q/1-3-quarto-l1-3a.html",
+   "hash": "7557781b57686ef4d03fa8818a6f97baa735750e891514625b7340c61fff0216",
+   "sections": [
+    {
+     "id": "light-in-matter",
+     "text": "Light in matter"
+    },
+    {
+     "id": "what-does-a-polarizer-do",
+     "text": "What does a polarizer do?"
+    },
+    {
+     "id": "where-maluss-law-comes-from",
+     "text": "Where Malus’s law comes from"
+    },
+    {
+     "id": "step-1-the-field",
+     "text": "Step 1 — the field"
+    },
+    {
+     "id": "step-2-the-intensity",
+     "text": "Step 2 — the intensity"
+    },
+    {
+     "id": "maluss-law",
+     "text": "Malus’s Law"
+    },
+    {
+     "id": "unpolarized-light",
+     "text": "Unpolarized light"
+    },
+    {
+     "id": "multiple-polarizers",
+     "text": "Multiple polarizers"
+    },
+    {
+     "id": "back-to-the-sunglasses",
+     "text": "Back to the sunglasses"
+    },
+    {
+     "id": "where-we-landed",
+     "text": "Where we landed"
+    }
+   ],
+   "title": "1.3 Malus's Law"
+  },
+  {
+   "code": "1.4",
+   "file": "q/1-4-quarto-l1-4a.html",
+   "hash": "224505d6af52949b7114132bed8c564595f61c2e350f8cabdfc860306ebfaa90",
+   "sections": [
+    {
+     "id": "when-light-meets-matter",
+     "text": "When light meets matter"
+    },
+    {
+     "id": "reflection-bouncies",
+     "text": "Reflection = “bouncies”"
+    },
+    {
+     "id": "mirrors-and-images",
+     "text": "Mirrors and images"
+    },
+    {
+     "id": "refraction-bendies",
+     "text": "Refraction = “bendies”"
+    },
+    {
+     "id": "wavefront-analysis",
+     "text": "Wavefront analysis"
+    },
+    {
+     "id": "where-do-you-stab-the-fish",
+     "text": "Where do you stab the fish?"
+    },
+    {
+     "id": "total-internal-reflection",
+     "text": "Total internal reflection"
+    },
+    {
+     "id": "dispersion-and-rainbows",
+     "text": "Dispersion and rainbows"
+    }
+   ],
+   "title": "1.4 Reflection and Refraction"
+  },
   {
    "code": "1.5",
    "file": "q/1-5-quarto-l1-5a.html",
@@ -614,6 +1404,62 @@
     }
    ],
    "title": "1.6 Lenses"
+  },
+  {
+   "code": "3.4",
+   "file": "q/3-4-quarto-spacetime.html",
+   "hash": "2cef239a2c81be24069ad91e4e3cc7633c2ea87e56284e501745c26c0903a26c",
+   "sections": [
+    {
+     "id": "warm-up-distance-in-space",
+     "text": "Warm-Up: Distance in Space"
+    },
+    {
+     "id": "from-space-to-spacetime",
+     "text": "From Space to Spacetime"
+    },
+    {
+     "id": "interval-explorer",
+     "text": "Interval Explorer"
+    },
+    {
+     "id": "the-spacetime-diagram",
+     "text": "The Spacetime Diagram"
+    },
+    {
+     "id": "moving-frames-the-primed-axes",
+     "text": "Moving Frames: The Primed Axes"
+    },
+    {
+     "id": "interactive-spacetime-diagram",
+     "text": "Interactive Spacetime Diagram"
+    },
+    {
+     "id": "calibrating-the-moving-frame",
+     "text": "Calibrating the Moving Frame"
+    },
+    {
+     "id": "proper-time-calculator",
+     "text": "Proper Time Calculator"
+    },
+    {
+     "id": "the-spacetime-interval-is-invariant",
+     "text": "The Spacetime Interval is Invariant"
+    },
+    {
+     "id": "invariance-checker",
+     "text": "Invariance Checker"
+    },
+    {
+     "id": "homework-problems",
+     "text": "Homework Problems"
+    },
+    {
+     "id": "full-interactive-app",
+     "text": "Full Interactive App"
+    }
+   ],
+   "title": "3.4 Spacetime Diagrams"
   }
  ]
 }

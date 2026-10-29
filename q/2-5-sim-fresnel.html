@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huygens-Fresnel Visualization</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 20px; }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .main-canvas-container {
+            flex: 2;
+            min-width: 500px;
+        }
+
+        .side-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas {
+            background: #0d0d1a;
+            border-radius: 8px;
+            display: block;
+        }
+
+        #mainCanvas {
+            width: 100%;
+            cursor: crosshair;
+        }
+
+        .panel {
+            background: #252540;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .panel h3 {
+            margin: 0 0 10px 0;
+            color: #7eb8da;
+            font-size: 14px;
+        }
+
+        .slider-group {
+            margin-bottom: 12px;
+        }
+
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .value {
+            color: #7eb8da;
+            font-family: monospace;
+        }
+
+        #phasorCanvas {
+            width: 100%;
+            aspect-ratio: 1;
+        }
+
+        .info-box {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .info-box .label { color: #888; }
+        .info-box .val { color: #7eb8da; font-family: monospace; }
+
+        .formula {
+            background: #1a1a2e;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .presets {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .presets button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #3a3a5c;
+            color: #eee;
+            transition: background 0.2s;
+        }
+
+        .presets button:hover {
+            background: #4a4a7c;
+        }
+
+        .presets button.active {
+            background: #7eb8da;
+            color: #1a1a2e;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Huygens-Fresnel Principle</h1>
+    <p class="subtitle">Click on the screen to set the observation point P</p>
+
+    <div class="container">
+        <div class="main-canvas-container">
+            <canvas id="mainCanvas" width="800" height="600"></canvas>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ff6b6b;"></div>
+                    <span>Source 1 wavelets</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #4ecdc4;"></div>
+                    <span>Source 2 wavelets</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ffe66d;"></div>
+                    <span>Observation point P</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="panel">
+                <h3>Presets</h3>
+                <div class="presets">
+                    <button id="nearFieldBtn">Near Field (d &gt; L)</button>
+                    <button id="farFieldBtn">Far Field (d &lt;&lt; L)</button>
+                </div>
+
+                <h3>Parameters</h3>
+                <div class="slider-group">
+                    <label>Source separation d: <span class="value" id="dVal">100</span> px</label>
+                    <input type="range" id="dSlider" min="20" max="300" value="100">
+                </div>
+                <div class="slider-group">
+                    <label>Screen distance L: <span class="value" id="LVal">200</span> px</label>
+                    <input type="range" id="LSlider" min="50" max="500" value="200">
+                </div>
+                <div class="slider-group">
+                    <label>Wavelength λ: <span class="value" id="lamVal">30</span> px</label>
+                    <input type="range" id="lamSlider" min="10" max="80" value="30">
+                </div>
+                <div class="slider-group">
+                    <label>Wavelet points N: <span class="value" id="NVal">12</span></label>
+                    <input type="range" id="NSlider" min="4" max="36" value="12">
+                </div>
+                <div class="slider-group">
+                    <label>Wavefront radius: <span class="value" id="rVal">80</span> px</label>
+                    <input type="range" id="rSlider" min="30" max="200" value="80">
+                </div>
+
+                <h3>Display</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="showLines" checked> Contribution lines</label>
+                    <label><input type="checkbox" id="showWeights" checked> Vary by weight</label>
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="showTangents" checked> Tangent lines</label>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Phasor Diagram</h3>
+                <canvas id="phasorCanvas" width="280" height="280"></canvas>
+                <div class="info-box" id="infoBox">
+                    <div><span class="label">Point P:</span> <span class="val" id="pInfo">click to set</span></div>
+                    <div><span class="label">|E₁|:</span> <span class="val" id="E1Info">-</span></div>
+                    <div><span class="label">|E₂|:</span> <span class="val" id="E2Info">-</span></div>
+                    <div><span class="label">|E_total|:</span> <span class="val" id="EtotInfo">-</span></div>
+                    <div><span class="label">Intensity:</span> <span class="val" id="IInfo">-</span></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>The Math</h3>
+                <div class="formula">
+                    Each wavelet contribution:<br>
+                    &nbsp;&nbsp;amplitude = K(θ) / r<br>
+                    &nbsp;&nbsp;phase = k × r = (2π/λ) × r<br>
+                    &nbsp;&nbsp;K(θ) = (1 + cos θ) / 2<br><br>
+                    Sum as phasors → E_total<br>
+                    Intensity = |E_total|²
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const phasorCanvas = document.getElementById('phasorCanvas');
+        const phasorCtx = phasorCanvas.getContext('2d');
+
+        // Parameters
+        let d = 100;      // source separation
+        let L = 200;      // screen distance
+        let lam = 30;     // wavelength
+        let N = 12;       // wavelet points per source
+        let wfRadius = 80; // wavefront radius
+
+        // Observation point (in canvas coords) - will be set to screen position
+        let P = { x: 300, y: 300 };
+
+        // Sources will be positioned based on canvas
+        let source1, source2, screenX;
+
+        // Display options
+        let showLines = true;
+        let showWeights = true;
+        let showTangents = true;
+
+        // Sliders
+        const dSlider = document.getElementById('dSlider');
+        const LSlider = document.getElementById('LSlider');
+        const lamSlider = document.getElementById('lamSlider');
+        const NSlider = document.getElementById('NSlider');
+        const rSlider = document.getElementById('rSlider');
+
+        function updateParams() {
+            d = parseInt(dSlider.value);
+            L = parseInt(LSlider.value);
+            lam = parseInt(lamSlider.value);
+            N = parseInt(NSlider.value);
+            wfRadius = parseInt(rSlider.value);
+
+            document.getElementById('dVal').textContent = d;
+            document.getElementById('LVal').textContent = L;
+            document.getElementById('lamVal').textContent = lam;
+            document.getElementById('NVal').textContent = N;
+            document.getElementById('rVal').textContent = wfRadius;
+
+            // Update geometry
+            const midY = mainCanvas.height / 2;
+            const sourceX = 100;
+            screenX = sourceX + L;
+            source1 = { x: sourceX, y: midY - d/2 };
+            source2 = { x: sourceX, y: midY + d/2 };
+
+            // Keep P on the screen
+            P.x = screenX;
+            P.y = Math.max(50, Math.min(mainCanvas.height - 50, P.y));
+
+            draw();
+        }
+
+        dSlider.addEventListener('input', updateParams);
+        LSlider.addEventListener('input', updateParams);
+        lamSlider.addEventListener('input', updateParams);
+        NSlider.addEventListener('input', updateParams);
+        rSlider.addEventListener('input', updateParams);
+
+        document.getElementById('showLines').addEventListener('change', (e) => {
+            showLines = e.target.checked;
+            draw();
+        });
+
+        document.getElementById('showWeights').addEventListener('change', (e) => {
+            showWeights = e.target.checked;
+            draw();
+        });
+
+        document.getElementById('showTangents').addEventListener('change', (e) => {
+            showTangents = e.target.checked;
+            draw();
+        });
+
+        // Presets
+        document.getElementById('nearFieldBtn').addEventListener('click', () => {
+            dSlider.value = 200;
+            LSlider.value = 80;
+            rSlider.value = 60;
+            document.getElementById('nearFieldBtn').classList.add('active');
+            document.getElementById('farFieldBtn').classList.remove('active');
+            updateParams();
+        });
+
+        document.getElementById('farFieldBtn').addEventListener('click', () => {
+            dSlider.value = 60;
+            LSlider.value = 400;
+            rSlider.value = 120;
+            document.getElementById('farFieldBtn').classList.add('active');
+            document.getElementById('nearFieldBtn').classList.remove('active');
+            updateParams();
+        });
+
+        // Click to set observation point (constrained to screen)
+        mainCanvas.addEventListener('click', (e) => {
+            const rect = mainCanvas.getBoundingClientRect();
+            const scaleX = mainCanvas.width / rect.width;
+            const scaleY = mainCanvas.height / rect.height;
+            const clickY = (e.clientY - rect.top) * scaleY;
+            // Constrain P to be on the screen
+            P.x = screenX;
+            P.y = Math.max(50, Math.min(mainCanvas.height - 50, clickY));
+            draw();
+        });
+
+        // Generate wavelet points on a circle
+        function getWaveletPoints(source, radius, n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const angle = (i / n) * 2 * Math.PI;
+                points.push({
+                    x: source.x + radius * Math.cos(angle),
+                    y: source.y + radius * Math.sin(angle),
+                    angle: angle  // direction from source (forward direction for this wavelet)
+                });
+            }
+            return points;
+        }
+
+        // Calculate contribution from one wavelet point to P
+        function calcContribution(wp, P, source) {
+            const dx = P.x - wp.x;
+            const dy = P.y - wp.y;
+            const r = Math.sqrt(dx*dx + dy*dy);
+
+            if (r < 1) return { real: 0, imag: 0, weight: 0, r: r };
+
+            // Direction from wavelet to P
+            const dirToP = { x: dx/r, y: dy/r };
+
+            // Forward direction (radially outward from source)
+            const fwdDir = {
+                x: Math.cos(wp.angle),
+                y: Math.sin(wp.angle)
+            };
+
+            // Obliquity: cos(theta) = dot product
+            const cosTheta = fwdDir.x * dirToP.x + fwdDir.y * dirToP.y;
+            const K = (1 + cosTheta) / 2;  // obliquity factor
+
+            // Complex amplitude
+            const k = 2 * Math.PI / lam;
+            const amplitude = K / r * 10;  // scale factor for visibility
+            const phase = k * r;
+
+            return {
+                real: amplitude * Math.cos(phase),
+                imag: amplitude * Math.sin(phase),
+                weight: K,
+                r: r,
+                phase: phase
+            };
+        }
+
+        // Sum contributions from all wavelets of one source
+        function totalFieldFromSource(wavelets, P, source) {
+            let sumReal = 0, sumImag = 0;
+            const contributions = [];
+
+            for (const wp of wavelets) {
+                const c = calcContribution(wp, P, source);
+                sumReal += c.real;
+                sumImag += c.imag;
+                contributions.push({ ...c, wp });
+            }
+
+            return {
+                real: sumReal,
+                imag: sumImag,
+                mag: Math.sqrt(sumReal*sumReal + sumImag*sumImag),
+                contributions
+            };
+        }
+
+        function draw() {
+            // Clear
+            mainCtx.fillStyle = '#0d0d1a';
+            mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+            // Get wavelet points
+            const wavelets1 = getWaveletPoints(source1, wfRadius, N);
+            const wavelets2 = getWaveletPoints(source2, wfRadius, N);
+
+            // Calculate fields
+            const E1 = totalFieldFromSource(wavelets1, P, source1);
+            const E2 = totalFieldFromSource(wavelets2, P, source2);
+            const Etotal = {
+                real: E1.real + E2.real,
+                imag: E1.imag + E2.imag
+            };
+            Etotal.mag = Math.sqrt(Etotal.real*Etotal.real + Etotal.imag*Etotal.imag);
+            const intensity = Etotal.mag * Etotal.mag;
+
+            // Draw screen
+            mainCtx.strokeStyle = '#444';
+            mainCtx.lineWidth = 2;
+            mainCtx.beginPath();
+            mainCtx.moveTo(screenX, 50);
+            mainCtx.lineTo(screenX, mainCanvas.height - 50);
+            mainCtx.stroke();
+            mainCtx.fillStyle = '#666';
+            mainCtx.font = '12px sans-serif';
+            mainCtx.fillText('Screen', screenX + 5, 60);
+
+            // Calculate and draw intensity pattern to the right of screen
+            const intensityWidth = mainCanvas.width - screenX - 20;  // available width for intensity plot
+            const screenTop = 50;
+            const screenBottom = mainCanvas.height - 50;
+            const numSamples = 100;
+            const intensities = [];
+            let maxIntensity = 0;
+
+            // Calculate intensity at each point along the screen
+            for (let i = 0; i <= numSamples; i++) {
+                const py = screenTop + (i / numSamples) * (screenBottom - screenTop);
+                const sampleP = { x: screenX, y: py };
+
+                // Get field from each source's wavelets
+                const sE1 = totalFieldFromSource(wavelets1, sampleP, source1);
+                const sE2 = totalFieldFromSource(wavelets2, sampleP, source2);
+                const sEtot = {
+                    real: sE1.real + sE2.real,
+                    imag: sE1.imag + sE2.imag
+                };
+                const sI = sEtot.real * sEtot.real + sEtot.imag * sEtot.imag;
+                intensities.push({ y: py, I: sI });
+                if (sI > maxIntensity) maxIntensity = sI;
+            }
+
+            // Draw intensity pattern
+            if (maxIntensity > 0) {
+                // Draw filled intensity curve
+                mainCtx.fillStyle = 'rgba(255, 230, 109, 0.3)';
+                mainCtx.beginPath();
+                mainCtx.moveTo(screenX + 5, intensities[0].y);
+                for (const pt of intensities) {
+                    const ix = screenX + 5 + (pt.I / maxIntensity) * (intensityWidth - 10);
+                    mainCtx.lineTo(ix, pt.y);
+                }
+                mainCtx.lineTo(screenX + 5, intensities[intensities.length - 1].y);
+                mainCtx.closePath();
+                mainCtx.fill();
+
+                // Draw intensity curve outline
+                mainCtx.strokeStyle = '#ffe66d';
+                mainCtx.lineWidth = 2;
+                mainCtx.beginPath();
+                for (let i = 0; i < intensities.length; i++) {
+                    const pt = intensities[i];
+                    const ix = screenX + 5 + (pt.I / maxIntensity) * (intensityWidth - 10);
+                    if (i === 0) {
+                        mainCtx.moveTo(ix, pt.y);
+                    } else {
+                        mainCtx.lineTo(ix, pt.y);
+                    }
+                }
+                mainCtx.stroke();
+
+                // Draw marker at current P position
+                const pIntensity = intensities.find(pt => Math.abs(pt.y - P.y) < (screenBottom - screenTop) / numSamples);
+                if (pIntensity) {
+                    const px = screenX + 5 + (pIntensity.I / maxIntensity) * (intensityWidth - 10);
+                    mainCtx.fillStyle = '#ffe66d';
+                    mainCtx.beginPath();
+                    mainCtx.arc(px, P.y, 6, 0, 2 * Math.PI);
+                    mainCtx.fill();
+                }
+
+                // Label
+                mainCtx.fillStyle = '#888';
+                mainCtx.font = '11px sans-serif';
+                mainCtx.fillText('I(y)', screenX + intensityWidth / 2, 40);
+            }
+
+            // Draw contribution lines
+            if (showLines) {
+                // From source 1 wavelets
+                for (const c of E1.contributions) {
+                    const alpha = showWeights ? c.weight : 0.5;
+                    mainCtx.strokeStyle = `rgba(255, 107, 107, ${alpha * 0.6})`;
+                    mainCtx.lineWidth = showWeights ? c.weight * 2 : 1;
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(c.wp.x, c.wp.y);
+                    mainCtx.lineTo(P.x, P.y);
+                    mainCtx.stroke();
+                }
+
+                // From source 2 wavelets
+                for (const c of E2.contributions) {
+                    const alpha = showWeights ? c.weight : 0.5;
+                    mainCtx.strokeStyle = `rgba(78, 205, 196, ${alpha * 0.6})`;
+                    mainCtx.lineWidth = showWeights ? c.weight * 2 : 1;
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(c.wp.x, c.wp.y);
+                    mainCtx.lineTo(P.x, P.y);
+                    mainCtx.stroke();
+                }
+            }
+
+            // Draw wavefront circles
+            mainCtx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
+            mainCtx.lineWidth = 1;
+            mainCtx.beginPath();
+            mainCtx.arc(source1.x, source1.y, wfRadius, 0, 2*Math.PI);
+            mainCtx.stroke();
+
+            mainCtx.strokeStyle = 'rgba(78, 205, 196, 0.3)';
+            mainCtx.beginPath();
+            mainCtx.arc(source2.x, source2.y, wfRadius, 0, 2*Math.PI);
+            mainCtx.stroke();
+
+            // Draw wavelet points with tangent lines
+            const tangentLen = 12;  // length of tangent line
+
+            for (const wp of wavelets1) {
+                const c = E1.contributions.find(x => x.wp === wp);
+                const size = showWeights && c ? 3 + c.weight * 4 : 5;
+
+                // Draw tangent line (perpendicular to radial direction)
+                if (showTangents) {
+                    const tangentAngle = wp.angle + Math.PI / 2;
+                    const tx = Math.cos(tangentAngle) * tangentLen;
+                    const ty = Math.sin(tangentAngle) * tangentLen;
+                    mainCtx.strokeStyle = 'rgba(255, 107, 107, 0.7)';
+                    mainCtx.lineWidth = 2;
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(wp.x - tx, wp.y - ty);
+                    mainCtx.lineTo(wp.x + tx, wp.y + ty);
+                    mainCtx.stroke();
+                }
+
+                // Draw point
+                mainCtx.fillStyle = '#ff6b6b';
+                mainCtx.beginPath();
+                mainCtx.arc(wp.x, wp.y, size, 0, 2*Math.PI);
+                mainCtx.fill();
+            }
+
+            for (const wp of wavelets2) {
+                const c = E2.contributions.find(x => x.wp === wp);
+                const size = showWeights && c ? 3 + c.weight * 4 : 5;
+
+                // Draw tangent line
+                if (showTangents) {
+                    const tangentAngle = wp.angle + Math.PI / 2;
+                    const tx = Math.cos(tangentAngle) * tangentLen;
+                    const ty = Math.sin(tangentAngle) * tangentLen;
+                    mainCtx.strokeStyle = 'rgba(78, 205, 196, 0.7)';
+                    mainCtx.lineWidth = 2;
+                    mainCtx.beginPath();
+                    mainCtx.moveTo(wp.x - tx, wp.y - ty);
+                    mainCtx.lineTo(wp.x + tx, wp.y + ty);
+                    mainCtx.stroke();
+                }
+
+                // Draw point
+                mainCtx.fillStyle = '#4ecdc4';
+                mainCtx.beginPath();
+                mainCtx.arc(wp.x, wp.y, size, 0, 2*Math.PI);
+                mainCtx.fill();
+            }
+
+            // Draw sources
+            mainCtx.fillStyle = '#ff6b6b';
+            mainCtx.beginPath();
+            mainCtx.arc(source1.x, source1.y, 8, 0, 2*Math.PI);
+            mainCtx.fill();
+            mainCtx.fillStyle = '#fff';
+            mainCtx.font = 'bold 10px sans-serif';
+            mainCtx.fillText('S₁', source1.x - 7, source1.y + 3);
+
+            mainCtx.fillStyle = '#4ecdc4';
+            mainCtx.beginPath();
+            mainCtx.arc(source2.x, source2.y, 8, 0, 2*Math.PI);
+            mainCtx.fill();
+            mainCtx.fillStyle = '#fff';
+            mainCtx.fillText('S₂', source2.x - 7, source2.y + 3);
+
+            // Draw observation point P
+            mainCtx.fillStyle = '#ffe66d';
+            mainCtx.beginPath();
+            mainCtx.arc(P.x, P.y, 8, 0, 2*Math.PI);
+            mainCtx.fill();
+            mainCtx.fillStyle = '#000';
+            mainCtx.font = 'bold 10px sans-serif';
+            mainCtx.fillText('P', P.x - 4, P.y + 4);
+
+            // Draw distance labels
+            mainCtx.fillStyle = '#888';
+            mainCtx.font = '11px sans-serif';
+            mainCtx.fillText(`d = ${d} px`, source1.x - 40, (source1.y + source2.y)/2 + 4);
+            mainCtx.fillText(`L = ${L} px`, (source1.x + screenX)/2 - 20, mainCanvas.height - 20);
+
+            // Ratio indicator
+            const ratio = d / L;
+            let regime = ratio > 1 ? 'Near field (d > L)' : ratio > 0.3 ? 'Intermediate' : 'Far field (d << L)';
+            mainCtx.fillStyle = '#7eb8da';
+            mainCtx.font = '14px sans-serif';
+            mainCtx.fillText(`d/L = ${ratio.toFixed(2)} — ${regime}`, 20, 30);
+
+            // Draw phasor diagram
+            drawPhasors(E1, E2, Etotal);
+
+            // Update info
+            const midY = mainCanvas.height / 2;
+            const yFromCenter = midY - P.y;  // positive = above center
+            document.getElementById('pInfo').textContent = `y = ${yFromCenter.toFixed(0)} px from center`;
+            document.getElementById('E1Info').textContent = E1.mag.toFixed(3);
+            document.getElementById('E2Info').textContent = E2.mag.toFixed(3);
+            document.getElementById('EtotInfo').textContent = Etotal.mag.toFixed(3);
+            document.getElementById('IInfo').textContent = intensity.toFixed(3);
+        }
+
+        function drawPhasors(E1, E2, Etotal) {
+            const ctx = phasorCtx;
+            const w = phasorCanvas.width;
+            const h = phasorCanvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctx.fillStyle = '#0d0d1a';
+            ctx.fillRect(0, 0, w, h);
+
+            // Find scale
+            const maxMag = Math.max(E1.mag, E2.mag, Etotal.mag, 0.1);
+            const scale = (w/2 - 30) / maxMag;
+
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, cy);
+            ctx.lineTo(w, cy);
+            ctx.moveTo(cx, 0);
+            ctx.lineTo(cx, h);
+            ctx.stroke();
+
+            ctx.fillStyle = '#555';
+            ctx.font = '10px sans-serif';
+            ctx.fillText('Re', w - 20, cy - 5);
+            ctx.fillText('Im', cx + 5, 15);
+
+            // Draw individual phasors from each wavelet (small)
+            ctx.globalAlpha = 0.3;
+            for (const c of E1.contributions) {
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + c.real * scale, cy - c.imag * scale);
+                ctx.stroke();
+            }
+            for (const c of E2.contributions) {
+                ctx.strokeStyle = '#4ecdc4';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + c.real * scale, cy - c.imag * scale);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+
+            // Draw E1 resultant
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + E1.real * scale, cy - E1.imag * scale);
+            ctx.stroke();
+            drawArrowhead(ctx, cx, cy, cx + E1.real * scale, cy - E1.imag * scale, '#ff6b6b');
+
+            // Draw E2 resultant (from origin)
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + E2.real * scale, cy - E2.imag * scale);
+            ctx.stroke();
+            drawArrowhead(ctx, cx, cy, cx + E2.real * scale, cy - E2.imag * scale, '#4ecdc4');
+
+            // Draw E2 from tip of E1 (to show vector addition)
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(cx + E1.real * scale, cy - E1.imag * scale);
+            ctx.lineTo(cx + Etotal.real * scale, cy - Etotal.imag * scale);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Etotal
+            ctx.strokeStyle = '#ffe66d';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Etotal.real * scale, cy - Etotal.imag * scale);
+            ctx.stroke();
+            drawArrowhead(ctx, cx, cy, cx + Etotal.real * scale, cy - Etotal.imag * scale, '#ffe66d');
+
+            // Labels
+            ctx.font = '11px sans-serif';
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillText('E₁', cx + E1.real * scale * 0.5 - 15, cy - E1.imag * scale * 0.5);
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillText('E₂', cx + E2.real * scale * 0.5 + 5, cy - E2.imag * scale * 0.5 + 15);
+            ctx.fillStyle = '#ffe66d';
+            ctx.fillText('E_tot', cx + Etotal.real * scale + 5, cy - Etotal.imag * scale);
+        }
+
+        function drawArrowhead(ctx, fromX, fromY, toX, toY, color) {
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            const len = 10;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - len * Math.cos(angle - 0.4), toY - len * Math.sin(angle - 0.4));
+            ctx.lineTo(toX - len * Math.cos(angle + 0.4), toY - len * Math.sin(angle + 0.4));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Initialize
+        updateParams();
+    </script>
+</body>
+</html>

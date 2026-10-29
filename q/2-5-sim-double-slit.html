@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Slit Interference - Geometry &amp; Intensity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .top-bar h1 {
+            font-size: 1.3rem;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .tab-bar { display: flex; gap: 4px; }
+        .tab {
+            padding: 8px 18px; border: none; border-radius: 6px 6px 0 0;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.07); color: #aaa; transition: all 0.2s;
+        }
+        .tab:hover { background: rgba(255,255,255,0.12); color: #ddd; }
+        .tab.active { background: rgba(0,212,255,0.2); color: #00d4ff; border-bottom: 2px solid #00d4ff; }
+        .section { display: none; height: calc(100vh - 50px); }
+        .section.active { display: flex; }
+
+        .geo-layout { flex:1; display:flex; gap:10px; padding:10px; }
+        .geo-canvas-wrap {
+            flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:8px;
+            border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column;
+        }
+        .geo-canvas-wrap canvas { flex:1; border-radius:6px; cursor:crosshair; background:#0a0a1a; }
+        .geo-sidebar {
+            width:360px; background:rgba(0,0,0,0.3); border-radius:10px; padding:12px;
+            border:1px solid rgba(255,255,255,0.1); overflow-y:auto;
+            display:flex; flex-direction:column; gap:8px;
+        }
+        .card { background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; }
+        .card-title { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:#00d4ff; margin-bottom:6px; font-weight:600; }
+        .slider-row { margin:6px 0 2px 0; }
+        .slider-label { display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px; }
+        .slider-val { color:#00d4ff; font-weight:600; }
+        input[type="range"] { width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); outline:none; -webkit-appearance:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:linear-gradient(135deg,#00d4ff,#0099cc); cursor:pointer; }
+        .math-box {
+            background:rgba(0,0,0,0.3); border-radius:6px; padding:8px 10px;
+            font-size:0.85rem; line-height:1.8; border-left:3px solid #7b2cbf;
+        }
+        .math-box .bright { color:#00e676; }
+        .math-box .dark { color:#ff5252; }
+        .math-box .note { color:#ffc107; font-style:italic; font-size:0.75rem; }
+        .info-result {
+            background:rgba(255,193,7,0.1); border:1px solid rgba(255,193,7,0.3);
+            border-radius:6px; padding:8px; font-size:0.8rem; line-height:1.5;
+        }
+        .callout {
+            background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.25);
+            border-radius:6px; padding:8px; font-size:0.78rem; line-height:1.6;
+        }
+        .btn-row { display:flex; gap:6px; }
+        .btn {
+            flex:1; padding:7px 10px; border:none; border-radius:6px;
+            font-size:0.72rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-transform:uppercase;
+        }
+        .btn-toggle { background:rgba(123,44,191,0.3); color:#e0e0e0; border:1px solid rgba(123,44,191,0.5); }
+        .btn-toggle.active { background:linear-gradient(135deg,#7b2cbf,#9d4edd); color:#fff; }
+
+        .pat-layout { flex:1; display:flex; gap:10px; padding:10px; }
+        .pat-left { flex:1; display:flex; flex-direction:column; gap:10px; }
+        .pat-canvas-wrap { flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:8px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; }
+        .pat-canvas-wrap canvas { flex:1; border-radius:6px; background:#0a0a1a; }
+        .pat-sidebar { width:320px; background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.1); overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+
+        .int-layout { flex:1; display:flex; gap:10px; padding:10px; }
+        .int-left { flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:8px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; }
+        .int-left canvas { flex:1; border-radius:6px; background:#0a0a1a; }
+        .int-sidebar { width:360px; background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.1); overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+        .toggle-row { display:flex; gap:6px; margin-top:4px; }
+        .toggle-row .btn { font-size:0.68rem; padding:5px 6px; }
+
+        .katex { font-size: 1.0em; }
+        .katex-display { margin: 0.3em 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h1>Double-Slit Interference</h1>
+    <div class="tab-bar">
+        <button class="tab active" data-tab="geo">1. Geometry</button>
+        <button class="tab" data-tab="pat">2. Screen &amp; Plots</button>
+        <button class="tab" data-tab="int">3. Intensity Equation</button>
+    </div>
+</div>
+
+<!-- ==================== SECTION 1: GEOMETRY ==================== -->
+<div class="section active" id="sec-geo">
+    <div class="geo-layout">
+        <div class="geo-canvas-wrap">
+            <canvas id="geoCanvas"></canvas>
+        </div>
+        <div class="geo-sidebar">
+            <div class="card">
+                <div class="card-title">Setup</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Slit separation \(d\)</span><span class="slider-val" id="gDVal">8 &mu;m</span></div>
+                    <input type="range" id="gD" min="2" max="20" step="0.5" value="8">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Wavelength \(\lambda\)</span><span class="slider-val" id="gLamVal">500 nm</span></div>
+                    <input type="range" id="gLam" min="380" max="780" step="10" value="500">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Screen distance \(L\)</span><span class="slider-val" id="gLVal">20 cm</span></div>
+                    <input type="range" id="gL" min="5" max="100" step="5" value="20">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Y-scale exaggeration</span><span class="slider-val" id="gExagVal">10×</span></div>
+                    <input type="range" id="gExag" min="1" max="20" step="0.5" value="10">
+                </div>
+                <div style="font-size:0.72rem; color:#888; margin-top:4px;">Click anywhere on the screen (right side) to select a point.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Why parallel rays?</div>
+                <div class="callout">
+                    Because \(L \gg d\), the two rays from the slits to any screen point are <em>nearly parallel</em>.
+                    The angle each makes with the axis is essentially the same \(\theta\).
+                    This lets us form a <strong>right triangle</strong> at the slits where the extra path is the opposite side:
+                    \(\delta = d\sin\theta\).
+                </div>
+                <div class="btn-row" style="margin-top:6px;">
+                    <button class="btn btn-toggle" id="btnShowTriangle">δ = d sinθ</button>
+                    <button class="btn btn-toggle" id="btnShowParallel">Parallel</button>
+                    <button class="btn btn-toggle" id="btnShowYTri">y = L tanθ</button>
+                </div>
+                <div class="btn-row" style="margin-top:4px;">
+                    <button class="btn btn-toggle" id="btnShowWaves">Ripples</button>
+                    <button class="btn btn-toggle" id="btnShowNodal">Nodal / Anti-nodal</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">At the selected point</div>
+                <div class="math-box" id="geoMathBox">
+                    Click a point on the screen to see the geometry...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Conditions</div>
+                <div class="math-box" id="geoConditions">
+                    <span class="bright">Bright (maxima):</span> \(d\sin\theta = m\lambda\)<br>
+                    <span class="dark">Dark (minima):</span> \(d\sin\theta = \left(m + \tfrac{1}{2}\right)\lambda\)<br><br>
+                    <span class="bright">Screen position:</span> \(y = L\tan\theta\)<br>
+                    <span class="note">Small angle: \(y \approx L\theta \approx m\!\left(\frac{\lambda}{d}\right)\!L\)</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">\(\lambda/d\) ratio</div>
+                <div class="info-result" id="geoRatio"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 2: SCREEN & PLOTS ==================== -->
+<div class="section" id="sec-pat">
+    <div class="pat-layout">
+        <div class="pat-left">
+            <div class="pat-canvas-wrap">
+                <canvas id="patCanvas"></canvas>
+            </div>
+        </div>
+        <div class="pat-sidebar">
+            <div class="card">
+                <div class="card-title">Parameters</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(d\) (&mu;m)</span><span class="slider-val" id="pDVal">8</span></div>
+                    <input type="range" id="pD" min="2" max="20" step="0.5" value="8">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(\lambda\) (nm)</span><span class="slider-val" id="pLamVal">500</span></div>
+                    <input type="range" id="pLam" min="380" max="780" step="10" value="500">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(L\) (cm)</span><span class="slider-val" id="pLVal">20</span></div>
+                    <input type="range" id="pL" min="5" max="100" step="5" value="20">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Plot type</div>
+                <div class="toggle-row">
+                    <button class="btn btn-toggle active" data-plot="theta">\(I\) vs \(\theta\)</button>
+                    <button class="btn btn-toggle" data-plot="y">\(I\) vs \(y\)</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Screen point</div>
+                <div class="info-result" id="patInfo">Hover over the plot to inspect a point.</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Small angle approximation</div>
+                <div class="callout">
+                    For small \(\theta\): \(\;\sin\theta \approx \tan\theta \approx \theta\).<br>
+                    Angular spacing: \(\theta_m = m\!\left(\frac{\lambda}{d}\right)\)<br>
+                    Screen spacing: \(y = m\!\left(\frac{\lambda}{d}\right)\!L\)<br>
+                    Fringe width: \(\Delta y = \frac{\lambda L}{d}\)
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Maxima positions</div>
+                <div class="info-result" id="patMaxima" style="font-size:0.75rem;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 3: INTENSITY EQUATION ==================== -->
+<div class="section" id="sec-int">
+    <div class="int-layout">
+        <div class="int-left">
+            <canvas id="intCanvas"></canvas>
+        </div>
+        <div class="int-sidebar">
+            <div class="card">
+                <div class="card-title">Parameters</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(d\) (&mu;m)</span><span class="slider-val" id="iDVal">8</span></div>
+                    <input type="range" id="iD" min="2" max="20" step="0.5" value="8">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(\lambda\) (nm)</span><span class="slider-val" id="iLamVal">500</span></div>
+                    <input type="range" id="iLam" min="380" max="780" step="10" value="500">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>\(L\) (cm)</span><span class="slider-val" id="iLVal">20</span></div>
+                    <input type="range" id="iL" min="5" max="100" step="5" value="20">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Derivation</div>
+                <div class="math-box" style="line-height:2.0;" id="intDerivation">
+                    \(I = CA^2\) where \(A = 2a\cos\!\left(\frac{\Delta\phi}{2}\right)\)<br><br>
+                    Phase difference:<br>
+                    \(\displaystyle\Delta\phi = \frac{2\pi\,\Delta r}{\lambda} = \frac{2\pi\,d\sin\theta}{\lambda}\)<br><br>
+                    Small angle \(\left(\sin\theta \approx \frac{y}{L}\right)\):<br>
+                    \(\displaystyle\frac{\Delta\phi}{2} = \frac{\pi\,d\,y}{\lambda\,L}\)<br><br>
+                    Define \(\displaystyle\alpha = \frac{\pi\,d}{\lambda\,L}\) so \(\displaystyle\frac{\Delta\phi}{2} = \alpha\,y\)<br><br>
+                    <strong style="color:#00e676;">\(\boxed{I = I_0\cos^2(\alpha\,y)}\)</strong>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Current values</div>
+                <div class="info-result" id="intInfo"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Inspect</div>
+                <div class="info-result" id="intInspect">Hover over the plot to inspect intensity at any \(y\).</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== RENDER KATEX ==========
+function renderLatex(el) {
+    if (!el) el = document.body;
+    renderMathInElement(el, {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+        ],
+        throwOnError: false
+    });
+}
+
+// helper: render latex string to HTML
+function tex(str, display) {
+    try { return katex.renderToString(str, {throwOnError:false, displayMode:!!display}); }
+    catch(e) { return str; }
+}
+
+// ========== TAB SWITCHING ==========
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+        requestAnimationFrame(() => {
+            if (tab.dataset.tab === 'geo') resizeGeo();
+            if (tab.dataset.tab === 'pat') resizePat();
+            if (tab.dataset.tab === 'int') resizeInt();
+        });
+    });
+});
+
+// ========== HELPERS ==========
+function nmToColor(nm) {
+    let r=0,g=0,b=0;
+    if(nm>=380&&nm<440){r=-(nm-440)/(440-380);b=1;}
+    else if(nm>=440&&nm<490){g=(nm-440)/(490-440);b=1;}
+    else if(nm>=490&&nm<510){g=1;b=-(nm-510)/(510-490);}
+    else if(nm>=510&&nm<580){r=(nm-510)/(580-510);g=1;}
+    else if(nm>=580&&nm<645){r=1;g=-(nm-645)/(645-580);}
+    else if(nm>=645&&nm<=780){r=1;}
+    let f=1;
+    if(nm>=380&&nm<420)f=0.3+0.7*(nm-380)/(420-380);
+    else if(nm>700&&nm<=780)f=0.3+0.7*(780-nm)/(780-700);
+    return `rgb(${Math.round(r*f*255)},${Math.round(g*f*255)},${Math.round(b*f*255)})`;
+}
+
+// ======================================================================
+//  SECTION 1: GEOMETRY
+// ======================================================================
+const geoC = document.getElementById('geoCanvas');
+const geoCtx = geoC.getContext('2d');
+let gD=8, gLam=500, gL=20, gExag=10;
+let gScreenY = null;
+let gShowTriangle = false, gShowParallel = false, gShowYTri = false;
+let gShowWaves = false, gShowNodalLines = false;
+
+function resizeGeo() { const w=geoC.parentElement; geoC.width=w.clientWidth-16; geoC.height=w.clientHeight-16; drawGeo(); }
+
+function drawGeo() {
+    const W = geoC.width, H = geoC.height, ctx = geoCtx;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0,0,W,H);
+
+    const d_m = gD*1e-6, lam_m = gLam*1e-9, L_m = gL*0.01;
+
+    // Layout: slit at fixed x, screen moves with L
+    const slitX = 120;
+    const minScreenX = slitX + 150;
+    const maxScreenX = W - 50;
+    // Map L (5cm..100cm) to pixel position
+    const screenX = minScreenX + ((gL - 5)/(100 - 5)) * (maxScreenX - minScreenX);
+    const midY = H / 2;
+    const drawL = screenX - slitX;
+    // Y-scale: true scale (1x) is drawL/L_m, then apply exaggeration
+    const yScale = (drawL / L_m) * gExag;  // pixels per meter
+    const slitPixSep = Math.max(30, Math.min(120, gD * 8));
+    const slit1Y = midY - slitPixSep/2;
+    const slit2Y = midY + slitPixSep/2;
+
+    // ---- Incoming plane wave: crests (solid) and troughs (dashed) ----
+    const waveColor = nmToColor(gLam);
+    const planeWaveSpacing = 25; // pixels between each line
+    const numWavefronts = Math.ceil(slitX / planeWaveSpacing) + 1;
+    for (let i = 0; i < numWavefronts; i++) {
+        const px = slitX - 10 - i * planeWaveSpacing;
+        if (px < 5) continue;
+        const isCrest = i % 2 === 0;
+        ctx.beginPath();
+        ctx.moveTo(px, 10);
+        ctx.lineTo(px, H - 10);
+        if (isCrest) {
+            ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+            ctx.setLineDash([]);
+        } else {
+            ctx.strokeStyle = 'rgba(0,212,255,0.25)';
+            ctx.setLineDash([8,8]);
+        }
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Plane wave arrows
+    for (let y = 60; y < H-60; y += 80) {
+        ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(15, y); ctx.lineTo(slitX - 14, y); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(slitX-14,y); ctx.lineTo(slitX-20,y-3);
+        ctx.moveTo(slitX-14,y); ctx.lineTo(slitX-20,y+3);
+        ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(0,212,255,0.5)';
+    ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('Plane wave', 55, 18);
+    // Legend: solid=crest, dashed=trough
+    ctx.fillStyle = 'rgba(0,212,255,0.5)'; ctx.fillText('— crest', 40, H-18);
+    ctx.fillStyle = 'rgba(0,212,255,0.3)'; ctx.fillText('--- trough', 100, H-18);
+
+    // Barrier
+    ctx.fillStyle = '#444';
+    ctx.fillRect(slitX - 6, 0, 12, slit1Y - 5);
+    ctx.fillRect(slitX - 6, slit1Y + 5, 12, (slit2Y-5)-(slit1Y+5));
+    ctx.fillRect(slitX - 6, slit2Y + 5, 12, H - slit2Y - 5);
+
+    // Slit glow
+    ctx.fillStyle = waveColor;
+    ctx.fillRect(slitX-3, slit1Y-4, 6, 8);
+    ctx.fillRect(slitX-3, slit2Y-4, 6, 8);
+
+    // Labels
+    ctx.fillStyle = '#ffc107'; ctx.font = 'bold 12px Segoe UI'; ctx.textAlign = 'right';
+    ctx.fillText('S₁', slitX-14, slit1Y+4);
+    ctx.fillText('S₂', slitX-14, slit2Y+4);
+
+    // d bracket
+    ctx.strokeStyle = '#ffc107'; ctx.lineWidth = 1; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(slitX-28,slit1Y); ctx.lineTo(slitX-28,slit2Y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(slitX-32,slit1Y); ctx.lineTo(slitX-24,slit1Y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(slitX-32,slit2Y); ctx.lineTo(slitX-24,slit2Y); ctx.stroke();
+    ctx.fillStyle='#ffc107'; ctx.textAlign='right'; ctx.fillText('d', slitX-35, midY+4);
+
+    // ---- Concentric semicircle ripples (gShowWaves) ----
+    // Crests (solid) and troughs (dashed) at half-λ intervals.
+    // Crest-crest intersections → constructive (green anti-nodal lines)
+    // Crest-trough intersections → destructive (red nodal lines)
+    if (gShowWaves) {
+        // Compute pixLam dynamically: measure the pixel-space path difference
+        // at the m=1 anti-nodal screen position. This guarantees ripple
+        // crest-crest intersections land on the anti-nodal lines.
+        const sinTh1 = Math.min(lam_m / d_m, 0.99);
+        const pyOff1 = L_m * Math.tan(Math.asin(sinTh1)) * yScale;
+        const halfSep = slitPixSep / 2;
+        const r1m1 = Math.sqrt(drawL*drawL + (pyOff1 + halfSep)*(pyOff1 + halfSep));
+        const r2m1 = Math.sqrt(drawL*drawL + (pyOff1 - halfSep)*(pyOff1 - halfSep));
+        const pixLam = r1m1 - r2m1;
+        const halfLam = pixLam / 2;
+        const maxR = Math.hypot(screenX - slitX, H);
+        const nRings = Math.min(Math.ceil(maxR / halfLam), 400);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(slitX + 6, 0, screenX - slitX - 8, H);
+        ctx.clip();
+        const sources = [slit1Y, slit2Y];
+        for (let s = 0; s < sources.length; s++) {
+            const sy = sources[s];
+            for (let i = 1; i <= nRings; i++) {
+                const r = i * halfLam;
+                const isCrest = i % 2 === 1;
+                ctx.beginPath();
+                ctx.arc(slitX, sy, r, -Math.PI / 2, Math.PI / 2);
+                if (isCrest) {
+                    ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.strokeStyle = 'rgba(0,212,255,0.2)';
+                    ctx.setLineDash([6, 6]);
+                }
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    // ---- Nodal / Anti-nodal lines (gShowNodalLines) ----
+    // Uses the same physics as the screen intensity pattern so lines
+    // land exactly on the bright (green) and dark (red) fringes.
+    // Since L >> d always holds here, far-field straight lines from
+    // the slit midpoint are physically correct.
+    if (gShowNodalLines) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(slitX + 6, 0, screenX - slitX - 8, H);
+        ctx.clip();
+        ctx.lineWidth = 1.5;
+
+        const maxM = Math.floor(d_m / lam_m);
+
+        // Anti-nodal lines (constructive, green): d sinθ = mλ
+        const antiNodalPositions = []; // collect for labels
+        for (let m = 0; m <= maxM; m++) {
+            const sinTh = m * lam_m / d_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = 'rgba(0,230,118,0.55)';
+            if (m === 0) {
+                ctx.beginPath();
+                ctx.moveTo(slitX, midY);
+                ctx.lineTo(screenX, midY);
+                ctx.stroke();
+                antiNodalPositions.push({m: 0, py: midY});
+            } else {
+                for (let sign = -1; sign <= 1; sign += 2) {
+                    const targetPy = midY - sign * pyOffset;
+                    ctx.beginPath();
+                    ctx.moveTo(slitX, midY);
+                    ctx.lineTo(screenX, targetPy);
+                    ctx.stroke();
+                    antiNodalPositions.push({m: sign * m, py: targetPy});
+                }
+            }
+        }
+
+        // Nodal lines (destructive, red): d sinθ = (m + ½)λ
+        for (let m = 0; m <= maxM; m++) {
+            const sinTh = (m + 0.5) * lam_m / d_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = 'rgba(255,82,82,0.55)';
+            for (let sign = -1; sign <= 1; sign += 2) {
+                const targetPy = midY - sign * pyOffset;
+                ctx.beginPath();
+                ctx.moveTo(slitX, midY);
+                ctx.lineTo(screenX, targetPy);
+                ctx.stroke();
+            }
+        }
+
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // Draw order labels at screen (outside clipping region)
+        ctx.font = 'bold 10px Segoe UI';
+        ctx.textAlign = 'left';
+        for (const pos of antiNodalPositions) {
+            if (pos.py > 10 && pos.py < H - 10) {
+                ctx.fillStyle = 'rgba(0,230,118,0.9)';
+                ctx.fillText(`m=${pos.m}`, screenX + 14, pos.py + 3);
+            }
+        }
+    }
+
+    // Screen
+    ctx.fillStyle = '#555'; ctx.fillRect(screenX-2, 0, 4, H);
+
+    // L label
+    ctx.strokeStyle = '#666'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(slitX, H-35); ctx.lineTo(screenX, H-35); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#999'; ctx.font='11px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText(`L = ${gL} cm`, (slitX+screenX)/2, H-22);
+
+    // "Exaggerated scale" label on the screen
+    ctx.fillStyle='rgba(255,193,7,0.6)'; ctx.font='italic 10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText(gExag === 1 ? '(true scale)' : `(${gExag}× y-scale)`, screenX, 14);
+
+    // Intensity pattern on screen — direct RGB (no alpha blending) for sharp fringes
+    const col = nmToColor(gLam);
+    const colParts = col.match(/\d+/g);
+    const baseR = parseInt(colParts[0]), baseG = parseInt(colParts[1]), baseB = parseInt(colParts[2]);
+    for (let py = 0; py < H; py++) {
+        const yScreen_m = (py - midY) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const dphi = 2*Math.PI*d_m*Math.sin(theta)/lam_m;
+        const I = Math.cos(dphi/2)**2;
+        ctx.fillStyle = `rgb(${Math.round(baseR*I)},${Math.round(baseG*I)},${Math.round(baseB*I)})`;
+        ctx.globalAlpha = 1;
+        ctx.fillRect(screenX-6, py, 12, 1);
+    }
+
+    // Selected point
+    if (gScreenY !== null) {
+        const selPy = gScreenY;
+        // Physics convention: +y is upward (above midline), but canvas y increases downward
+        const yScreen_m = (midY-selPy) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const thetaDeg = theta*180/Math.PI;
+
+        // y bracket on screen
+        ctx.strokeStyle='#ffc107'; ctx.setLineDash([]); ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(screenX+10,midY); ctx.lineTo(screenX+10,selPy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(screenX+6,midY); ctx.lineTo(screenX+14,midY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(screenX+6,selPy); ctx.lineTo(screenX+14,selPy); ctx.stroke();
+        ctx.fillStyle='#ffc107'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='left';
+        ctx.fillText(`y = ${(yScreen_m*1000).toFixed(2)} mm`, screenX+18, (midY+selPy)/2+4);
+
+        // Dot
+        ctx.beginPath(); ctx.arc(screenX,selPy,6,0,Math.PI*2);
+        ctx.fillStyle='#fff'; ctx.fill();
+
+        // Ray from S1
+        ctx.beginPath(); ctx.moveTo(slitX,slit1Y); ctx.lineTo(screenX,selPy);
+        ctx.strokeStyle='#ff9800'; ctx.lineWidth=2.5; ctx.stroke();
+        // Ray from S2
+        ctx.beginPath(); ctx.moveTo(slitX,slit2Y); ctx.lineTo(screenX,selPy);
+        ctx.strokeStyle='#e91e63'; ctx.lineWidth=2.5; ctx.stroke();
+
+        const visAngle = Math.atan2(selPy-midY, screenX-slitX);
+
+        // Theta arc from midpoint (only when d sinθ triangle is not shown)
+        if (!gShowTriangle) {
+            const arcR = Math.min(50, drawL*0.2);
+            ctx.beginPath();
+            ctx.arc(slitX, midY, arcR, 0, visAngle, selPy<midY);
+            ctx.strokeStyle='#aaa'; ctx.lineWidth=1; ctx.stroke();
+            const labelAng = visAngle * 0.5;
+            ctx.fillStyle='#ccc'; ctx.font='11px Segoe UI'; ctx.textAlign='left';
+            ctx.fillText(`θ = ${Math.abs(thetaDeg).toFixed(2)}°`, slitX + Math.cos(labelAng)*(arcR+8), midY + Math.sin(labelAng)*(arcR+8) + 4);
+        }
+
+        // Parallel ray approximation
+        if (gShowParallel) {
+            const dx = Math.cos(visAngle), dy = Math.sin(visAngle);
+            const rayLen = drawL + 50;
+            ctx.setLineDash([6,4]);
+            ctx.strokeStyle='rgba(255,152,0,0.45)'; ctx.lineWidth=1.5;
+            ctx.beginPath(); ctx.moveTo(slitX,slit1Y); ctx.lineTo(slitX+dx*rayLen,slit1Y+dy*rayLen); ctx.stroke();
+            ctx.strokeStyle='rgba(233,30,99,0.45)';
+            ctx.beginPath(); ctx.moveTo(slitX,slit2Y); ctx.lineTo(slitX+dx*rayLen,slit2Y+dy*rayLen); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle='rgba(255,255,255,0.55)'; ctx.font='11px Segoe UI'; ctx.textAlign='center';
+            ctx.fillText('L ≫ d  →  rays ≈ parallel', (slitX+screenX)/2, 18);
+        }
+
+        // y = L tanθ triangle: midpoint of slits → horizontal to screen → up/down to point
+        if (gShowYTri) {
+            // Triangle: midpoint → (screenX, midY) → (screenX, selPy)
+            ctx.beginPath();
+            ctx.moveTo(slitX, midY);
+            ctx.lineTo(screenX, midY);
+            ctx.lineTo(screenX, selPy);
+            ctx.closePath();
+            ctx.fillStyle='rgba(255,193,7,0.1)'; ctx.fill();
+            ctx.strokeStyle='rgba(255,193,7,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
+
+            // Right angle at (screenX, midY)
+            const rS=10;
+            const yDir = selPy > midY ? 1 : -1;
+            ctx.beginPath();
+            ctx.moveTo(screenX - rS, midY);
+            ctx.lineTo(screenX - rS, midY + rS * yDir);
+            ctx.lineTo(screenX, midY + rS * yDir);
+            ctx.strokeStyle='rgba(255,193,7,0.8)'; ctx.lineWidth=1; ctx.stroke();
+
+            // Label L along the bottom
+            ctx.fillStyle='rgba(255,193,7,0.8)'; ctx.font='11px Segoe UI'; ctx.textAlign='center';
+            ctx.fillText('L', (slitX+screenX)/2, midY + (selPy > midY ? -8 : 14));
+
+            // Label y along the screen side
+            ctx.save(); ctx.translate(screenX - 14, (midY+selPy)/2); ctx.rotate(-Math.PI/2);
+            ctx.fillStyle='rgba(255,193,7,0.9)'; ctx.font='bold 11px Segoe UI'; ctx.textAlign='center';
+            ctx.fillText('y = L tanθ', 0, 0);
+            ctx.restore();
+
+            // θ arc at midpoint
+            const yArcR = 35;
+            ctx.beginPath();
+            ctx.arc(slitX, midY, yArcR, 0, visAngle, selPy<midY);
+            ctx.strokeStyle='rgba(255,193,7,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+            ctx.fillStyle='rgba(255,193,7,0.9)'; ctx.font='11px Segoe UI'; ctx.textAlign='left';
+            const yLabelAng = visAngle * 0.5;
+            ctx.fillText('θ', slitX + Math.cos(yLabelAng)*(yArcR+6), midY + Math.sin(yLabelAng)*(yArcR+6) + 4);
+        }
+
+        // δ = d sinθ triangle
+        if (gShowTriangle) {
+            // Which slit is farther from the point?
+            const pointBelow = selPy > midY;
+            // Point above midline: closer to S1 (top), S2 is farther
+            // Point below midline: closer to S2 (bottom), S1 is farther
+            const farSlitY = pointBelow ? slit1Y : slit2Y;
+            const nearSlitY = pointBelow ? slit2Y : slit1Y;
+
+            // Use actual ray direction from far slit to selected point
+            // (the pink/red line), not the parallel-approx midpoint angle
+            const farRayDx = screenX - slitX;
+            const farRayDy = selPy - farSlitY;
+            const farRayLen = Math.hypot(farRayDx, farRayDy);
+            const dirX = farRayDx / farRayLen;
+            const dirY = farRayDy / farRayLen;
+
+            // Perpendicular from nearSlit onto line through farSlit in ray direction
+            // Vector farSlit→nearSlit = (0, nearSlitY - farSlitY)
+            const vecY = nearSlitY - farSlitY;
+            const projLen = vecY * dirY;
+            const footX = slitX + projLen * dirX;
+            const footY = farSlitY + projLen * dirY;
+
+            // Filled triangle
+            ctx.beginPath();
+            ctx.moveTo(slitX,farSlitY); ctx.lineTo(slitX,nearSlitY); ctx.lineTo(footX,footY); ctx.closePath();
+            ctx.fillStyle='rgba(0,212,255,0.15)'; ctx.fill();
+            ctx.strokeStyle='#00d4ff'; ctx.lineWidth=2; ctx.stroke();
+
+            // Right angle marker at foot (inside the triangle)
+            // The two edges meeting at foot are: foot→farSlit direction and foot→nearSlit direction
+            // foot→nearSlit = (slitX - footX, nearSlitY - footY) but we want unit along the perpendicular (towards nearSlit side)
+            // The perpendicular to the ray points inward toward nearSlit
+            const rS = 8;
+            // Perpendicular direction pointing toward nearSlit from the ray
+            const perpSign = pointBelow ? 1 : -1;
+            const inPerpX = -dirY * perpSign;
+            const inPerpY = dirX * perpSign;
+            // Along ray direction pointing back toward farSlit
+            const backDirX = -dirX;
+            const backDirY = -dirY;
+            ctx.beginPath();
+            ctx.moveTo(footX + inPerpX*rS, footY + inPerpY*rS);
+            ctx.lineTo(footX + inPerpX*rS + backDirX*rS, footY + inPerpY*rS + backDirY*rS);
+            ctx.lineTo(footX + backDirX*rS, footY + backDirY*rS);
+            ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1; ctx.stroke();
+
+            // Extra path highlighted: from farSlit to foot
+            ctx.beginPath(); ctx.moveTo(slitX,farSlitY); ctx.lineTo(footX,footY);
+            ctx.strokeStyle='#00e676'; ctx.lineWidth=3; ctx.stroke();
+
+            // Label δ
+            const mfx=(slitX+footX)/2, mfy=(farSlitY+footY)/2;
+            ctx.fillStyle='#00e676'; ctx.font='bold 13px Segoe UI'; ctx.textAlign='left';
+            ctx.fillText('δ = d sinθ', mfx+10, mfy + (pointBelow ? -6 : 14));
+
+            // θ in the triangle at nearSlit (acute angle between the two BLUE legs)
+            const triArcR = 18;
+            // Direction from nearSlit toward farSlit (vertical side of triangle)
+            const toFarDir = Math.atan2(farSlitY - nearSlitY, 0);
+            // Direction from nearSlit toward foot (hypotenuse of triangle)
+            const hypAngle = Math.atan2(footY - nearSlitY, footX - slitX);
+            if (pointBelow) {
+                ctx.beginPath();
+                ctx.arc(slitX, nearSlitY, triArcR, toFarDir, hypAngle, false);
+                ctx.strokeStyle='#ccc'; ctx.lineWidth=1; ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.arc(slitX, nearSlitY, triArcR, hypAngle, toFarDir, false);
+                ctx.strokeStyle='#ccc'; ctx.lineWidth=1; ctx.stroke();
+            }
+            const triMidAng = (toFarDir + hypAngle) / 2;
+            ctx.fillStyle='#ccc'; ctx.font='10px Segoe UI'; ctx.textAlign='left';
+            ctx.fillText('θ', slitX + Math.cos(triMidAng)*(triArcR+6), nearSlitY + Math.sin(triMidAng)*(triArcR+6) + 3);
+        }
+
+        // Update math box
+        const dphi = 2*Math.PI*d_m*Math.sin(theta)/lam_m;
+        const deltaR_lam = d_m*Math.sin(theta)/lam_m;
+        const mOrder = deltaR_lam;
+        const nearestHalf = Math.round(mOrder*2)/2;
+        let typeStr = '';
+        if (Math.abs(mOrder-Math.round(mOrder))<0.08) {
+            typeStr = `<span class="bright">BRIGHT</span> \\(m = ${Math.round(mOrder)}\\)`;
+        } else if (Math.abs(mOrder-nearestHalf)<0.08 && Math.abs(nearestHalf-Math.round(nearestHalf))>0.1) {
+            typeStr = `<span class="dark">DARK</span> \\(m + \\tfrac{1}{2} = ${nearestHalf.toFixed(1)}\\)`;
+        } else {
+            typeStr = `<span style="color:#aaa;">Between orders</span>`;
+        }
+        const mb = document.getElementById('geoMathBox');
+        mb.innerHTML = `
+            \\(\\theta = ${thetaDeg.toFixed(3)}° = ${theta.toFixed(5)}\\text{ rad}\\)<br>
+            \\(d\\sin\\theta = ${(d_m*Math.sin(theta)*1e9).toFixed(1)}\\text{ nm} = ${deltaR_lam.toFixed(3)}\\lambda\\)<br>
+            ${typeStr}<br>
+            \\(y = L\\tan\\theta = ${(yScreen_m*1000).toFixed(2)}\\text{ mm}\\)<br>
+            <span class="note">Small angle: \\(y \\approx L\\theta = ${(L_m*theta*1000).toFixed(2)}\\text{ mm}\\)</span>
+        `;
+        renderLatex(mb);
+    }
+
+    // Ratio
+    const ratio = (gLam*1e-9)/(gD*1e-6);
+    const ratEl = document.getElementById('geoRatio');
+    ratEl.innerHTML = `
+        \\(\\dfrac{\\lambda}{d} = ${ratio.toFixed(5)}\\text{ rad} = ${(ratio*180/Math.PI).toFixed(3)}°\\)<br>
+        <span style="font-size:0.72rem;color:#aaa;">Angular spacing between adjacent maxima</span>
+    `;
+    renderLatex(ratEl);
+}
+
+geoC.addEventListener('click', e => {
+    const rect = geoC.getBoundingClientRect();
+    const x = e.clientX-rect.left;
+    // Compute current screenX to know clickable area
+    const slitX = 120;
+    const minSX = slitX+150, maxSX = geoC.width-50;
+    const screenX = minSX + ((gL-5)/(100-5))*(maxSX-minSX);
+    if (x > screenX - 100) { gScreenY = e.clientY-rect.top; drawGeo(); }
+});
+
+document.getElementById('gD').addEventListener('input', e => { gD=parseFloat(e.target.value); document.getElementById('gDVal').textContent=gD+' μm'; drawGeo(); });
+document.getElementById('gLam').addEventListener('input', e => { gLam=parseInt(e.target.value); document.getElementById('gLamVal').textContent=gLam+' nm'; drawGeo(); });
+document.getElementById('gL').addEventListener('input', e => { gL=parseInt(e.target.value); document.getElementById('gLVal').textContent=gL+' cm'; drawGeo(); });
+document.getElementById('gExag').addEventListener('input', e => { gExag=parseFloat(e.target.value); document.getElementById('gExagVal').textContent=gExag+'×'; drawGeo(); });
+document.getElementById('btnShowTriangle').addEventListener('click', e => { gShowTriangle=!gShowTriangle; e.target.classList.toggle('active',gShowTriangle); drawGeo(); });
+document.getElementById('btnShowParallel').addEventListener('click', e => { gShowParallel=!gShowParallel; e.target.classList.toggle('active',gShowParallel); drawGeo(); });
+document.getElementById('btnShowYTri').addEventListener('click', e => { gShowYTri=!gShowYTri; e.target.classList.toggle('active',gShowYTri); drawGeo(); });
+document.getElementById('btnShowWaves').addEventListener('click', e => { gShowWaves=!gShowWaves; e.target.classList.toggle('active',gShowWaves); drawGeo(); });
+document.getElementById('btnShowNodal').addEventListener('click', e => { gShowNodalLines=!gShowNodalLines; e.target.classList.toggle('active',gShowNodalLines); drawGeo(); });
+
+// ======================================================================
+//  SECTION 2: SCREEN PATTERN + PLOTS
+// ======================================================================
+const patC = document.getElementById('patCanvas');
+const patCtx = patC.getContext('2d');
+let pD=8, pLam=500, pL=20, pPlotType='theta', pHoverY=null;
+
+function resizePat() { const w=patC.parentElement; patC.width=w.clientWidth-16; patC.height=w.clientHeight-16; drawPat(); }
+
+function drawPat() {
+    const W=patC.width,H=patC.height,ctx=patCtx;
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,W,H);
+    const d_m=pD*1e-6, lam_m=pLam*1e-9, L_m=pL*0.01, col=nmToColor(pLam);
+
+    // Screen bar
+    const barTop=20, barH=50, barLeft=60, barRight=W-30, barW=barRight-barLeft;
+    ctx.fillStyle='#222'; ctx.fillRect(barLeft,barTop,barW,barH);
+    const fringeY=lam_m*L_m/d_m, yRange=fringeY*10;
+    for(let px=0;px<barW;px++){
+        const yS=((px/barW)-0.5)*2*yRange;
+        const th=Math.atan2(yS,L_m);
+        const I=Math.cos(Math.PI*d_m*Math.sin(th)/lam_m)**2;
+        ctx.fillStyle=col; ctx.globalAlpha=I;
+        ctx.fillRect(barLeft+px,barTop,1,barH);
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#888'; ctx.font='10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('Screen',barLeft+barW/2,barTop-5);
+    ctx.textAlign='left'; ctx.fillText(`-${(yRange*1000).toFixed(1)}mm`,barLeft,barTop+barH+12);
+    ctx.textAlign='right'; ctx.fillText(`+${(yRange*1000).toFixed(1)}mm`,barRight,barTop+barH+12);
+    ctx.textAlign='center'; ctx.fillText('0',barLeft+barW/2,barTop+barH+12);
+
+    // Plot
+    const plotTop=barTop+barH+40, plotBottom=H-40, plotH=plotBottom-plotTop;
+    const plotLeft=80, plotRight=W-30, plotW=plotRight-plotLeft;
+    ctx.strokeStyle='#555'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(plotLeft,plotTop); ctx.lineTo(plotLeft,plotBottom); ctx.lineTo(plotRight,plotBottom); ctx.stroke();
+    ctx.save(); ctx.translate(20,plotTop+plotH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#aaa'; ctx.font='12px Segoe UI'; ctx.textAlign='center'; ctx.fillText('I / I₀',0,0); ctx.restore();
+    for(let i=0;i<=4;i++){const f=i/4,py=plotBottom-f*plotH; ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(plotLeft,py); ctx.lineTo(plotRight,py); ctx.stroke(); ctx.fillStyle='#888'; ctx.font='10px Segoe UI'; ctx.textAlign='right'; ctx.fillText(f.toFixed(2),plotLeft-6,py+3);}
+
+    if(pPlotType==='theta'){
+        const thetaMax=(lam_m/d_m)*8;
+        ctx.fillStyle='#aaa'; ctx.font='12px Segoe UI'; ctx.textAlign='center'; ctx.fillText('θ (radians)',plotLeft+plotW/2,H-5);
+        const thetaStep=lam_m/d_m;
+        for(let m=-7;m<=7;m++){const t=m*thetaStep,px=plotLeft+((t+thetaMax)/(2*thetaMax))*plotW; if(px<plotLeft||px>plotRight)continue; ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.beginPath(); ctx.moveTo(px,plotTop); ctx.lineTo(px,plotBottom); ctx.stroke(); ctx.fillStyle='#888'; ctx.font='9px Segoe UI'; ctx.textAlign='center'; ctx.fillText(m!==0?`${m}λ/d`:'0',px,plotBottom+14);}
+        ctx.beginPath();
+        for(let px=0;px<=plotW;px++){const th=((px/plotW)-0.5)*2*thetaMax,I=Math.cos(Math.PI*d_m*Math.sin(th)/lam_m)**2,py=plotBottom-I*plotH; px===0?ctx.moveTo(plotLeft+px,py):ctx.lineTo(plotLeft+px,py);}
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+        if(pHoverY!==null&&pHoverY>=plotLeft&&pHoverY<=plotRight){
+            const th=(((pHoverY-plotLeft)/plotW)-0.5)*2*thetaMax;
+            const I=Math.cos(Math.PI*d_m*Math.sin(th)/lam_m)**2;
+            const py=plotBottom-I*plotH;
+            ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(pHoverY,plotTop); ctx.lineTo(pHoverY,plotBottom); ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(pHoverY,py,5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+            const yS=L_m*Math.tan(th);
+            document.getElementById('patInfo').innerHTML = `
+                ${tex(`\\theta = ${(th*180/Math.PI).toFixed(3)}°`)}<br>
+                ${tex(`y = ${(yS*1000).toFixed(3)}\\text{ mm}`)}<br>
+                ${tex(`I/I_0 = ${I.toFixed(4)}`)}<br>
+                ${tex(`d\\sin\\theta/\\lambda = ${(d_m*Math.sin(th)/lam_m).toFixed(3)}`)}
+            `;
+        }
+    } else {
+        const yMax=yRange;
+        ctx.fillStyle='#aaa'; ctx.font='12px Segoe UI'; ctx.textAlign='center'; ctx.fillText('y (mm)',plotLeft+plotW/2,H-5);
+        const fS=lam_m*L_m/d_m;
+        for(let m=-7;m<=7;m++){const yP=m*fS,px=plotLeft+((yP+yMax)/(2*yMax))*plotW; if(px<plotLeft||px>plotRight)continue; ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.beginPath(); ctx.moveTo(px,plotTop); ctx.lineTo(px,plotBottom); ctx.stroke(); ctx.fillStyle='#888'; ctx.font='9px Segoe UI'; ctx.textAlign='center'; ctx.fillText(`${(yP*1000).toFixed(1)}`,px,plotBottom+14);}
+        ctx.beginPath();
+        for(let px=0;px<=plotW;px++){const yS=((px/plotW)-0.5)*2*yMax,th=Math.atan2(yS,L_m),I=Math.cos(Math.PI*d_m*Math.sin(th)/lam_m)**2,py=plotBottom-I*plotH; px===0?ctx.moveTo(plotLeft+px,py):ctx.lineTo(plotLeft+px,py);}
+        ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+        if(pHoverY!==null&&pHoverY>=plotLeft&&pHoverY<=plotRight){
+            const yS=(((pHoverY-plotLeft)/plotW)-0.5)*2*yMax;
+            const th=Math.atan2(yS,L_m);
+            const I=Math.cos(Math.PI*d_m*Math.sin(th)/lam_m)**2;
+            const py=plotBottom-I*plotH;
+            ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(pHoverY,plotTop); ctx.lineTo(pHoverY,plotBottom); ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(pHoverY,py,5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+            document.getElementById('patInfo').innerHTML = `
+                ${tex(`y = ${(yS*1000).toFixed(3)}\\text{ mm}`)}<br>
+                ${tex(`\\theta = ${(th*180/Math.PI).toFixed(3)}°`)}<br>
+                ${tex(`I/I_0 = ${I.toFixed(4)}`)}<br>
+                ${tex(`d\\sin\\theta/\\lambda = ${(d_m*Math.sin(th)/lam_m).toFixed(3)}`)}
+            `;
+        }
+    }
+    // Maxima
+    const rat=lam_m/d_m; let ms='';
+    for(let m=-5;m<=5;m++){const th=Math.asin(m*rat); if(isNaN(th))continue; const ym=L_m*Math.tan(th)*1000; ms+=`${tex(`m=${m}`)}: ${tex(`\\theta=${(th*180/Math.PI).toFixed(2)}°`)}, ${tex(`y=${ym.toFixed(2)}\\text{mm}`)}<br>`;}
+    document.getElementById('patMaxima').innerHTML=ms;
+}
+
+patC.addEventListener('mousemove', e => { pHoverY=e.clientX-patC.getBoundingClientRect().left; drawPat(); });
+patC.addEventListener('mouseleave', () => { pHoverY=null; drawPat(); });
+document.getElementById('pD').addEventListener('input', e => { pD=parseFloat(e.target.value); document.getElementById('pDVal').textContent=pD; drawPat(); });
+document.getElementById('pLam').addEventListener('input', e => { pLam=parseInt(e.target.value); document.getElementById('pLamVal').textContent=pLam; drawPat(); });
+document.getElementById('pL').addEventListener('input', e => { pL=parseInt(e.target.value); document.getElementById('pLVal').textContent=pL; drawPat(); });
+document.querySelectorAll('[data-plot]').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('[data-plot]').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); pPlotType=btn.dataset.plot; drawPat(); }); });
+
+// ======================================================================
+//  SECTION 3: INTENSITY EQUATION
+// ======================================================================
+const intC = document.getElementById('intCanvas');
+const intCtx = intC.getContext('2d');
+let iD=8, iLam=500, iL=20, iHoverX=null;
+
+function resizeInt() { const w=intC.parentElement; intC.width=w.clientWidth-16; intC.height=w.clientHeight-16; drawInt(); }
+
+function drawInt() {
+    const W=intC.width,H=intC.height,ctx=intCtx;
+    ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,W,H);
+    const d_m=iD*1e-6, lam_m=iLam*1e-9, L_m=iL*0.01;
+    const alpha=Math.PI*d_m/(lam_m*L_m), col=nmToColor(iLam);
+    const barTop=20, barH=40, barLeft=80, barRight=W-30, barW=barRight-barLeft;
+    const fringeY=lam_m*L_m/d_m, yRange=fringeY*8;
+
+    ctx.fillStyle='#222'; ctx.fillRect(barLeft,barTop,barW,barH);
+    for(let px=0;px<barW;px++){const yS=((px/barW)-0.5)*2*yRange,I=Math.cos(alpha*yS)**2; ctx.fillStyle=col; ctx.globalAlpha=I; ctx.fillRect(barLeft+px,barTop,1,barH);}
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#888'; ctx.font='10px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('I = I₀ cos²(αy)',barLeft+barW/2,barTop-5);
+
+    const plotTop=barTop+barH+40, plotBottom=H-50, plotH=plotBottom-plotTop;
+    const plotLeft=80, plotRight=W-30, plotW=plotRight-plotLeft;
+    ctx.strokeStyle='#555'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(plotLeft,plotTop); ctx.lineTo(plotLeft,plotBottom); ctx.lineTo(plotRight,plotBottom); ctx.stroke();
+    ctx.save(); ctx.translate(20,plotTop+plotH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#aaa'; ctx.font='12px Segoe UI'; ctx.textAlign='center'; ctx.fillText('I / I₀ = cos²(αy)',0,0); ctx.restore();
+    for(let i=0;i<=4;i++){const f=i/4,py=plotBottom-f*plotH; ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(plotLeft,py); ctx.lineTo(plotRight,py); ctx.stroke(); ctx.fillStyle='#888'; ctx.font='10px Segoe UI'; ctx.textAlign='right'; ctx.fillText(f.toFixed(2),plotLeft-6,py+3);}
+    ctx.fillStyle='#aaa'; ctx.font='12px Segoe UI'; ctx.textAlign='center'; ctx.fillText('y (mm)',plotLeft+plotW/2,H-8);
+
+    for(let m=-7;m<=7;m++){const yP=m*fringeY,px=plotLeft+((yP+yRange)/(2*yRange))*plotW; if(px<plotLeft||px>plotRight)continue; ctx.strokeStyle=m===0?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.moveTo(px,plotTop); ctx.lineTo(px,plotBottom); ctx.stroke(); ctx.fillStyle='#888'; ctx.font='9px Segoe UI'; ctx.textAlign='center'; ctx.fillText(`${(yP*1000).toFixed(1)}`,px,plotBottom+14); ctx.fillStyle='#00e676'; ctx.fillText(`m=${m}`,px,plotBottom+26);}
+    for(let m=-7;m<7;m++){const yP=(m+0.5)*fringeY,px=plotLeft+((yP+yRange)/(2*yRange))*plotW; if(px<plotLeft||px>plotRight)continue; ctx.strokeStyle='rgba(255,82,82,0.15)'; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(px,plotTop); ctx.lineTo(px,plotBottom); ctx.stroke(); ctx.setLineDash([]);}
+
+    ctx.beginPath();
+    for(let px=0;px<=plotW;px++){const yS=((px/plotW)-0.5)*2*yRange,I=Math.cos(alpha*yS)**2,py=plotBottom-I*plotH; px===0?ctx.moveTo(plotLeft+px,py):ctx.lineTo(plotLeft+px,py);}
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.lineTo(plotRight,plotBottom); ctx.lineTo(plotLeft,plotBottom); ctx.closePath();
+    ctx.fillStyle=col.replace('rgb','rgba').replace(')',',0.08)'); ctx.fill();
+
+    if(iHoverX!==null&&iHoverX>=plotLeft&&iHoverX<=plotRight){
+        const yS=(((iHoverX-plotLeft)/plotW)-0.5)*2*yRange;
+        const I=Math.cos(alpha*yS)**2, py=plotBottom-I*plotH, dphi=2*alpha*yS;
+        ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(iHoverX,plotTop); ctx.lineTo(iHoverX,plotBottom); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(iHoverX,py,5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+        const barPx=((yS+yRange)/(2*yRange))*barW;
+        ctx.beginPath(); ctx.moveTo(barLeft+barPx,barTop); ctx.lineTo(barLeft+barPx,barTop+barH); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+        document.getElementById('intInspect').innerHTML = `
+            ${tex(`y = ${(yS*1000).toFixed(3)}\\text{ mm}`)}<br>
+            ${tex(`\\alpha y = ${(alpha*yS).toFixed(3)}\\text{ rad}`)}<br>
+            ${tex(`\\Delta\\phi/2 = ${(alpha*yS).toFixed(3)}\\text{ rad}`)}<br>
+            ${tex(`\\Delta\\phi = ${dphi.toFixed(3)}\\text{ rad}`)}<br>
+            ${tex(`\\cos^2(\\alpha y) = ${I.toFixed(4)}`)}<br>
+            <strong>${tex(`I/I_0 = ${I.toFixed(4)}`)}</strong>
+        `;
+    }
+
+    const ie = document.getElementById('intInfo');
+    ie.innerHTML = `
+        ${tex(`\\alpha = \\dfrac{\\pi d}{\\lambda L} = ${alpha.toFixed(2)}\\text{ m}^{-1}`)}<br>
+        ${tex(`\\Delta y = \\dfrac{\\lambda L}{d} = ${(fringeY*1000).toFixed(3)}\\text{ mm}`)}<br>
+        ${tex(`\\text{First min at } y = ${(fringeY*500).toFixed(3)}\\text{ mm}`)}
+    `;
+}
+
+intC.addEventListener('mousemove', e => { iHoverX=e.clientX-intC.getBoundingClientRect().left; drawInt(); });
+intC.addEventListener('mouseleave', () => { iHoverX=null; drawInt(); });
+document.getElementById('iD').addEventListener('input', e => { iD=parseFloat(e.target.value); document.getElementById('iDVal').textContent=iD; drawInt(); });
+document.getElementById('iLam').addEventListener('input', e => { iLam=parseInt(e.target.value); document.getElementById('iLamVal').textContent=iLam; drawInt(); });
+document.getElementById('iL').addEventListener('input', e => { iL=parseInt(e.target.value); document.getElementById('iLVal').textContent=iL; drawInt(); });
+
+// ========== INIT ==========
+window.addEventListener('resize', () => {
+    if(document.getElementById('sec-geo').classList.contains('active')) resizeGeo();
+    if(document.getElementById('sec-pat').classList.contains('active')) resizePat();
+    if(document.getElementById('sec-int').classList.contains('active')) resizeInt();
+});
+resizeGeo();
+renderLatex();
+</script>
+</body>
+</html>

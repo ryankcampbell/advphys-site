@@ -1,0 +1,3258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffraction - Gratings & Single Slit</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 20px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .top-bar h1 {
+            font-size: 1.3rem;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .tab-bar { display: flex; gap: 4px; }
+        .tab {
+            padding: 8px 18px; border: none; border-radius: 6px 6px 0 0;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.07); color: #aaa; transition: all 0.2s;
+        }
+        .tab:hover { background: rgba(255,255,255,0.12); color: #ddd; }
+        .tab.active { background: rgba(0,212,255,0.2); color: #00d4ff; border-bottom: 2px solid #00d4ff; }
+        .section { display: none; height: calc(100vh - 50px); }
+        .section.active { display: flex; }
+
+        .layout { flex:1; display:flex; gap:10px; padding:10px; }
+        .canvas-wrap {
+            flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:8px;
+            border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column;
+        }
+        .canvas-wrap canvas { flex:1; border-radius:6px; cursor:grab; background:#0a0a1a; }
+        #huygensCanvas.custom-mode { cursor: crosshair; }
+        .sidebar {
+            width:380px; background:rgba(0,0,0,0.3); border-radius:10px; padding:12px;
+            border:1px solid rgba(255,255,255,0.1); overflow-y:auto;
+            display:flex; flex-direction:column; gap:8px;
+        }
+        .card { background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; }
+        .card-title { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:#00d4ff; margin-bottom:6px; font-weight:600; }
+        .slider-row { margin:6px 0 2px 0; }
+        .slider-label { display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px; }
+        .slider-val { color:#00d4ff; font-weight:600; }
+        input[type="range"] { width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); outline:none; -webkit-appearance:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:linear-gradient(135deg,#00d4ff,#0099cc); cursor:pointer; }
+        .math-box {
+            background:rgba(0,0,0,0.3); border-radius:6px; padding:8px 10px;
+            font-size:0.85rem; line-height:1.8; border-left:3px solid #7b2cbf;
+        }
+        .math-box .bright { color:#00e676; }
+        .math-box .note { color:#ffc107; font-style:italic; font-size:0.75rem; }
+        .info-result {
+            background:rgba(255,193,7,0.1); border:1px solid rgba(255,193,7,0.3);
+            border-radius:6px; padding:8px; font-size:0.8rem; line-height:1.5;
+        }
+        .callout {
+            background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.25);
+            border-radius:6px; padding:8px; font-size:0.78rem; line-height:1.6;
+        }
+        .btn-row { display:flex; gap:6px; flex-wrap:wrap; }
+        .btn {
+            flex:1; padding:7px 10px; border:none; border-radius:6px;
+            font-size:0.72rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-transform:uppercase;
+            min-width: 80px;
+        }
+        .btn-toggle { background:rgba(123,44,191,0.3); color:#e0e0e0; border:1px solid rgba(123,44,191,0.5); }
+        .btn-toggle.active { background:linear-gradient(135deg,#7b2cbf,#9d4edd); color:#fff; }
+        .btn-primary { background:linear-gradient(135deg,#00d4ff,#0099cc); color:#000; }
+
+        .compare-container {
+            display: flex; gap: 10px; margin-top: 8px;
+        }
+        .compare-box {
+            flex: 1; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 8px;
+            text-align: center;
+        }
+        .compare-box .label { font-size: 0.7rem; color: #888; margin-bottom: 4px; }
+        .compare-box .value { font-size: 1.1rem; color: #00e676; font-weight: bold; }
+        .compare-box.n2 .value { color: #ff9800; }
+
+        .katex { font-size: 1.0em; }
+        .katex-display { margin: 0.3em 0; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <h1>Diffraction</h1>
+    <div class="tab-bar">
+        <button class="tab active" data-tab="grating">1. Diffraction Gratings</button>
+        <button class="tab" data-tab="huygens">2. Huygens Sources</button>
+        <button class="tab" data-tab="single">3. Single Slit</button>
+        <button class="tab" data-tab="intensity">4. Intensity Equations</button>
+        <button class="tab" data-tab="combined">5. Double Slit + Width</button>
+    </div>
+</div>
+
+<!-- ==================== SECTION 1: DIFFRACTION GRATINGS ==================== -->
+<div class="section active" id="sec-grating">
+    <div class="layout">
+        <div class="canvas-wrap">
+            <canvas id="gratingCanvas"></canvas>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">Grating Parameters</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Number of slits \(N\)</span><span class="slider-val" id="gNVal">5</span></div>
+                    <input type="range" id="gNSlider" min="0" max="100" step="1" value="15">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Slit spacing \(d\)</span><span class="slider-val" id="gDVal">20 &mu;m</span></div>
+                    <input type="range" id="gD" min="5" max="50" step="1" value="20">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Wavelength \(\lambda\)</span><span class="slider-val" id="gLamVal">500 nm</span></div>
+                    <input type="range" id="gLam" min="380" max="780" step="10" value="500">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Screen distance \(L\)</span><span class="slider-val" id="gLVal">50 cm</span></div>
+                    <input type="range" id="gL" min="10" max="200" step="10" value="50">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Y-scale (zoom)</span><span class="slider-val" id="gExagVal">8×</span></div>
+                    <input type="range" id="gExag" min="1" max="30" step="1" value="8">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Screen brightness</span><span class="slider-val" id="gBrightVal">1.0×</span></div>
+                    <input type="range" id="gBright" min="0.2" max="5" step="0.1" value="1">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Light Source</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnMonochromatic">Monochromatic</button>
+                    <button class="btn btn-toggle" id="btnWhiteLight">White Light</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Display Options</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnShowRays">Show Rays</button>
+                    <button class="btn btn-toggle" id="btnShowPathDiff">Path Differences Δx</button>
+                </div>
+                <div class="btn-row" style="margin-top:6px;">
+                    <button class="btn btn-toggle active" id="btnCompare2Slit">Compare to 2-Slit</button>
+                </div>
+                <div style="font-size:0.72rem; color:#888; margin-top:6px;">Click on the screen to select a point. Path differences shown geometrically as Δx segments.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Why \(N\) slits are better</div>
+                <div class="callout">
+                    <strong>1. Brighter peaks:</strong> \(N\) sources in phase &rarr; amplitudes add &rarr; \(I = N^2 I_0\)<br><br>
+                    <strong>2. Narrower peaks:</strong> Outer slits travel further &rarr; get out of phase faster &rarr; destructive interference happens sooner
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Peak Comparison</div>
+                <div class="compare-container">
+                    <div class="compare-box">
+                        <div class="label">2-Slit Peak</div>
+                        <div class="value">\(4I_0\)</div>
+                    </div>
+                    <div class="compare-box n2">
+                        <div class="label" id="nSlitLabel">N-Slit Peak (N=5)</div>
+                        <div class="value" id="nSlitPeak">\(25I_0\)</div>
+                    </div>
+                </div>
+                <div class="info-result" style="margin-top:8px;" id="gratingInfo">
+                    Intensity ratio: <strong>N-slit is 6.25× brighter</strong> than 2-slit
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">At Selected Point</div>
+                <div class="math-box" id="gratingMath">
+                    Click on the screen to analyze a point...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Key Equations</div>
+                <div class="math-box">
+                    <span class="bright">Principal maxima:</span> \(d\sin\theta = m\lambda\)<br>
+                    <span class="bright">Peak intensity:</span> \(I_{max} = N^2 I_0\)<br>
+                    <span class="note">Same positions as 2-slit, but \(N^2/4\) times brighter!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 2: HUYGENS SOURCES ==================== -->
+<div class="section" id="sec-huygens">
+    <div class="layout">
+        <div class="canvas-wrap">
+            <canvas id="huygensCanvas"></canvas>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">Initial Wave Configuration</div>
+                <div class="btn-row" style="flex-wrap: wrap;">
+                    <button class="btn btn-toggle active" data-wave="plane">Plane Wave</button>
+                    <button class="btn btn-toggle" data-wave="point">Point Source</button>
+                    <button class="btn btn-toggle" data-wave="twopoints">Two Points</button>
+                    <button class="btn btn-toggle" data-wave="vkink">V-Kink</button>
+                </div>
+                <div class="btn-row" style="flex-wrap: wrap; margin-top: 6px;">
+                    <button class="btn btn-toggle" data-wave="wkink">W-Kink</button>
+                    <button class="btn btn-toggle" data-wave="arc">Arc</button>
+                    <button class="btn btn-toggle" data-wave="edge">Edge</button>
+                    <button class="btn btn-toggle" data-wave="custom">Custom</button>
+                </div>
+            </div>
+
+            <div class="card" id="customControls" style="display: none;">
+                <div class="card-title">Custom Wavefront</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnLineMode">Line Mode</button>
+                    <button class="btn btn-toggle" id="btnArcMode">Arc Mode</button>
+                </div>
+                <div class="btn-row" style="margin-top: 6px;">
+                    <button class="btn btn-toggle" id="btnClearCustom">Clear All</button>
+                    <button class="btn btn-toggle" id="btnUndoCustom">Undo</button>
+                </div>
+                <div style="font-size: 0.7rem; color: #888; margin-top: 6px;">
+                    <strong>Line mode:</strong> Click to place vertices.<br>
+                    <strong>Arc mode:</strong> Drag the blue circles to bend segments.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Animation Controls</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Speed</span><span class="slider-val" id="hSpeedVal">1.0×</span></div>
+                    <input type="range" id="hSpeed" min="0.2" max="3" step="0.1" value="1">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Number of sources</span><span class="slider-val" id="hSourcesVal">15</span></div>
+                    <input type="range" id="hSources" min="5" max="50" step="1" value="15">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Wavelength</span><span class="slider-val" id="hLamVal">30 px</span></div>
+                    <input type="range" id="hLam" min="15" max="60" step="1" value="30">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Zoom</span><span class="slider-val" id="hZoomVal">1.0×</span></div>
+                    <input type="range" id="hZoom" min="0.1" max="3" step="0.1" value="1">
+                </div>
+                <div class="btn-row" style="margin-top: 8px;">
+                    <button class="btn btn-primary" id="btnHPlay">Pause</button>
+                    <button class="btn btn-toggle" id="btnHReset">Reset</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Display Options</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnShowWavelets">Show Wavelets</button>
+                    <button class="btn btn-toggle active" id="btnShowEnvelopeH">Show Envelope</button>
+                </div>
+                <div class="btn-row" style="margin-top: 6px;">
+                    <button class="btn btn-toggle active" id="btnShowSourcePts">Show Source Points</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Huygens' Principle</div>
+                <div class="callout">
+                    <strong>Every point on a wavefront</strong> acts as a source of secondary spherical wavelets.<br><br>
+                    The <strong>new wavefront</strong> is the envelope (tangent surface) of all these wavelets.<br><br>
+                    <span class="note">This explains diffraction, refraction, and why plane waves stay planar!</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Current Configuration</div>
+                <div class="info-result" id="huygensInfo">
+                    <strong>Plane Wave:</strong> A straight wavefront stays straight because all Huygens sources are in phase along a line.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 3: SINGLE SLIT ==================== -->
+<div class="section" id="sec-single">
+    <div class="layout">
+        <div class="canvas-wrap">
+            <canvas id="singleCanvas"></canvas>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">Setup</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Slit width \(a\)</span><span class="slider-val" id="sAVal">80 &mu;m</span></div>
+                    <input type="range" id="sA" min="20" max="200" step="5" value="80">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Wavelength \(\lambda\)</span><span class="slider-val" id="sLamVal">500 nm</span></div>
+                    <input type="range" id="sLam" min="380" max="780" step="10" value="500">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Screen distance \(L\)</span><span class="slider-val" id="sLVal">50 cm</span></div>
+                    <input type="range" id="sL" min="10" max="100" step="5" value="50">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Y-scale exaggeration</span><span class="slider-val" id="sExagVal">8&times;</span></div>
+                    <input type="range" id="sExag" min="1" max="20" step="0.5" value="8">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Huygens sources \(N\)</span><span class="slider-val" id="sNVal">12</span></div>
+                    <input type="range" id="sN" min="4" max="30" step="2" value="12">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Screen brightness</span><span class="slider-val" id="sBrightVal">1.0&times;</span></div>
+                    <input type="range" id="sBright" min="0.5" max="10" step="0.5" value="1">
+                </div>
+                <div style="font-size:0.72rem; color:#888; margin-top:4px;">Click on the screen (right) to select a point. Increase brightness to see faint secondary maxima.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Display Options</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnSingleSources">Huygens Sources</button>
+                    <button class="btn btn-toggle" id="btnSingleRipples">Ripples</button>
+                </div>
+                <div class="btn-row" style="margin-top:4px;">
+                    <button class="btn btn-toggle" id="btnSingleRays">Rays</button>
+                    <button class="btn btn-toggle" id="btnSingleMinima">Minima Lines</button>
+                </div>
+                <div class="btn-row" style="margin-top:4px;">
+                    <button class="btn btn-toggle" id="btnSinglePairing">Pairing (a/2)</button>
+                    <button class="btn btn-toggle active" id="btnSingleIntensity">Intensity Plot</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">The Pairing Argument</div>
+                <div class="callout">
+                    Divide the slit into two halves. Pair each source in the top half with one in the bottom half, separated by \(a/2\).<br><br>
+                    Path difference for each pair: \(\dfrac{a}{2}\sin\theta\)<br><br>
+                    When \(\dfrac{a}{2}\sin\theta = \dfrac{\lambda}{2}\), each pair cancels!<br><br>
+                    <span class="bright">First minimum:</span> \(\boxed{a\sin\theta = \lambda}\)
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">At Selected Point</div>
+                <div class="math-box" id="singleMath">
+                    Click on the screen to analyze a point...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Minima Condition</div>
+                <div class="math-box">
+                    <span class="dark">Dark fringes (minima):</span><br>
+                    \(a\sin\theta = m\lambda\) &nbsp; <span class="note">(m = &plusmn;1, &plusmn;2, ...)</span><br><br>
+                    <span class="note">Note: m = 0 is the central maximum, not a minimum!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 3: COMBINED ==================== -->
+<div class="section" id="sec-combined">
+    <div class="layout">
+        <div class="canvas-wrap">
+            <canvas id="combinedCanvas"></canvas>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">Double Slit with Width</div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Slit width \(a\)</span><span class="slider-val" id="cAVal">2 &mu;m</span></div>
+                    <input type="range" id="cA" min="1" max="10" step="0.5" value="2">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Slit separation \(d\)</span><span class="slider-val" id="cDVal">6 &mu;m</span></div>
+                    <input type="range" id="cD" min="2" max="20" step="0.5" value="6">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label"><span>Wavelength \(\lambda\)</span><span class="slider-val" id="cLamVal">500 nm</span></div>
+                    <input type="range" id="cLam" min="380" max="780" step="10" value="500">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Show Components</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnShowEnvelope">Envelope (sinc²)</button>
+                    <button class="btn btn-toggle active" id="btnShowFringes">Fringes (cos²)</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">The Combined Pattern</div>
+                <div class="callout">
+                    <strong>Envelope</strong> from single-slit diffraction (width \(a\))<br>
+                    <strong>Fringes</strong> from double-slit interference (separation \(d\))<br><br>
+                    \(I = I_0 \,\text{sinc}^2\!\left(\frac{\pi a \sin\theta}{\lambda}\right) \cos^2\!\left(\frac{\pi d \sin\theta}{\lambda}\right)\)
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Ratio d/a = <span id="ratioVal">3.0</span></div>
+                <div class="info-result" id="combinedInfo">
+                    Fringes in central max: <strong id="fringeCount">5</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SECTION 4: INTENSITY EQUATIONS ==================== -->
+<div class="section" id="sec-intensity">
+    <div class="layout">
+        <div class="canvas-wrap">
+            <canvas id="intCanvas"></canvas>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">Compare Patterns</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle active" id="btnInt2Slit">2-Slit</button>
+                    <button class="btn btn-toggle" id="btnIntNSlit">N-Slit</button>
+                    <button class="btn btn-toggle" id="btnIntSingle">Single</button>
+                </div>
+                <div class="slider-row" style="margin-top:10px;">
+                    <div class="slider-label"><span>N (for N-slit)</span><span class="slider-val" id="iNVal">5</span></div>
+                    <input type="range" id="iN" min="2" max="20" step="1" value="5">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Intensity Formulas</div>
+                <div class="math-box">
+                    <strong>Definitions:</strong><br>
+                    \(\alpha = \dfrac{2\pi d \sin\theta}{\lambda}\) &nbsp; (interference)<br>
+                    \(\beta = \dfrac{2\pi a \sin\theta}{\lambda}\) &nbsp; (diffraction)<br><br>
+                    <strong>2-Slit:</strong><br>
+                    \(I = 4I_0 \cos^2\!\left(\frac{\alpha}{2}\right)\)<br><br>
+                    <strong>N-Slit (Grating):</strong><br>
+                    \(I = I_0 \left[\frac{\sin(N\alpha/2)}{\sin(\alpha/2)}\right]^2\)<br><br>
+                    <strong>Single Slit:</strong><br>
+                    \(I = I_0 \,\text{sinc}^2\!\left(\frac{\beta}{2}\right)\)
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">At Hover Position</div>
+                <div class="info-result" id="intInfo">
+                    Hover over the plot to see intensity values...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== RENDER KATEX ==========
+function renderLatex(el) {
+    if (!el) el = document.body;
+    renderMathInElement(el, {
+        delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+        ],
+        throwOnError: false
+    });
+}
+
+function tex(str, display) {
+    try { return katex.renderToString(str, {throwOnError:false, displayMode:!!display}); }
+    catch(e) { return str; }
+}
+
+// ========== TAB SWITCHING ==========
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+        requestAnimationFrame(() => {
+            if (tab.dataset.tab === 'grating') resizeGrating();
+            if (tab.dataset.tab === 'huygens') resizeHuygens();
+            if (tab.dataset.tab === 'single') resizeSingle();
+            if (tab.dataset.tab === 'combined') resizeCombined();
+            if (tab.dataset.tab === 'intensity') resizeInt();
+        });
+    });
+});
+
+// ========== HELPERS ==========
+function nmToColor(nm) {
+    let r=0,g=0,b=0;
+    if(nm>=380&&nm<440){r=-(nm-440)/(440-380);b=1;}
+    else if(nm>=440&&nm<490){g=(nm-440)/(490-440);b=1;}
+    else if(nm>=490&&nm<510){g=1;b=-(nm-510)/(510-490);}
+    else if(nm>=510&&nm<580){r=(nm-510)/(580-510);g=1;}
+    else if(nm>=580&&nm<645){r=1;g=-(nm-645)/(645-580);}
+    else if(nm>=645&&nm<=780){r=1;}
+    let f=1;
+    if(nm>=380&&nm<420)f=0.3+0.7*(nm-380)/(420-380);
+    else if(nm>700&&nm<=780)f=0.3+0.7*(780-nm)/(780-700);
+    return `rgb(${Math.round(r*f*255)},${Math.round(g*f*255)},${Math.round(b*f*255)})`;
+}
+
+function sinc(x) {
+    if (Math.abs(x) < 1e-10) return 1;
+    return Math.sin(x) / x;
+}
+
+// N-slit intensity: [sin(N*alpha)/sin(alpha)]^2, normalized to N^2 at maxima
+function nSlitIntensity(N, alpha) {
+    if (Math.abs(Math.sin(alpha)) < 1e-10) {
+        // At principal maxima, intensity = N^2
+        return N * N;
+    }
+    const val = Math.sin(N * alpha) / Math.sin(alpha);
+    return val * val;
+}
+
+// ======================================================================
+//  SECTION 1: DIFFRACTION GRATINGS
+// ======================================================================
+const gratingC = document.getElementById('gratingCanvas');
+const gratingCtx = gratingC.getContext('2d');
+
+let gN = 5, gD = 20, gLam = 500, gL = 50, gExag = 8, gBright = 1;
+const CONTINUOUS_THRESHOLD = 25; // Switch to continuous representation above this N
+let gShowRays = true, gShowPathDiff = false, gCompare2Slit = true;
+let gWhiteLight = false; // false = monochromatic, true = white light
+let gScreenY = null; // Selected point on screen (pixel y)
+
+// Wavelengths for white light mode (nm) - continuous spectrum every 5nm for smooth rainbows
+const WHITE_LIGHT_WAVELENGTHS = [];
+for (let wl = 380; wl <= 700; wl += 5) WHITE_LIGHT_WAVELENGTHS.push(wl);
+
+function resizeGrating() {
+    const w = gratingC.parentElement;
+    gratingC.width = w.clientWidth - 16;
+    gratingC.height = w.clientHeight - 16;
+    drawGrating();
+}
+
+function drawGrating() {
+    const W = gratingC.width, H = gratingC.height, ctx = gratingCtx;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    const d_m = gD * 1e-6;
+    const lam_m = gLam * 1e-9;
+    const L_m = gL * 0.01;
+    const col = nmToColor(gLam);
+    const colParts = col.match(/\d+/g);
+    const baseR = parseInt(colParts[0]), baseG = parseInt(colParts[1]), baseB = parseInt(colParts[2]);
+
+    // === LAYOUT ===
+    const geoTop = 20;
+    const geoBottom = H * 0.55;
+    const geoH = geoBottom - geoTop;
+    const plotTop = geoBottom + 30;
+    const plotBottom = H - 35;
+    const plotH = plotBottom - plotTop;
+
+    const gratingX = 100;
+    // Screen position scales with L (normalized to reference of 50cm)
+    const L_ref = 50; // reference L in cm
+    const screenXMin = W * 0.35;
+    const screenXMax = W * 0.75;
+    const screenX = screenXMin + (screenXMax - screenXMin) * Math.min(1, gL / 150);
+    const midY = geoTop + geoH / 2;
+    const drawL = screenX - gratingX;
+
+    // Y-scale for screen
+    const yScale = (drawL / L_m) * gExag;
+
+    // Draw grating (N slits) - spacing scales with d
+    const d_ref = 20; // reference d in μm
+    const baseSlitSpacing = 18; // pixels at reference d
+    const slitSpacing = baseSlitSpacing * (gD / d_ref); // Scale with d
+    const gratingHeight = slitSpacing * (gN + 1);
+    const maxGratingHeight = geoH - 40;
+    const actualSlitSpacing = gratingHeight > maxGratingHeight ? maxGratingHeight / (gN + 1) : slitSpacing;
+    const actualGratingHeight = actualSlitSpacing * (gN + 1);
+    const gratingTopY = midY - actualGratingHeight / 2;
+    const slitPositions = [];
+
+    // Incoming plane wave - use wavelength color (or white for white light)
+    if (gWhiteLight) {
+        // Draw white wavefronts for white light (all wavelengths combined = white)
+        for (let x = 15; x < gratingX - 8; x += 18) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, gratingTopY - 5);
+            ctx.lineTo(x, gratingTopY + actualGratingHeight + 5);
+            ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '10px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('White light', 55, gratingTopY - 12);
+    } else {
+        // Monochromatic plane wave
+        const waveColor = col.replace('rgb', 'rgba').replace(')', ',0.4)');
+        ctx.strokeStyle = waveColor;
+        ctx.lineWidth = 1.5;
+        for (let x = 15; x < gratingX - 8; x += 18) {
+            ctx.beginPath();
+            ctx.moveTo(x, gratingTopY - 5);
+            ctx.lineTo(x, gratingTopY + actualGratingHeight + 5);
+            ctx.stroke();
+        }
+        ctx.fillStyle = col.replace('rgb', 'rgba').replace(')', ',0.7)');
+        ctx.font = '10px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('Plane wave', 55, gratingTopY - 12);
+    }
+
+    // Barrier
+    ctx.fillStyle = '#444';
+    ctx.fillRect(gratingX - 5, gratingTopY - 15, 10, actualGratingHeight + 30);
+
+    // Slits - discrete dots for small N, solid bar for large N
+    const isContinuousGrating = gN > CONTINUOUS_THRESHOLD;
+
+    if (isContinuousGrating) {
+        // CONTINUOUS: Draw solid colored bar representing grating
+        const gratingColor = gWhiteLight ? '#ffffff' : col;
+        ctx.fillStyle = gratingColor;
+        ctx.fillRect(gratingX - 3, gratingTopY + actualSlitSpacing - 2, 6, gN * actualSlitSpacing + 4);
+
+        // Store representative positions for ray calculations
+        const numRepSlits = 20;
+        for (let i = 0; i < numRepSlits; i++) {
+            const frac = i / (numRepSlits - 1);
+            const sy = gratingTopY + actualSlitSpacing + frac * (gN - 1) * actualSlitSpacing;
+            slitPositions.push(sy);
+        }
+    } else {
+        // DISCRETE: Draw individual slit markers
+        for (let i = 0; i < gN; i++) {
+            const sy = gratingTopY + (i + 1) * actualSlitSpacing;
+            slitPositions.push(sy);
+            if (gWhiteLight) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(gratingX - 4, sy - 3, 8, 6);
+            } else {
+                ctx.fillStyle = col;
+                ctx.fillRect(gratingX - 4, sy - 3, 8, 6);
+            }
+        }
+    }
+
+    // Labels for grating
+    ctx.fillStyle = '#888';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(`N = ${gN.toLocaleString()} slits`, gratingX, gratingTopY - 22);
+    if (isContinuousGrating) {
+        ctx.fillStyle = '#666';
+        ctx.font = '9px Segoe UI';
+        ctx.fillText('(continuous)', gratingX, gratingTopY - 10);
+    }
+
+    // d bracket between first two slits (show actual d spacing)
+    if (gN >= 2 && slitPositions.length >= 1) {
+        // Use first slit position and actual spacing to show d
+        const firstSlitY = gratingTopY + actualSlitSpacing;
+        const secondSlitY = gratingTopY + 2 * actualSlitSpacing;
+        ctx.strokeStyle = '#ffc107';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(gratingX - 20, firstSlitY);
+        ctx.lineTo(gratingX - 20, secondSlitY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(gratingX - 24, firstSlitY);
+        ctx.lineTo(gratingX - 16, firstSlitY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(gratingX - 24, secondSlitY);
+        ctx.lineTo(gratingX - 16, secondSlitY);
+        ctx.stroke();
+        ctx.fillStyle = '#ffc107';
+        ctx.font = '11px Segoe UI';
+        ctx.textAlign = 'right';
+        ctx.fillText('d', gratingX - 26, (firstSlitY + secondSlitY) / 2 + 4);
+    }
+
+    // Screen background
+    ctx.fillStyle = '#222';
+    ctx.fillRect(screenX - 8, geoTop, 16, geoH);
+
+    // Draw intensity pattern on screen
+    if (gWhiteLight) {
+        // White light mode: show rainbow dispersion
+        for (let py = geoTop; py < geoBottom; py++) {
+            const yScreen_m = (midY - py) / yScale;
+            const theta = Math.atan2(yScreen_m, L_m);
+
+            let totalR = 0, totalG = 0, totalB = 0;
+            for (const wl of WHITE_LIGHT_WAVELENGTHS) {
+                const wl_m = wl * 1e-9;
+                const alpha = Math.PI * d_m * Math.sin(theta) / wl_m;
+                const I = nSlitIntensity(gN, alpha) / (gN * gN);
+                const wlCol = nmToColor(wl);
+                const wlParts = wlCol.match(/\d+/g);
+                totalR += parseInt(wlParts[0]) * I / WHITE_LIGHT_WAVELENGTHS.length;
+                totalG += parseInt(wlParts[1]) * I / WHITE_LIGHT_WAVELENGTHS.length;
+                totalB += parseInt(wlParts[2]) * I / WHITE_LIGHT_WAVELENGTHS.length;
+            }
+            ctx.fillStyle = `rgb(${Math.min(255, Math.round(totalR * 4 * gBright))},${Math.min(255, Math.round(totalG * 4 * gBright))},${Math.min(255, Math.round(totalB * 4 * gBright))})`;
+            ctx.fillRect(screenX - 8, py, 16, 1);
+        }
+    } else {
+        // Monochromatic mode
+        for (let py = geoTop; py < geoBottom; py++) {
+            const yScreen_m = (midY - py) / yScale;
+            const theta = Math.atan2(yScreen_m, L_m);
+            const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+            const I = nSlitIntensity(gN, alpha) / (gN * gN);
+
+            ctx.fillStyle = `rgb(${Math.min(255, Math.round(baseR * I * gBright))},${Math.min(255, Math.round(baseG * I * gBright))},${Math.min(255, Math.round(baseB * I * gBright))})`;
+            ctx.fillRect(screenX - 8, py, 16, 1);
+        }
+    }
+
+    // L label
+    ctx.strokeStyle = '#666';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(gratingX, geoBottom - 15);
+    ctx.lineTo(screenX, geoBottom - 15);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#999';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(`L = ${gL} cm`, (gratingX + screenX) / 2, geoBottom - 3);
+
+    // Scale indicator
+    ctx.fillStyle = 'rgba(255,193,7,0.6)';
+    ctx.font = 'italic 10px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(gExag === 1 ? '(true scale)' : `(${gExag}× y-scale)`, screenX, geoTop + 12);
+
+    // === SELECTED POINT AND RAYS ===
+    if (gScreenY !== null) {
+        const selPy = gScreenY;
+        const yScreen_m = (midY - selPy) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const thetaDeg = theta * 180 / Math.PI;
+
+        // Selected point marker (only show for monochromatic; white light shows R,G,V markers)
+        if (!gWhiteLight) {
+            ctx.beginPath();
+            ctx.arc(screenX, selPy, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+
+        // y bracket on screen - show dispersion spread in white light mode
+        if (gWhiteLight && gShowRays) {
+            // Calculate positions for R, G, V at this order
+            const m_approx = Math.round(d_m * Math.sin(theta) / (550e-9));
+            const m = Math.max(1, Math.abs(m_approx)) * Math.sign(m_approx || 1);
+
+            const getY = (wl_nm) => {
+                const sinTh = m * wl_nm * 1e-9 / d_m;
+                if (Math.abs(sinTh) > 1) return null;
+                const th = Math.asin(sinTh);
+                return L_m * Math.tan(th);
+            };
+
+            const yRed = getY(700);
+            const yViolet = getY(400);
+
+            if (yRed !== null && yViolet !== null) {
+                const pyRed = midY - yRed * yScale;
+                const pyViolet = midY - yViolet * yScale;
+
+                // Bracket showing dispersion
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(screenX + 12, pyViolet);
+                ctx.lineTo(screenX + 12, pyRed);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(screenX + 8, pyViolet);
+                ctx.lineTo(screenX + 16, pyViolet);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(screenX + 8, pyRed);
+                ctx.lineTo(screenX + 16, pyRed);
+                ctx.stroke();
+                ctx.fillStyle = '#ffc107';
+                ctx.font = 'bold 10px Segoe UI';
+                ctx.textAlign = 'left';
+                const spread = Math.abs(yRed - yViolet) * 1000;
+                ctx.fillText(`Δy = ${spread.toFixed(2)} mm`, screenX + 20, (pyRed + pyViolet) / 2 + 3);
+            }
+        } else {
+            ctx.strokeStyle = '#ffc107';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(screenX + 12, midY);
+            ctx.lineTo(screenX + 12, selPy);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(screenX + 8, midY);
+            ctx.lineTo(screenX + 16, midY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(screenX + 8, selPy);
+            ctx.lineTo(screenX + 16, selPy);
+            ctx.stroke();
+            ctx.fillStyle = '#ffc107';
+            ctx.font = 'bold 10px Segoe UI';
+            ctx.textAlign = 'left';
+            ctx.fillText(`y = ${(yScreen_m * 1000).toFixed(2)} mm`, screenX + 20, (midY + selPy) / 2 + 3);
+        }
+
+        // Draw rays from each slit to selected point
+        if (gShowRays) {
+            const isContinuous = gN > CONTINUOUS_THRESHOLD;
+
+            // Get grating extent (top and bottom of actual grating, not just visual slits)
+            const gratingTopSlitY = gratingTopY + actualSlitSpacing;
+            const gratingBottomSlitY = gratingTopY + gN * actualSlitSpacing;
+
+            // Find reference slit (closest to selected point)
+            let closestIdx = 0;
+            let minDist = Infinity;
+            for (let i = 0; i < slitPositions.length; i++) {
+                const sy = slitPositions[i];
+                const dy = Math.abs(selPy - sy);
+                if (dy < minDist) {
+                    minDist = dy;
+                    closestIdx = i;
+                }
+            }
+            const refSlitY = slitPositions[closestIdx];
+
+            if (gWhiteLight) {
+                // White light mode
+                const yScreen_m_sel = (midY - selPy) / yScale;
+                const theta_sel = Math.atan2(yScreen_m_sel, L_m);
+                const m_approx = Math.round(d_m * Math.sin(theta_sel) / (550e-9));
+                const m = Math.max(1, Math.abs(m_approx)) * Math.sign(m_approx || 1);
+
+                const rgvWavelengths = [
+                    { nm: 700, color: 'rgba(255,0,0,', zoneColor: 'rgba(255,0,0,0.15)' },
+                    { nm: 550, color: 'rgba(0,255,0,', zoneColor: 'rgba(0,255,0,0.15)' },
+                    { nm: 400, color: 'rgba(128,0,255,', zoneColor: 'rgba(128,0,255,0.15)' }
+                ];
+
+                for (const wl of rgvWavelengths) {
+                    const wl_m = wl.nm * 1e-9;
+                    const sinTheta = m * wl_m / d_m;
+                    if (Math.abs(sinTheta) > 1) continue;
+
+                    const theta_wl = Math.asin(sinTheta);
+                    const y_wl = L_m * Math.tan(theta_wl);
+                    const py_wl = midY - y_wl * yScale;
+
+                    if (isContinuous) {
+                        // CONTINUOUS: Draw filled zone/cone
+                        ctx.beginPath();
+                        ctx.moveTo(gratingX, gratingTopSlitY);
+                        ctx.lineTo(screenX, py_wl);
+                        ctx.lineTo(gratingX, gratingBottomSlitY);
+                        ctx.closePath();
+                        ctx.fillStyle = wl.zoneColor;
+                        ctx.fill();
+                        // Edge lines
+                        ctx.beginPath();
+                        ctx.moveTo(gratingX, gratingTopSlitY);
+                        ctx.lineTo(screenX, py_wl);
+                        ctx.moveTo(gratingX, gratingBottomSlitY);
+                        ctx.lineTo(screenX, py_wl);
+                        ctx.strokeStyle = wl.color + '0.5)';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    } else {
+                        // DISCRETE: Draw individual rays
+                        for (let i = 0; i < slitPositions.length; i++) {
+                            const sy = slitPositions[i];
+                            ctx.beginPath();
+                            ctx.moveTo(gratingX, sy);
+                            ctx.lineTo(screenX, py_wl);
+                            ctx.strokeStyle = wl.color + '0.6)';
+                            ctx.lineWidth = 1.2;
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Mark the maximum position on screen
+                    ctx.beginPath();
+                    ctx.arc(screenX, py_wl, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = wl.color + '1)';
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'left';
+                ctx.fillText(`m = ${m} order`, screenX + 25, midY - 20);
+
+            } else {
+                // Monochromatic mode
+                if (isContinuous) {
+                    // CONTINUOUS: Draw filled zone/cone
+                    ctx.beginPath();
+                    ctx.moveTo(gratingX, gratingTopSlitY);
+                    ctx.lineTo(screenX, selPy);
+                    ctx.lineTo(gratingX, gratingBottomSlitY);
+                    ctx.closePath();
+                    ctx.fillStyle = col.replace('rgb', 'rgba').replace(')', ',0.2)');
+                    ctx.fill();
+                    // Edge lines
+                    ctx.beginPath();
+                    ctx.moveTo(gratingX, gratingTopSlitY);
+                    ctx.lineTo(screenX, selPy);
+                    ctx.moveTo(gratingX, gratingBottomSlitY);
+                    ctx.lineTo(screenX, selPy);
+                    ctx.strokeStyle = col;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                } else {
+                    // DISCRETE: Draw individual rays
+                    for (let i = 0; i < slitPositions.length; i++) {
+                        const sy = slitPositions[i];
+                        ctx.beginPath();
+                        ctx.moveTo(gratingX, sy);
+                        ctx.lineTo(screenX, selPy);
+                        if (gShowPathDiff) {
+                            ctx.strokeStyle = i === closestIdx ? '#00e676' : col;
+                            ctx.lineWidth = i === closestIdx ? 2.5 : 1.5;
+                        } else {
+                            ctx.strokeStyle = col;
+                            ctx.lineWidth = 1.5;
+                        }
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Show path differences if enabled (works for both mono and white light)
+            if (gShowPathDiff && gN >= 2) {
+                // Use white for rays in white light mode, wavelength color otherwise
+                const rayColor = gWhiteLight ? 'rgb(255,255,255)' : col;
+
+                // Reference ray from closest slit
+                const refDx = screenX - gratingX;
+                const refDy = selPy - refSlitY;
+                const refLen = Math.sqrt(refDx * refDx + refDy * refDy);
+                const refDirX = refDx / refLen;
+                const refDirY = refDy / refLen;
+
+                if (isContinuous) {
+                    // CONTINUOUS: Draw filled pink zone for path difference
+                    // Calculate path diff at top and bottom of grating
+                    const topDy = selPy - gratingTopSlitY;
+                    const topLen = Math.sqrt(refDx * refDx + topDy * topDy);
+                    const topPathDiff = topLen - refLen;
+                    const topDirX = refDx / topLen;
+                    const topDirY = topDy / topLen;
+                    const topWavefrontX = gratingX + topPathDiff * topDirX;
+                    const topWavefrontY = gratingTopSlitY + topPathDiff * topDirY;
+
+                    const botDy = selPy - gratingBottomSlitY;
+                    const botLen = Math.sqrt(refDx * refDx + botDy * botDy);
+                    const botPathDiff = botLen - refLen;
+                    const botDirX = refDx / botLen;
+                    const botDirY = botDy / botLen;
+                    const botWavefrontX = gratingX + botPathDiff * botDirX;
+                    const botWavefrontY = gratingBottomSlitY + botPathDiff * botDirY;
+
+                    // Pink filled zone
+                    ctx.beginPath();
+                    ctx.moveTo(gratingX, gratingTopSlitY);
+                    ctx.lineTo(topWavefrontX, topWavefrontY);
+                    ctx.lineTo(gratingX, refSlitY); // Reference point (no path diff)
+                    ctx.lineTo(botWavefrontX, botWavefrontY);
+                    ctx.lineTo(gratingX, gratingBottomSlitY);
+                    ctx.closePath();
+                    ctx.fillStyle = 'rgba(255,105,180,0.3)';
+                    ctx.fill();
+
+                    // Wavefront line (dashed)
+                    ctx.beginPath();
+                    ctx.moveTo(topWavefrontX, topWavefrontY);
+                    ctx.lineTo(gratingX, refSlitY);
+                    ctx.lineTo(botWavefrontX, botWavefrontY);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([8, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // Beam zone (rest of cone after wavefront)
+                    ctx.beginPath();
+                    ctx.moveTo(topWavefrontX, topWavefrontY);
+                    ctx.lineTo(screenX, selPy);
+                    ctx.lineTo(botWavefrontX, botWavefrontY);
+                    ctx.lineTo(gratingX, refSlitY);
+                    ctx.closePath();
+                    ctx.fillStyle = rayColor.replace('rgb', 'rgba').replace(')', ',0.15)');
+                    ctx.fill();
+
+                } else {
+                    // DISCRETE: Draw individual path difference segments
+                    const wavefrontPoints = [];
+
+                    for (let i = 0; i < slitPositions.length; i++) {
+                        const sy = slitPositions[i];
+                        const rayDx = screenX - gratingX;
+                        const rayDy = selPy - sy;
+                        const rayLen = Math.sqrt(rayDx * rayDx + rayDy * rayDy);
+                        const pathDiff = rayLen - refLen;
+                        const rayDirX = rayDx / rayLen;
+                        const rayDirY = rayDy / rayLen;
+                        const highlightEndX = gratingX + pathDiff * rayDirX;
+                        const highlightEndY = sy + pathDiff * rayDirY;
+
+                        wavefrontPoints.push({ x: highlightEndX, y: highlightEndY, slitY: sy });
+
+                        if (i !== closestIdx && pathDiff > 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(gratingX, sy);
+                            ctx.lineTo(highlightEndX, highlightEndY);
+                            ctx.strokeStyle = '#ff69b4';
+                            ctx.lineWidth = 5;
+                            ctx.stroke();
+
+                            ctx.beginPath();
+                            ctx.moveTo(highlightEndX, highlightEndY);
+                            ctx.lineTo(screenX, selPy);
+                            ctx.strokeStyle = rayColor;
+                            ctx.lineWidth = 1.5;
+                            ctx.stroke();
+                        } else {
+                            ctx.beginPath();
+                            ctx.moveTo(gratingX, sy);
+                            ctx.lineTo(screenX, selPy);
+                            ctx.strokeStyle = rayColor;
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Wavefront line
+                    if (wavefrontPoints.length >= 2) {
+                        wavefrontPoints.sort((a, b) => a.slitY - b.slitY);
+                        ctx.beginPath();
+                        const firstPt = wavefrontPoints[0];
+                        const lastPt = wavefrontPoints[wavefrontPoints.length - 1];
+                        const extendX = (lastPt.x - firstPt.x) * 0.15;
+                        const extendY = (lastPt.y - firstPt.y) * 0.15;
+                        ctx.moveTo(firstPt.x - extendX, firstPt.y - extendY);
+                        for (const pt of wavefrontPoints) ctx.lineTo(pt.x, pt.y);
+                        ctx.lineTo(lastPt.x + extendX, lastPt.y + extendY);
+                        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([8, 5]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        // Right angle marker at reference point
+                        const refPt = wavefrontPoints.find(p => Math.abs(p.slitY - refSlitY) < 1);
+                        if (refPt) {
+                            const markLen = 12;
+                            const perpX = -refDirY;
+                            const perpY = refDirX;
+                            ctx.beginPath();
+                            ctx.moveTo(refPt.x + refDirX * markLen, refPt.y + refDirY * markLen);
+                            ctx.lineTo(refPt.x + refDirX * markLen + perpX * markLen, refPt.y + refDirY * markLen + perpY * markLen);
+                            ctx.lineTo(refPt.x + perpX * markLen, refPt.y + perpY * markLen);
+                            ctx.strokeStyle = '#fff';
+                            ctx.lineWidth = 1.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Labels for path difference (both modes)
+                ctx.fillStyle = '#ff69b4';
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'left';
+                ctx.fillText(isContinuous ? 'Pink zone = path difference (Δx)' : 'Pink = path difference (Δx)', gratingX + 20, geoTop + 15);
+
+                const adjDelta = d_m * Math.sin(theta);
+                ctx.fillStyle = '#ffc107';
+                ctx.fillText(`Adjacent Δx = d sinθ = ${(adjDelta * 1e9).toFixed(1)} nm = ${(adjDelta / lam_m).toFixed(3)}λ`, gratingX + 20, geoTop + 30);
+            }
+        }
+
+        // Calculate and display intensities
+        const mb = document.getElementById('gratingMath');
+
+        if (gWhiteLight) {
+            // Show R, G, V angles for the selected order
+            const m_approx = Math.round(d_m * Math.sin(theta) / (550e-9));
+            const m = Math.max(1, Math.abs(m_approx)) * Math.sign(m_approx || 1);
+
+            const calcAngle = (wl_nm) => {
+                const sinTh = m * wl_nm * 1e-9 / d_m;
+                if (Math.abs(sinTh) > 1) return 'N/A';
+                return (Math.asin(sinTh) * 180 / Math.PI).toFixed(2) + '°';
+            };
+
+            mb.innerHTML = `
+                <span class="bright">Order m = ${m}</span><br>
+                <span style="color:#ff4444;">Red (700nm):</span> \\(\\theta = ${calcAngle(700)}\\)<br>
+                <span style="color:#44ff44;">Green (550nm):</span> \\(\\theta = ${calcAngle(550)}\\)<br>
+                <span style="color:#aa44ff;">Violet (400nm):</span> \\(\\theta = ${calcAngle(400)}\\)<br><br>
+                <span class="note">Longer λ → larger θ (more diffraction)</span>
+            `;
+        } else {
+            const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+            const I_N = nSlitIntensity(gN, alpha);
+            const I_2 = 4 * Math.cos(alpha) * Math.cos(alpha);
+
+            mb.innerHTML = `
+                \\(\\theta = ${thetaDeg.toFixed(2)}°\\)<br>
+                \\(d\\sin\\theta = ${(d_m * Math.sin(theta) / lam_m).toFixed(3)}\\lambda\\)<br><br>
+                <span class="bright">N-slit:</span> \\(I = ${(I_N / gN / gN).toFixed(4)} \\times N^2 I_0\\)<br>
+                <span style="color:#ff9800;">2-slit:</span> \\(I = ${(I_2 / 4).toFixed(4)} \\times 4I_0\\)
+            `;
+        }
+        renderLatex(mb);
+    }
+
+    // === INTENSITY PLOT (Bottom) ===
+    const plotLeft = 60;
+    const plotRight = W - 30;
+    const plotW = plotRight - plotLeft;
+
+    // Axes
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(plotLeft, plotTop);
+    ctx.lineTo(plotLeft, plotBottom);
+    ctx.lineTo(plotRight, plotBottom);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('θ (degrees)', (plotLeft + plotRight) / 2, H - 8);
+
+    // Theta range for plot
+    const thetaMaxDeg = Math.min(15, (2.5 * lam_m / d_m) * 180 / Math.PI);
+
+    // Tick marks
+    for (let deg = -Math.floor(thetaMaxDeg); deg <= Math.floor(thetaMaxDeg); deg += 2) {
+        if (Math.abs(deg) > thetaMaxDeg) continue;
+        const px = plotLeft + ((deg + thetaMaxDeg) / (2 * thetaMaxDeg)) * plotW;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.beginPath();
+        ctx.moveTo(px, plotTop);
+        ctx.lineTo(px, plotBottom);
+        ctx.stroke();
+        if (deg % 4 === 0) {
+            ctx.fillStyle = '#666';
+            ctx.font = '8px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(deg + '°', px, plotBottom + 10);
+        }
+    }
+
+    // Max intensity for normalization
+    const maxI = gN * gN;
+
+    // Draw 2-slit pattern if comparing (only for monochromatic)
+    if (gCompare2Slit && !gWhiteLight) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const theta = ((px / plotW) - 0.5) * 2 * thetaMaxDeg * Math.PI / 180;
+            const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+            const I = 4 * Math.cos(alpha) * Math.cos(alpha);
+            const py = plotBottom - (I / maxI) * plotH * 0.92;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = 'rgba(255,152,0,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+
+    // Draw N-slit pattern
+    if (gWhiteLight) {
+        const isContinuousPlot = gN > CONTINUOUS_THRESHOLD;
+
+        if (isContinuousPlot) {
+            // CONTINUOUS: Draw each wavelength at its actual position for each order
+            // This naturally shows order overlap where it occurs
+
+            const maxOrder = Math.floor(d_m / (380e-9)); // Max possible order
+            const wavelengths = []; // Finer wavelength sampling
+            for (let wl = 380; wl <= 700; wl += 3) wavelengths.push(wl);
+
+            // First: Draw m=0 as white (all wavelengths overlap at θ=0)
+            const px0 = plotLeft + plotW / 2;
+            const barWidth0 = Math.max(4, plotW / 80);
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.fillRect(px0 - barWidth0/2, plotBottom - plotH * 0.88, barWidth0, plotH * 0.85);
+
+            // Then draw other orders with individual wavelengths
+            for (let m = -maxOrder; m <= maxOrder; m++) {
+                if (m === 0) continue; // Already drew m=0 as white
+
+                for (const wl of wavelengths) {
+                    const wl_m = wl * 1e-9;
+                    const sinTheta = m * wl_m / d_m;
+
+                    if (Math.abs(sinTheta) > 1) continue; // Not visible
+
+                    const thetaDeg = Math.asin(sinTheta) * 180 / Math.PI;
+                    if (Math.abs(thetaDeg) > thetaMaxDeg) continue; // Outside plot range
+
+                    const px = plotLeft + ((thetaDeg / thetaMaxDeg + 1) / 2) * plotW;
+
+                    // Get wavelength color
+                    const wlCol = nmToColor(wl);
+
+                    // Draw as thin filled rectangle
+                    const barWidth = Math.max(2, plotW / 150);
+                    ctx.fillStyle = wlCol.replace('rgb', 'rgba').replace(')', ',0.5)');
+                    ctx.fillRect(px - barWidth/2, plotBottom - plotH * 0.88, barWidth, plotH * 0.85);
+                }
+            }
+
+            // Second pass: draw order labels at representative positions
+            for (let m = -maxOrder; m <= maxOrder; m++) {
+                if (Math.abs(m) > 4) continue; // Only label first few orders
+
+                // Use green (550nm) as reference for label position
+                const sinTheta = m * 550e-9 / d_m;
+                if (Math.abs(sinTheta) > 1) continue;
+
+                const thetaDeg = Math.asin(sinTheta) * 180 / Math.PI;
+                if (Math.abs(thetaDeg) > thetaMaxDeg * 0.95) continue;
+
+                const px = plotLeft + ((thetaDeg / thetaMaxDeg + 1) / 2) * plotW;
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(`m=${m}`, px, plotBottom - plotH * 0.92);
+            }
+
+            // Draw central max indicator
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.font = '9px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('(orders may overlap)', plotLeft + plotW/2, plotTop + 25);
+
+        } else {
+            // DISCRETE: Draw separate curves for each wavelength
+            for (const wl of WHITE_LIGHT_WAVELENGTHS) {
+                const wl_m = wl * 1e-9;
+                const wlCol = nmToColor(wl);
+                ctx.beginPath();
+                for (let px = 0; px <= plotW; px++) {
+                    const theta = ((px / plotW) - 0.5) * 2 * thetaMaxDeg * Math.PI / 180;
+                    const alpha = Math.PI * d_m * Math.sin(theta) / wl_m;
+                    const I = nSlitIntensity(gN, alpha);
+                    const py = plotBottom - (I / maxI) * plotH * 0.92;
+                    if (px === 0) ctx.moveTo(plotLeft + px, py);
+                    else ctx.lineTo(plotLeft + px, py);
+                }
+                ctx.strokeStyle = wlCol;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+    } else {
+        // Monochromatic
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const theta = ((px / plotW) - 0.5) * 2 * thetaMaxDeg * Math.PI / 180;
+            const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+            const I = nSlitIntensity(gN, alpha);
+            const py = plotBottom - (I / maxI) * plotH * 0.92;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // Legend
+    ctx.font = '9px Segoe UI';
+    ctx.textAlign = 'left';
+    if (gWhiteLight) {
+        ctx.fillStyle = '#fff';
+        const modeLabel = gN > CONTINUOUS_THRESHOLD ? '(continuous)' : '';
+        ctx.fillText(`${gN}-slit white light ${modeLabel}`, plotRight - 120, plotTop + 12);
+    } else {
+        ctx.fillStyle = col;
+        ctx.fillText(`${gN}-slit`, plotRight - 80, plotTop + 12);
+        if (gCompare2Slit) {
+            ctx.fillStyle = 'rgba(255,152,0,0.8)';
+            ctx.fillText(`2-slit (×${(maxI/4).toFixed(1)} dimmer)`, plotRight - 80, plotTop + 24);
+        }
+    }
+
+    // Draw selected angle indicator on plot
+    if (gScreenY !== null) {
+        const yScreen_m = (midY - gScreenY) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const thetaDeg = theta * 180 / Math.PI;
+
+        if (Math.abs(thetaDeg) <= thetaMaxDeg) {
+            const px = plotLeft + ((thetaDeg + thetaMaxDeg) / (2 * thetaMaxDeg)) * plotW;
+            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, plotTop);
+            ctx.lineTo(px, plotBottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+    }
+
+    // Update comparison box
+    document.getElementById('nSlitLabel').textContent = `N-Slit Peak (N=${gN})`;
+    const nSquared = gN * gN;
+    const nSquaredStr = nSquared >= 1e6 ? nSquared.toExponential(1) : nSquared.toLocaleString();
+    document.getElementById('nSlitPeak').innerHTML = tex(`${nSquaredStr}I_0`);
+    const ratio = nSquared / 4;
+    const ratioStr = ratio >= 1e5 ? ratio.toExponential(1) : ratio.toLocaleString();
+    document.getElementById('gratingInfo').innerHTML = `Intensity ratio: <strong>N-slit is ${ratioStr}× brighter</strong> than 2-slit`;
+}
+
+gratingC.addEventListener('click', e => {
+    const rect = gratingC.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const W = gratingC.width;
+    const H = gratingC.height;
+    const geoTop = 20;
+    const geoBottom = H * 0.55;
+    // Use same screen position formula as drawing code
+    const screenXMin = W * 0.35;
+    const screenXMax = W * 0.75;
+    const screenX = screenXMin + (screenXMax - screenXMin) * Math.min(1, gL / 150);
+
+    // Check if click is near the screen
+    if (Math.abs(x - screenX) < 30 && y >= geoTop && y <= geoBottom) {
+        gScreenY = y;
+        drawGrating();
+    }
+});
+
+// Logarithmic slider for N: maps 0-100 to 2-1000
+function sliderToN(sliderVal) {
+    // Logarithmic mapping: N = 2 * (500)^(slider/100)
+    return Math.round(2 * Math.pow(500, sliderVal / 100));
+}
+function nToSlider(n) {
+    // Inverse: slider = 100 * log(N/2) / log(500)
+    return Math.round(100 * Math.log(n / 2) / Math.log(500));
+}
+document.getElementById('gNSlider').addEventListener('input', e => {
+    gN = sliderToN(parseInt(e.target.value));
+    document.getElementById('gNVal').textContent = gN;
+    drawGrating();
+});
+document.getElementById('gD').addEventListener('input', e => { gD = parseFloat(e.target.value); document.getElementById('gDVal').textContent = gD + ' μm'; drawGrating(); });
+document.getElementById('gLam').addEventListener('input', e => { gLam = parseInt(e.target.value); document.getElementById('gLamVal').textContent = gLam + ' nm'; drawGrating(); });
+document.getElementById('gL').addEventListener('input', e => { gL = parseInt(e.target.value); document.getElementById('gLVal').textContent = gL + ' cm'; drawGrating(); });
+document.getElementById('gExag').addEventListener('input', e => { gExag = parseInt(e.target.value); document.getElementById('gExagVal').textContent = gExag + '×'; drawGrating(); });
+document.getElementById('gBright').addEventListener('input', e => { gBright = parseFloat(e.target.value); document.getElementById('gBrightVal').textContent = gBright.toFixed(1) + '×'; drawGrating(); });
+
+document.getElementById('btnShowRays').addEventListener('click', e => { gShowRays = !gShowRays; e.target.classList.toggle('active', gShowRays); drawGrating(); });
+document.getElementById('btnShowPathDiff').addEventListener('click', e => { gShowPathDiff = !gShowPathDiff; e.target.classList.toggle('active', gShowPathDiff); drawGrating(); });
+document.getElementById('btnCompare2Slit').addEventListener('click', e => { gCompare2Slit = !gCompare2Slit; e.target.classList.toggle('active', gCompare2Slit); drawGrating(); });
+
+// Monochromatic / White Light toggle
+document.getElementById('btnMonochromatic').addEventListener('click', e => {
+    gWhiteLight = false;
+    document.getElementById('btnMonochromatic').classList.add('active');
+    document.getElementById('btnWhiteLight').classList.remove('active');
+    // Show wavelength slider
+    document.getElementById('gLam').parentElement.style.opacity = '1';
+    document.getElementById('gLam').disabled = false;
+    drawGrating();
+});
+document.getElementById('btnWhiteLight').addEventListener('click', e => {
+    gWhiteLight = true;
+    document.getElementById('btnWhiteLight').classList.add('active');
+    document.getElementById('btnMonochromatic').classList.remove('active');
+    // Dim wavelength slider (still visible but indicates it's not active)
+    document.getElementById('gLam').parentElement.style.opacity = '0.4';
+    document.getElementById('gLam').disabled = true;
+    drawGrating();
+});
+
+// ======================================================================
+//  SECTION 2: HUYGENS SOURCES
+// ======================================================================
+const huygensC = document.getElementById('huygensCanvas');
+const huygensCtx = huygensC.getContext('2d');
+
+let hSpeed = 1.0, hNumSources = 15, hLambda = 30, hZoom = 1.0;
+let hShowWavelets = true, hShowEnvelope = true, hShowSourcePts = true;
+let hPlaying = true;
+let hTime = 0;
+let hWaveType = 'plane';
+let hAnimFrame = null;
+
+// Pan/drag state
+let hPanX = 0, hPanY = 0;  // Pan offset
+let hIsPanning = false;
+let hPanStartX = 0, hPanStartY = 0;
+let hPanStartOffsetX = 0, hPanStartOffsetY = 0;
+
+// Custom wavefront state
+let customVertices = [];  // [{x, y}, ...]
+let customArcs = {};  // {segmentIndex: controlPointOffset} - offset perpendicular to segment
+let customArcMode = false;
+let customDraggingArc = null;  // {segIdx, startY}
+
+// Wave configuration descriptions
+const waveDescriptions = {
+    plane: "<strong>Plane Wave:</strong> A straight wavefront stays straight because all Huygens sources are in phase along a line. The envelope of all circular wavelets forms a new straight line.",
+    point: "<strong>Point Source:</strong> A single point radiates circular wavelets in all directions. This is the simplest case - one source creates expanding circles.",
+    twopoints: "<strong>Two Point Sources:</strong> Two sources create overlapping circular waves. Where crests meet crests → constructive interference (bright). Where crests meet troughs → destructive (dark).",
+    vkink: "<strong>V-Kink:</strong> A bent wavefront (like light hitting a corner). Watch how the kink smooths out over time - the sharp corner generates wavelets that 'fill in' the bend.",
+    wkink: "<strong>W-Kink:</strong> Two kinks showing more complex wavefront evolution. Each corner acts as an edge source, creating curved transitions.",
+    arc: "<strong>Curved Arc:</strong> A concave wavefront (like from a curved mirror or lens). The wavelets converge toward a focal point, demonstrating how focusing works.",
+    edge: "<strong>Edge Diffraction:</strong> A plane wave blocked on one side. The edge sources cause the wave to 'bend around' into the shadow region. <em>Drag to pan and see below the edge!</em>",
+    custom: "<strong>Custom Wavefront:</strong> Click to place vertices. In <em>Arc Mode</em>, click near a segment midpoint and drag to curve it. Create any wavefront shape you like!"
+};
+
+function getWaveSources(W, H, type, numSources) {
+    const sources = [];
+    // Apply pan offset to base position
+    const cx = W * 0.2 + hPanX;
+    const cy = H / 2 + hPanY;
+    const extent = H * 0.7;
+
+    switch(type) {
+        case 'plane':
+            // Straight vertical line
+            for (let i = 0; i < numSources; i++) {
+                const y = cy - extent/2 + (i / (numSources - 1)) * extent;
+                sources.push({ x: cx, y: y, phase: 0 });
+            }
+            break;
+
+        case 'point':
+            // Single point source
+            sources.push({ x: cx, y: cy, phase: 0 });
+            break;
+
+        case 'twopoints':
+            // Two point sources separated vertically
+            const sep = extent * 0.4;
+            sources.push({ x: cx, y: cy - sep/2, phase: 0 });
+            sources.push({ x: cx, y: cy + sep/2, phase: 0 });
+            break;
+
+        case 'vkink':
+            // V-shaped kink (like >)
+            const vDepth = W * 0.08;
+            for (let i = 0; i < numSources; i++) {
+                const frac = i / (numSources - 1);
+                const y = cy - extent/2 + frac * extent;
+                const distFromCenter = Math.abs(frac - 0.5) * 2;
+                const x = cx + vDepth * (1 - distFromCenter);
+                sources.push({ x: x, y: y, phase: 0 });
+            }
+            break;
+
+        case 'wkink':
+            // W-shaped (two kinks)
+            const wDepth = W * 0.06;
+            for (let i = 0; i < numSources; i++) {
+                const frac = i / (numSources - 1);
+                const y = cy - extent/2 + frac * extent;
+                const x = cx + wDepth * Math.sin(frac * Math.PI * 2);
+                sources.push({ x: x, y: y, phase: 0 });
+            }
+            break;
+
+        case 'arc':
+            // Concave arc (like from curved mirror)
+            const arcRadius = W * 0.4;
+            const arcAngle = Math.PI * 0.4;
+            for (let i = 0; i < numSources; i++) {
+                const frac = i / (numSources - 1);
+                const angle = -arcAngle/2 + frac * arcAngle;
+                const x = cx + arcRadius - arcRadius * Math.cos(angle);
+                const y = cy + arcRadius * Math.sin(angle);
+                sources.push({ x: x, y: y, phase: 0 });
+            }
+            break;
+
+        case 'edge':
+            // Plane wave with one edge (half-plane)
+            for (let i = 0; i < numSources; i++) {
+                const y = cy + (i / (numSources - 1)) * extent/2;
+                sources.push({ x: cx, y: y, phase: 0 });
+            }
+            break;
+
+        case 'custom':
+            // Custom wavefront from user-placed vertices
+            if (customVertices.length === 0) {
+                // Default: show instruction point
+                sources.push({ x: cx, y: cy, phase: 0 });
+            } else if (customVertices.length === 1) {
+                // Single point
+                sources.push({ x: customVertices[0].x + hPanX, y: customVertices[0].y + hPanY, phase: 0 });
+            } else {
+                // Interpolate sources along the path (lines or arcs)
+                const totalSources = numSources;
+                let pathPoints = [];
+
+                for (let seg = 0; seg < customVertices.length - 1; seg++) {
+                    const p1 = customVertices[seg];
+                    const p2 = customVertices[seg + 1];
+                    const arcOffset = customArcs[seg] || 0;
+
+                    // Number of points for this segment (proportional to length)
+                    const segLen = Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2);
+                    const segPoints = Math.max(2, Math.round(totalSources / (customVertices.length - 1)));
+
+                    for (let i = 0; i < segPoints; i++) {
+                        const t = i / (segPoints - 1);
+                        let x, y;
+
+                        if (Math.abs(arcOffset) > 5) {
+                            // Quadratic Bezier curve
+                            const midX = (p1.x + p2.x) / 2;
+                            const midY = (p1.y + p2.y) / 2;
+                            // Perpendicular direction
+                            const dx = p2.x - p1.x;
+                            const dy = p2.y - p1.y;
+                            const len = Math.sqrt(dx*dx + dy*dy);
+                            const perpX = -dy / len;
+                            const perpY = dx / len;
+                            // Control point
+                            const ctrlX = midX + perpX * arcOffset;
+                            const ctrlY = midY + perpY * arcOffset;
+                            // Quadratic Bezier
+                            x = (1-t)*(1-t)*p1.x + 2*(1-t)*t*ctrlX + t*t*p2.x;
+                            y = (1-t)*(1-t)*p1.y + 2*(1-t)*t*ctrlY + t*t*p2.y;
+                        } else {
+                            // Straight line
+                            x = p1.x + t * (p2.x - p1.x);
+                            y = p1.y + t * (p2.y - p1.y);
+                        }
+
+                        // Avoid duplicates at segment boundaries
+                        if (seg > 0 && i === 0) continue;
+                        pathPoints.push({ x: x + hPanX, y: y + hPanY });
+                    }
+                }
+
+                // Sample evenly along path
+                const step = Math.max(1, Math.floor(pathPoints.length / totalSources));
+                for (let i = 0; i < pathPoints.length; i += step) {
+                    sources.push({ x: pathPoints[i].x, y: pathPoints[i].y, phase: 0 });
+                }
+            }
+            break;
+    }
+
+    computeForwardDirections(sources);
+    return sources;
+}
+
+// Compute the "forward" direction for each source based on local wavefront normal
+// This is used to filter which wavelets contribute to the envelope at each angle
+function computeForwardDirections(sources) {
+    if (sources.length === 0) return;
+
+    if (sources.length === 1) {
+        // Single source: will be handled specially (full circle)
+        sources[0].forward = 0;
+        sources[0].isPoint = true;
+        return;
+    }
+
+    // Compute centroid for determining "outward" direction
+    let centX = 0, centY = 0;
+    for (const s of sources) {
+        centX += s.x;
+        centY += s.y;
+    }
+    centX /= sources.length;
+    centY /= sources.length;
+
+    for (let i = 0; i < sources.length; i++) {
+        // Get neighboring sources for tangent computation
+        const prev = sources[Math.max(0, i - 1)];
+        const next = sources[Math.min(sources.length - 1, i + 1)];
+
+        // Tangent direction (along the wavefront)
+        const tx = next.x - prev.x;
+        const ty = next.y - prev.y;
+        const tLen = Math.sqrt(tx * tx + ty * ty);
+
+        if (tLen < 0.001) {
+            sources[i].forward = 0;
+            continue;
+        }
+
+        // Normal: rotate tangent 90 degrees
+        // Using clockwise rotation: (tx, ty) -> (ty, -tx)
+        let nx = ty / tLen;
+        let ny = -tx / tLen;
+
+        // Check if normal points "outward" (away from centroid)
+        const toCentX = sources[i].x - centX;
+        const toCentY = sources[i].y - centY;
+        const dot = nx * toCentX + ny * toCentY;
+
+        if (dot < 0) {
+            // Flip to point outward
+            nx = -nx;
+            ny = -ny;
+        }
+
+        // Store as angle (radians)
+        sources[i].forward = Math.atan2(ny, nx);
+    }
+}
+
+function resizeHuygens() {
+    const w = huygensC.parentElement;
+    huygensC.width = w.clientWidth - 16;
+    huygensC.height = w.clientHeight - 16;
+    drawHuygens();
+}
+
+function drawHuygens() {
+    const W = huygensC.width, H = huygensC.height, ctx = huygensCtx;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    // Apply zoom transformation (scale from center)
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.scale(hZoom, hZoom);
+    ctx.translate(-W / 2, -H / 2);
+
+    const sources = getWaveSources(W, H, hWaveType, hNumSources);
+    const waveSpeed = 80;  // pixels per second at speed 1.0
+    const radius = hTime * waveSpeed * hSpeed;
+
+    // Draw barrier for edge configuration
+    if (hWaveType === 'edge') {
+        const cx = W * 0.2 + hPanX;
+        const cy = H / 2 + hPanY;
+        ctx.fillStyle = '#444';
+        ctx.fillRect(cx - 6, -1000, 12, cy + 1000);  // Extend upward to cover panning
+    }
+
+    // Draw custom wavefront vertices and path
+    if (hWaveType === 'custom' && customVertices.length > 0) {
+        // Draw the path (lines/arcs)
+        ctx.beginPath();
+        ctx.moveTo(customVertices[0].x + hPanX, customVertices[0].y + hPanY);
+
+        for (let seg = 0; seg < customVertices.length - 1; seg++) {
+            const p1 = customVertices[seg];
+            const p2 = customVertices[seg + 1];
+            const arcOffset = customArcs[seg] || 0;
+
+            if (Math.abs(arcOffset) > 5) {
+                // Draw arc (quadratic Bezier)
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const len = Math.sqrt(dx*dx + dy*dy);
+                const perpX = -dy / len;
+                const perpY = dx / len;
+                const ctrlX = midX + perpX * arcOffset + hPanX;
+                const ctrlY = midY + perpY * arcOffset + hPanY;
+                ctx.quadraticCurveTo(ctrlX, ctrlY, p2.x + hPanX, p2.y + hPanY);
+            } else {
+                ctx.lineTo(p2.x + hPanX, p2.y + hPanY);
+            }
+        }
+        ctx.strokeStyle = 'rgba(255,193,7,0.8)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Draw vertices as draggable points
+        for (let i = 0; i < customVertices.length; i++) {
+            const v = customVertices[i];
+            ctx.beginPath();
+            ctx.arc(v.x + hPanX, v.y + hPanY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffc107';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 10px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(i + 1, v.x + hPanX, v.y + hPanY + 4);
+        }
+
+        // In arc mode, show midpoints of segments as drag handles
+        if (customArcMode && customVertices.length >= 2) {
+            for (let seg = 0; seg < customVertices.length - 1; seg++) {
+                const p1 = customVertices[seg];
+                const p2 = customVertices[seg + 1];
+
+                // Midpoint in screen coordinates
+                const midX = (p1.x + p2.x) / 2 + hPanX;
+                const midY = (p1.y + p2.y) / 2 + hPanY;
+
+                // Draw larger drag handle
+                ctx.beginPath();
+                ctx.arc(midX, midY, 12, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,212,255,0.3)';
+                ctx.fill();
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Inner dot
+                ctx.beginPath();
+                ctx.arc(midX, midY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#00d4ff';
+                ctx.fill();
+
+                // Draw perpendicular line hint showing drag direction
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const len = Math.sqrt(dx*dx + dy*dy);
+                if (len > 0) {
+                    const perpX = -dy / len * 20;
+                    const perpY = dx / len * 20;
+                    ctx.beginPath();
+                    ctx.moveTo(midX - perpX, midY - perpY);
+                    ctx.lineTo(midX + perpX, midY + perpY);
+                    ctx.strokeStyle = 'rgba(0,212,255,0.5)';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 4]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+        }
+    }
+
+    // Draw wavelets from each source
+    if (hShowWavelets && radius > 0) {
+        const maxRings = Math.floor(radius / hLambda) + 1;
+
+        for (const src of sources) {
+            for (let ring = 0; ring < maxRings; ring++) {
+                const r = radius - ring * hLambda;
+                if (r <= 0) continue;
+
+                const isCrest = ring % 2 === 0;
+                ctx.beginPath();
+                ctx.arc(src.x, src.y, r, 0, Math.PI * 2);
+
+                if (isCrest) {
+                    ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+                    ctx.setLineDash([4, 4]);
+                }
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+        ctx.setLineDash([]);
+    }
+
+    // Draw envelope (the actual new wavefront)
+    // Uses geometric envelope: outer boundary of all wavelets
+    if (hShowEnvelope && radius > 0 && sources.length > 0) {
+        if (sources.length === 1) {
+            // Single source - envelope is just a circle
+            ctx.beginPath();
+            ctx.arc(sources[0].x, sources[0].y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#00e676';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        } else {
+            // Multiple sources - compute envelope by finding furthest point in each direction
+            // This is more stable than checking if points are "inside" other wavelets
+
+            // Compute centroid of sources
+            let centX = 0, centY = 0;
+            for (const s of sources) { centX += s.x; centY += s.y; }
+            centX /= sources.length;
+            centY /= sources.length;
+
+            // Find typical spacing between adjacent sources
+            let minSpacing = Infinity;
+            for (let i = 0; i < sources.length - 1; i++) {
+                const dx = sources[i+1].x - sources[i].x;
+                const dy = sources[i+1].y - sources[i].y;
+                const spacing = Math.sqrt(dx*dx + dy*dy);
+                if (spacing > 0.1) minSpacing = Math.min(minSpacing, spacing);
+            }
+
+            // Only draw envelope if wavelets overlap (radius > 60% of spacing)
+            if (radius < minSpacing * 0.6) {
+                // Wavelets don't overlap enough yet - skip envelope drawing
+            } else {
+                const envPoints = [];
+                const numAngles = 180;  // Sample 180 directions
+
+                // For each direction from centroid, find the furthest point on any wavelet
+                for (let ai = 0; ai < numAngles; ai++) {
+                    const angle = (ai / numAngles) * Math.PI * 2;
+                    const dirX = Math.cos(angle);
+                    const dirY = Math.sin(angle);
+
+                    let maxDist = -Infinity;
+                    let bestPt = null;
+
+                    // For each source, find where a ray from centroid at this angle
+                    // intersects the wavelet circle, and keep the furthest intersection
+                    for (const src of sources) {
+                        // Point on this source's wavelet in this direction from the SOURCE
+                        // But we want the furthest point from CENTROID
+                        // So we check the point on the circle that's furthest along this direction
+
+                        // The furthest point on a circle from centroid in direction (dirX, dirY)
+                        // is at center + radius * direction (if that direction points away from centroid)
+                        // But actually, we want the point that maximizes dot product with direction from centroid
+
+                        // Simple approach: the point on source's circle furthest from centroid
+                        // in the given direction is: src + radius * (direction from centroid normalized... no wait)
+
+                        // Actually simpler: for each source, compute the point on its circle
+                        // that lies along the ray from centroid in direction (dirX, dirY)
+                        // This is: find t such that |centroid + t*dir - src| = radius
+
+                        // Vector from centroid to source
+                        const cx = src.x - centX;
+                        const cy = src.y - centY;
+
+                        // Solve |t*dir - c|² = radius²
+                        // t² - 2t(dir·c) + |c|² - r² = 0
+                        const dotDC = dirX * cx + dirY * cy;
+                        const cSq = cx*cx + cy*cy;
+                        const discriminant = dotDC*dotDC - cSq + radius*radius;
+
+                        if (discriminant >= 0) {
+                            const sqrtDisc = Math.sqrt(discriminant);
+                            // Two solutions: t = dotDC ± sqrtDisc
+                            // We want the larger t (further from centroid)
+                            const t = dotDC + sqrtDisc;
+
+                            if (t > maxDist) {
+                                maxDist = t;
+                                bestPt = { x: centX + t * dirX, y: centY + t * dirY };
+                            }
+                        }
+                    }
+
+                    if (bestPt) {
+                        envPoints.push(bestPt);
+                    }
+                }
+
+                // Draw the envelope as a smooth closed curve
+                if (envPoints.length > 2) {
+                    ctx.beginPath();
+                    ctx.moveTo(envPoints[0].x, envPoints[0].y);
+                    for (let i = 1; i < envPoints.length; i++) {
+                        ctx.lineTo(envPoints[i].x, envPoints[i].y);
+                    }
+                    ctx.closePath();
+                    ctx.strokeStyle = '#00e676';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    // Draw source points
+    if (hShowSourcePts) {
+        for (const src of sources) {
+            ctx.beginPath();
+            ctx.arc(src.x, src.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffc107';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
+
+    // Draw initial wavefront line (connecting sources) - not for custom mode (already drawn)
+    if (sources.length > 1 && hWaveType !== 'custom') {
+        ctx.beginPath();
+        ctx.moveTo(sources[0].x, sources[0].y);
+        for (let i = 1; i < sources.length; i++) {
+            ctx.lineTo(sources[i].x, sources[i].y);
+        }
+        ctx.strokeStyle = 'rgba(255,193,7,0.5)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // Restore context before drawing labels (so they don't zoom)
+    ctx.restore();
+
+    // Labels
+    ctx.fillStyle = '#888';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+
+    if (hWaveType === 'custom') {
+        ctx.fillText('Custom wavefront - click to add vertices', W * 0.2, 20);
+    } else {
+        ctx.fillText('Initial wavefront', W * 0.2, 20);
+    }
+
+    if (radius > 50) {
+        ctx.fillStyle = '#00e676';
+        ctx.fillText('New wavefront (envelope)', W * 0.6, 20);
+    }
+
+    // Time display
+    ctx.fillStyle = '#666';
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'left';
+    ctx.fillText(`t = ${hTime.toFixed(2)}s`, 10, H - 10);
+
+    // Pan hint
+    if (hPanX !== 0 || hPanY !== 0) {
+        ctx.fillStyle = '#888';
+        ctx.fillText(`Pan: (${hPanX.toFixed(0)}, ${hPanY.toFixed(0)})`, 10, H - 25);
+    } else {
+        ctx.fillStyle = '#555';
+        ctx.fillText('Drag to pan view', 10, H - 25);
+    }
+
+    // Legend
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(0,212,255,0.7)';
+    ctx.fillText('— crest', W - 10, H - 40);
+    ctx.fillStyle = 'rgba(0,212,255,0.4)';
+    ctx.fillText('--- trough', W - 10, H - 25);
+
+    if (hWaveType === 'custom') {
+        ctx.fillStyle = '#ffc107';
+        ctx.fillText('Click to add vertex', W - 10, H - 10);
+    }
+}
+
+function animateHuygens() {
+    if (hPlaying) {
+        hTime += 0.016 * hSpeed;  // ~60fps
+
+        // Reset when waves go off screen
+        const W = huygensC.width || 800;
+        if (hTime * 80 * hSpeed > W * 1.5) {
+            hTime = 0;
+        }
+
+        drawHuygens();
+    }
+    hAnimFrame = requestAnimationFrame(animateHuygens);
+}
+
+// Wave type selection
+document.querySelectorAll('[data-wave]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-wave]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hWaveType = btn.dataset.wave;
+        hTime = 0;  // Reset animation
+        hPanX = 0;  // Reset pan
+        hPanY = 0;
+        document.getElementById('huygensInfo').innerHTML = waveDescriptions[hWaveType];
+
+        // Show/hide custom controls
+        document.getElementById('customControls').style.display = hWaveType === 'custom' ? 'block' : 'none';
+
+        // Update cursor style
+        if (hWaveType === 'custom' && !customArcMode) {
+            huygensC.classList.add('custom-mode');
+        } else {
+            huygensC.classList.remove('custom-mode');
+        }
+
+        drawHuygens();
+    });
+});
+
+// Panning with mouse drag
+huygensC.addEventListener('mousedown', e => {
+    const rect = huygensC.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (hWaveType === 'custom') {
+        // In custom mode, check if clicking on arc midpoint (arc mode) or adding vertex (line mode)
+        if (customArcMode && customVertices.length >= 2) {
+            // Check if near a segment midpoint OR anywhere on the segment
+            let closestSeg = -1;
+            let closestDist = Infinity;
+
+            for (let seg = 0; seg < customVertices.length - 1; seg++) {
+                const p1 = customVertices[seg];
+                const p2 = customVertices[seg + 1];
+
+                // Midpoint in screen coordinates
+                const midX = (p1.x + p2.x) / 2 + hPanX;
+                const midY = (p1.y + p2.y) / 2 + hPanY;
+
+                const dist = Math.sqrt((x - midX)**2 + (y - midY)**2);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestSeg = seg;
+                }
+            }
+
+            // Allow clicking within 50px of midpoint to start bending
+            if (closestSeg >= 0 && closestDist < 50) {
+                const arcOffset = customArcs[closestSeg] || 0;
+                customDraggingArc = { segIdx: closestSeg, startX: x, startY: y, startOffset: arcOffset };
+                return;
+            }
+        }
+
+        if (!customArcMode) {
+            // Line mode: add new vertex
+            customVertices.push({ x: x - hPanX, y: y - hPanY });
+            hTime = 0;
+            drawHuygens();
+            return;
+        }
+    }
+
+    // Start panning
+    hIsPanning = true;
+    hPanStartX = x;
+    hPanStartY = y;
+    hPanStartOffsetX = hPanX;
+    hPanStartOffsetY = hPanY;
+    huygensC.style.cursor = 'grabbing';
+});
+
+huygensC.addEventListener('mousemove', e => {
+    const rect = huygensC.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (customDraggingArc !== null) {
+        // Dragging an arc control point
+        const seg = customDraggingArc.segIdx;
+        const p1 = customVertices[seg];
+        const p2 = customVertices[seg + 1];
+
+        // Calculate perpendicular offset based on mouse movement
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const perpX = -dy / len;
+        const perpY = dx / len;
+
+        // Project mouse position onto perpendicular direction
+        const midX = (p1.x + p2.x) / 2 + hPanX;
+        const midY = (p1.y + p2.y) / 2 + hPanY;
+        const mouseOffsetX = x - midX;
+        const mouseOffsetY = y - midY;
+        const newOffset = mouseOffsetX * perpX + mouseOffsetY * perpY;
+
+        customArcs[seg] = newOffset;
+        drawHuygens();
+        return;
+    }
+
+    if (hIsPanning) {
+        hPanX = hPanStartOffsetX + (x - hPanStartX);
+        hPanY = hPanStartOffsetY + (y - hPanStartY);
+        drawHuygens();
+    }
+});
+
+huygensC.addEventListener('mouseup', () => {
+    hIsPanning = false;
+    customDraggingArc = null;
+    huygensC.style.cursor = 'crosshair';
+});
+
+huygensC.addEventListener('mouseleave', () => {
+    hIsPanning = false;
+    customDraggingArc = null;
+    huygensC.style.cursor = 'crosshair';
+});
+
+// Custom mode controls
+document.getElementById('btnLineMode').addEventListener('click', e => {
+    customArcMode = false;
+    document.getElementById('btnLineMode').classList.add('active');
+    document.getElementById('btnArcMode').classList.remove('active');
+    huygensC.classList.add('custom-mode');
+    drawHuygens();
+});
+
+document.getElementById('btnArcMode').addEventListener('click', e => {
+    customArcMode = true;
+    document.getElementById('btnArcMode').classList.add('active');
+    document.getElementById('btnLineMode').classList.remove('active');
+    huygensC.classList.remove('custom-mode');
+    drawHuygens();
+});
+
+document.getElementById('btnClearCustom').addEventListener('click', () => {
+    customVertices = [];
+    customArcs = {};
+    hTime = 0;
+    drawHuygens();
+});
+
+document.getElementById('btnUndoCustom').addEventListener('click', () => {
+    if (customVertices.length > 0) {
+        customVertices.pop();
+        // Remove arc for the last segment if it exists
+        delete customArcs[customVertices.length - 1];
+        hTime = 0;
+        drawHuygens();
+    }
+});
+
+// Controls
+document.getElementById('hSpeed').addEventListener('input', e => {
+    hSpeed = parseFloat(e.target.value);
+    document.getElementById('hSpeedVal').textContent = hSpeed.toFixed(1) + '×';
+});
+
+document.getElementById('hSources').addEventListener('input', e => {
+    hNumSources = parseInt(e.target.value);
+    document.getElementById('hSourcesVal').textContent = hNumSources;
+    drawHuygens();
+});
+
+document.getElementById('hLam').addEventListener('input', e => {
+    hLambda = parseInt(e.target.value);
+    document.getElementById('hLamVal').textContent = hLambda + ' px';
+    drawHuygens();
+});
+
+document.getElementById('hZoom').addEventListener('input', e => {
+    hZoom = parseFloat(e.target.value);
+    document.getElementById('hZoomVal').textContent = hZoom.toFixed(1) + '×';
+    drawHuygens();
+});
+
+document.getElementById('btnHPlay').addEventListener('click', e => {
+    hPlaying = !hPlaying;
+    e.target.textContent = hPlaying ? 'Pause' : 'Play';
+});
+
+document.getElementById('btnHReset').addEventListener('click', () => {
+    hTime = 0;
+    hPanX = 0;
+    hPanY = 0;
+    if (hWaveType === 'custom') {
+        customVertices = [];
+        customArcs = {};
+    }
+    drawHuygens();
+});
+
+document.getElementById('btnShowWavelets').addEventListener('click', e => {
+    hShowWavelets = !hShowWavelets;
+    e.target.classList.toggle('active', hShowWavelets);
+    drawHuygens();
+});
+
+document.getElementById('btnShowEnvelopeH').addEventListener('click', e => {
+    hShowEnvelope = !hShowEnvelope;
+    e.target.classList.toggle('active', hShowEnvelope);
+    drawHuygens();
+});
+
+document.getElementById('btnShowSourcePts').addEventListener('click', e => {
+    hShowSourcePts = !hShowSourcePts;
+    e.target.classList.toggle('active', hShowSourcePts);
+    drawHuygens();
+});
+
+// Start animation when Huygens tab is shown
+const huygensTabObserver = new MutationObserver(() => {
+    if (document.getElementById('sec-huygens').classList.contains('active')) {
+        if (!hAnimFrame) {
+            animateHuygens();
+        }
+    }
+});
+huygensTabObserver.observe(document.getElementById('sec-huygens'), { attributes: true });
+
+// ======================================================================
+//  SECTION 3: SINGLE SLIT
+// ======================================================================
+const singleC = document.getElementById('singleCanvas');
+const singleCtx = singleC.getContext('2d');
+
+let sA = 80, sLam = 500, sL = 50, sExag = 8, sN = 12, sBright = 1;
+let sShowSources = true, sShowRipples = false, sShowRays = false;
+let sShowMinima = false, sShowPairing = false, sShowIntensity = true;
+let sScreenY = null;
+
+function resizeSingle() {
+    const w = singleC.parentElement;
+    singleC.width = w.clientWidth - 16;
+    singleC.height = w.clientHeight - 16;
+    drawSingle();
+}
+
+function drawSingle() {
+    const W = singleC.width, H = singleC.height, ctx = singleCtx;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    const a_m = sA * 1e-6;
+    const lam_m = sLam * 1e-9;
+    const L_m = sL * 0.01;
+    const col = nmToColor(sLam);
+
+    // Layout: slit at fixed x, screen moves with L
+    const slitX = 140;
+    const minScreenX = slitX + 180;
+    const maxScreenX = W - 60;
+    const screenX = minScreenX + ((sL - 10) / (100 - 10)) * (maxScreenX - minScreenX);
+    const midY = H / 2;
+    const drawL = screenX - slitX;
+
+    // Y-scale: pixels per meter with exaggeration
+    const yScale = (drawL / L_m) * sExag;
+
+    // Slit height in pixels (visual representation)
+    const slitPixHeight = Math.min(180, Math.max(60, sA * 1.5));
+    const slitTopY = midY - slitPixHeight / 2;
+    const slitBottomY = midY + slitPixHeight / 2;
+
+    // Source positions (N sources evenly distributed in slit)
+    const sources = [];
+    for (let i = 0; i < sN; i++) {
+        const y = slitTopY + (i + 0.5) * slitPixHeight / sN;
+        sources.push(y);
+    }
+
+    // ---- Incoming plane wave ----
+    const planeWaveSpacing = 25;
+    const numWavefronts = Math.ceil(slitX / planeWaveSpacing) + 1;
+    for (let i = 0; i < numWavefronts; i++) {
+        const px = slitX - 10 - i * planeWaveSpacing;
+        if (px < 5) continue;
+        const isCrest = i % 2 === 0;
+        ctx.beginPath();
+        ctx.moveTo(px, 10);
+        ctx.lineTo(px, H - 10);
+        ctx.strokeStyle = isCrest ? 'rgba(0,212,255,0.4)' : 'rgba(0,212,255,0.2)';
+        ctx.setLineDash(isCrest ? [] : [8, 8]);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Plane wave label
+    ctx.fillStyle = 'rgba(0,212,255,0.5)';
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Plane wave', 60, 18);
+
+    // ---- Barrier ----
+    ctx.fillStyle = '#444';
+    ctx.fillRect(slitX - 6, 0, 12, slitTopY);
+    ctx.fillRect(slitX - 6, slitBottomY, 12, H - slitBottomY);
+
+    // Slit opening glow
+    ctx.fillStyle = col;
+    ctx.fillRect(slitX - 3, slitTopY, 6, slitPixHeight);
+
+    // 'a' label
+    ctx.strokeStyle = '#ffc107';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(slitX - 25, slitTopY);
+    ctx.lineTo(slitX - 25, slitBottomY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(slitX - 30, slitTopY);
+    ctx.lineTo(slitX - 20, slitTopY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(slitX - 30, slitBottomY);
+    ctx.lineTo(slitX - 20, slitBottomY);
+    ctx.stroke();
+    ctx.fillStyle = '#ffc107';
+    ctx.font = 'bold 12px Segoe UI';
+    ctx.textAlign = 'right';
+    ctx.fillText('a', slitX - 32, midY + 4);
+
+    // ---- Ripples from each Huygens source ----
+    if (sShowRipples) {
+        // Calculate pixel wavelength based on first minimum position
+        const sinTh1 = Math.min(lam_m / a_m, 0.99);
+        const yScreen1 = L_m * Math.tan(Math.asin(sinTh1));
+        const pyOff1 = yScreen1 * yScale;
+
+        // Use path difference between top and bottom source at first minimum
+        const r_top = Math.sqrt(drawL * drawL + (pyOff1 + slitPixHeight / 2) ** 2);
+        const r_bot = Math.sqrt(drawL * drawL + (pyOff1 - slitPixHeight / 2) ** 2);
+        const pixLam = (r_top - r_bot) / (slitPixHeight / a_m * lam_m) * lam_m;
+        const halfLam = Math.max(8, pixLam / 2);
+
+        const maxR = Math.hypot(screenX - slitX, H);
+        const nRings = Math.min(Math.ceil(maxR / halfLam), 300);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(slitX + 6, 0, screenX - slitX - 8, H);
+        ctx.clip();
+
+        for (const sy of sources) {
+            for (let i = 1; i <= nRings; i++) {
+                const r = i * halfLam;
+                const isCrest = i % 2 === 1;
+                ctx.beginPath();
+                ctx.arc(slitX, sy, r, -Math.PI / 2, Math.PI / 2);
+                ctx.strokeStyle = isCrest ? 'rgba(0,212,255,0.25)' : 'rgba(0,212,255,0.12)';
+                ctx.setLineDash(isCrest ? [] : [5, 5]);
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    // ---- Minima lines ----
+    if (sShowMinima) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(slitX + 6, 0, screenX - slitX - 8, H);
+        ctx.clip();
+
+        const maxM = Math.floor(a_m / lam_m);
+        for (let m = 1; m <= maxM; m++) {
+            const sinTh = m * lam_m / a_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = 'rgba(255,82,82,0.5)';
+            ctx.lineWidth = 1.5;
+
+            for (let sign = -1; sign <= 1; sign += 2) {
+                const targetPy = midY - sign * pyOffset;
+                ctx.beginPath();
+                ctx.moveTo(slitX, midY);
+                ctx.lineTo(screenX, targetPy);
+                ctx.stroke();
+            }
+        }
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // Labels at screen
+        ctx.font = 'bold 10px Segoe UI';
+        ctx.textAlign = 'left';
+        for (let m = 1; m <= maxM; m++) {
+            const sinTh = m * lam_m / a_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+            for (let sign = -1; sign <= 1; sign += 2) {
+                const targetPy = midY - sign * pyOffset;
+                if (targetPy > 15 && targetPy < H - 15) {
+                    ctx.fillStyle = 'rgba(255,82,82,0.8)';
+                    ctx.fillText(`m=${sign * m}`, screenX + 12, targetPy + 3);
+                }
+            }
+        }
+    }
+
+    // ---- Screen ----
+    ctx.fillStyle = '#555';
+    ctx.fillRect(screenX - 2, 0, 4, H);
+
+    // L label
+    ctx.strokeStyle = '#666';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(slitX, H - 30);
+    ctx.lineTo(screenX, H - 30);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#999';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(`L = ${sL} cm`, (slitX + screenX) / 2, H - 18);
+
+    // Scale label
+    ctx.fillStyle = 'rgba(255,193,7,0.6)';
+    ctx.font = 'italic 10px Segoe UI';
+    ctx.fillText(sExag === 1 ? '(true scale)' : `(${sExag}× y-scale)`, screenX, 14);
+
+    // ---- Intensity pattern on screen ----
+    const colParts = col.match(/\d+/g);
+    const baseR = parseInt(colParts[0]), baseG = parseInt(colParts[1]), baseB = parseInt(colParts[2]);
+
+    for (let py = 0; py < H; py++) {
+        // Map pixel to physical y using yScale
+        const yScreen_m = (midY - py) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+        const I = sinc(beta) * sinc(beta);
+        // Apply brightness multiplier (clamped to 255)
+        ctx.fillStyle = `rgb(${Math.min(255, Math.round(baseR * I * sBright))},${Math.min(255, Math.round(baseG * I * sBright))},${Math.min(255, Math.round(baseB * I * sBright))})`;
+        ctx.fillRect(screenX - 6, py, 12, 1);
+    }
+
+    // ---- Intensity plot curve ----
+    if (sShowIntensity) {
+        const plotLeft = slitX + 60;
+        const plotRight = screenX - 30;
+        const plotW = plotRight - plotLeft;
+        const plotTop = 30;
+        const plotBottom = H - 30;
+        const plotH = plotBottom - plotTop;
+
+        // Semi-transparent background for plot area
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(plotLeft - 10, plotTop - 10, plotW + 20, plotH + 20);
+
+        // Central axis
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(plotLeft, midY);
+        ctx.lineTo(plotRight, midY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw intensity curve using yScale
+        ctx.beginPath();
+        for (let py = plotTop; py <= plotBottom; py++) {
+            const yScreen_m = (midY - py) / yScale;
+            const theta = Math.atan2(yScreen_m, L_m);
+            const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+            const I = sinc(beta) * sinc(beta);
+            const px = plotLeft + I * plotW * 0.95;
+            if (py === plotTop) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Mark minima with labels
+        ctx.fillStyle = '#ff5252';
+        ctx.font = 'bold 10px Segoe UI';
+        const maxM = Math.floor(a_m / lam_m);
+        for (let m = 1; m <= maxM; m++) {
+            const sinTh = m * lam_m / a_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+            // m=+1 is above center (py < midY), m=-1 is below
+            const pyPos = midY - pyOffset;  // positive m above
+            const pyNeg = midY + pyOffset;  // negative m below
+
+            if (pyPos >= plotTop && pyPos <= plotBottom) {
+                ctx.beginPath();
+                ctx.arc(plotLeft, pyPos, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.textAlign = 'left';
+                ctx.fillText(`m=${m}`, plotLeft + 8, pyPos + 4);
+            }
+            if (pyNeg >= plotTop && pyNeg <= plotBottom) {
+                ctx.beginPath();
+                ctx.arc(plotLeft, pyNeg, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.textAlign = 'left';
+                ctx.fillText(`m=-${m}`, plotLeft + 8, pyNeg + 4);
+            }
+        }
+
+        // Secondary maxima labels (approximately at m + 0.5)
+        ctx.fillStyle = 'rgba(0,230,118,0.7)';
+        ctx.font = '9px Segoe UI';
+        for (let m = 1; m <= 2; m++) {
+            const sinTh = (m + 0.5) * lam_m / a_m;
+            if (sinTh >= 1) break;
+            const yScreen = L_m * Math.tan(Math.asin(sinTh));
+            const pyOffset = yScreen * yScale;
+            const pyPos = midY - pyOffset;
+
+            // Calculate intensity at this point
+            const beta = Math.PI * a_m * sinTh / lam_m;
+            const I = sinc(beta) * sinc(beta);
+            const labelI = (I * 100).toFixed(1);
+
+            if (pyPos >= plotTop && pyPos <= plotBottom) {
+                const px = plotLeft + I * plotW * 0.95;
+                ctx.fillText(`${labelI}%`, px + 5, pyPos - 3);
+            }
+        }
+
+        // Label the central maximum
+        ctx.fillStyle = 'rgba(0,230,118,0.9)';
+        ctx.font = 'bold 10px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.fillText('100%', plotLeft + plotW * 0.95 + 5, midY + 4);
+    }
+
+    // ---- Huygens sources ----
+    if (sShowSources) {
+        for (let i = 0; i < sources.length; i++) {
+            const sy = sources[i];
+            ctx.beginPath();
+            ctx.arc(slitX, sy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,212,255,0.8)';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
+
+    // ---- Selected point and rays ----
+    if (sScreenY !== null) {
+        const selPy = sScreenY;
+        const yScreen_m = (midY - selPy) / yScale;
+        const theta = Math.atan2(yScreen_m, L_m);
+        const thetaDeg = theta * 180 / Math.PI;
+        const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+        const I = sinc(beta) * sinc(beta);
+
+        // Selected point marker
+        ctx.beginPath();
+        ctx.arc(screenX, selPy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+
+        // y bracket
+        ctx.strokeStyle = '#ffc107';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(screenX + 10, midY);
+        ctx.lineTo(screenX + 10, selPy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(screenX + 6, midY);
+        ctx.lineTo(screenX + 14, midY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(screenX + 6, selPy);
+        ctx.lineTo(screenX + 14, selPy);
+        ctx.stroke();
+        ctx.fillStyle = '#ffc107';
+        ctx.font = 'bold 11px Segoe UI';
+        ctx.textAlign = 'left';
+        ctx.fillText(`y = ${(yScreen_m * 1000).toFixed(2)} mm`, screenX + 18, (midY + selPy) / 2 + 4);
+
+        // Draw rays from all sources
+        if (sShowRays) {
+            for (let i = 0; i < sources.length; i++) {
+                const sy = sources[i];
+                ctx.beginPath();
+                ctx.moveTo(slitX, sy);
+                ctx.lineTo(screenX, selPy);
+                ctx.strokeStyle = `hsla(${200 + i * 10}, 80%, 60%, 0.6)`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        // ---- Pairing visualization ----
+        if (sShowPairing && sN >= 4) {
+            // Highlight top source and source at a/2
+            const topIdx = 0;
+            const halfIdx = Math.floor(sN / 2);
+            const topY = sources[topIdx];
+            const halfY = sources[halfIdx];
+
+            // Draw these two sources larger
+            ctx.beginPath();
+            ctx.arc(slitX, topY, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff9800';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(slitX, halfY, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#e91e63';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw rays from these two
+            ctx.beginPath();
+            ctx.moveTo(slitX, topY);
+            ctx.lineTo(screenX, selPy);
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(slitX, halfY);
+            ctx.lineTo(screenX, selPy);
+            ctx.strokeStyle = '#e91e63';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // a/2 bracket
+            ctx.strokeStyle = '#ff5252';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(slitX - 40, topY);
+            ctx.lineTo(slitX - 40, halfY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(slitX - 45, topY);
+            ctx.lineTo(slitX - 35, topY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(slitX - 45, halfY);
+            ctx.lineTo(slitX - 35, halfY);
+            ctx.stroke();
+            ctx.fillStyle = '#ff5252';
+            ctx.font = 'bold 11px Segoe UI';
+            ctx.textAlign = 'right';
+            ctx.fillText('a/2', slitX - 48, (topY + halfY) / 2 + 4);
+
+            // Path difference triangle
+            // Use the direction of the lower ray (from halfY to selected point)
+            const rayDx = screenX - slitX;
+            const rayDy = selPy - halfY;
+            const rayLen = Math.hypot(rayDx, rayDy);
+            const dirX = rayDx / rayLen;
+            const dirY = rayDy / rayLen;
+
+            // Perpendicular from topY onto line through halfY
+            const vecY = topY - halfY;
+            const projLen = vecY * dirY;
+            const footX = slitX + projLen * dirX;
+            const footY = halfY + projLen * dirY;
+
+            // Triangle fill
+            ctx.beginPath();
+            ctx.moveTo(slitX, halfY);
+            ctx.lineTo(slitX, topY);
+            ctx.lineTo(footX, footY);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0,212,255,0.15)';
+            ctx.fill();
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Right angle marker
+            const rSize = 8;
+            const perpX = -dirY;
+            const perpY = dirX;
+            ctx.beginPath();
+            ctx.moveTo(footX + dirX * rSize, footY + dirY * rSize);
+            ctx.lineTo(footX + dirX * rSize + perpX * rSize, footY + dirY * rSize + perpY * rSize);
+            ctx.lineTo(footX + perpX * rSize, footY + perpY * rSize);
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // δ label
+            const pathDiff = Math.abs(topY - halfY) * Math.abs(Math.sin(theta));
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 11px Segoe UI';
+            ctx.textAlign = 'left';
+            const labelX = slitX + 15;
+            const labelY = (topY + footY) / 2;
+            ctx.fillText('δ = (a/2)sinθ', labelX, labelY);
+
+            // Calculate actual path difference in wavelengths
+            const halfSep_m = a_m / 2;
+            const pathDiff_m = halfSep_m * Math.abs(Math.sin(theta));
+            const pathDiffLambda = pathDiff_m / lam_m;
+
+            // Show path difference info in sidebar
+            const mb = document.getElementById('singleMath');
+            mb.innerHTML = `
+                \\(y = ${(yScreen_m * 1000).toFixed(2)}\\text{ mm}\\)<br>
+                \\(\\theta = ${Math.abs(thetaDeg).toFixed(2)}°\\)<br>
+                \\(a\\sin\\theta = ${(a_m * Math.abs(Math.sin(theta)) / lam_m).toFixed(3)}\\lambda\\)<br><br>
+                <span style="color:#00d4ff;"><strong>Paired sources:</strong></span><br>
+                \\(\\delta = \\frac{a}{2}\\sin\\theta = ${pathDiffLambda.toFixed(3)}\\lambda\\)<br>
+                ${Math.abs(pathDiffLambda - 0.5) < 0.02 ? '<span style="color:#ff5252;"><strong>≈ λ/2 → Destructive!</strong></span>' : ''}
+                ${Math.abs(pathDiffLambda - 1.0) < 0.02 ? '<span style="color:#ff5252;"><strong>≈ λ → 2nd minimum</strong></span>' : ''}<br><br>
+                \\(I/I_0 = ${I.toFixed(4)}\\)
+            `;
+            renderLatex(mb);
+        } else {
+            // Normal info without pairing
+            const mb = document.getElementById('singleMath');
+            mb.innerHTML = `
+                \\(y = ${(yScreen_m * 1000).toFixed(2)}\\text{ mm}\\)<br>
+                \\(\\theta = ${Math.abs(thetaDeg).toFixed(2)}°\\)<br>
+                \\(a\\sin\\theta = ${(a_m * Math.abs(Math.sin(theta)) / lam_m).toFixed(3)}\\lambda\\)<br>
+                \\(I/I_0 = ${I.toFixed(4)}\\)
+            `;
+            renderLatex(mb);
+        }
+
+        // Theta arc
+        if (!sShowPairing) {
+            const visAngle = Math.atan2(selPy - midY, screenX - slitX);
+            const arcR = 40;
+            ctx.beginPath();
+            ctx.arc(slitX, midY, arcR, 0, visAngle, selPy < midY);
+            ctx.strokeStyle = '#aaa';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = '#ccc';
+            ctx.font = '11px Segoe UI';
+            ctx.textAlign = 'left';
+            const labelAng = visAngle * 0.5;
+            ctx.fillText(`θ`, slitX + Math.cos(labelAng) * (arcR + 8), midY + Math.sin(labelAng) * (arcR + 8) + 4);
+        }
+    }
+
+    // Legend
+    ctx.fillStyle = 'rgba(0,212,255,0.6)';
+    ctx.font = '9px Segoe UI';
+    ctx.textAlign = 'left';
+    ctx.fillText('— crest', 10, H - 18);
+    ctx.fillStyle = 'rgba(0,212,255,0.35)';
+    ctx.fillText('--- trough', 70, H - 18);
+}
+
+singleC.addEventListener('click', e => {
+    const rect = singleC.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Calculate screen position
+    const slitX = 140;
+    const minScreenX = slitX + 180;
+    const maxScreenX = singleC.width - 60;
+    const screenX = minScreenX + ((sL - 10) / (100 - 10)) * (maxScreenX - minScreenX);
+
+    // Check if click is near screen
+    if (Math.abs(x - screenX) < 30) {
+        sScreenY = y;
+        drawSingle();
+    }
+});
+
+document.getElementById('sA').addEventListener('input', e => { sA = parseFloat(e.target.value); document.getElementById('sAVal').textContent = sA + ' μm'; drawSingle(); });
+document.getElementById('sLam').addEventListener('input', e => { sLam = parseInt(e.target.value); document.getElementById('sLamVal').textContent = sLam + ' nm'; drawSingle(); });
+document.getElementById('sL').addEventListener('input', e => { sL = parseInt(e.target.value); document.getElementById('sLVal').textContent = sL + ' cm'; drawSingle(); });
+document.getElementById('sExag').addEventListener('input', e => { sExag = parseFloat(e.target.value); document.getElementById('sExagVal').textContent = sExag + '×'; drawSingle(); });
+document.getElementById('sN').addEventListener('input', e => { sN = parseInt(e.target.value); document.getElementById('sNVal').textContent = sN; drawSingle(); });
+document.getElementById('sBright').addEventListener('input', e => { sBright = parseFloat(e.target.value); document.getElementById('sBrightVal').textContent = sBright + '×'; drawSingle(); });
+
+document.getElementById('btnSingleSources').addEventListener('click', e => { sShowSources = !sShowSources; e.target.classList.toggle('active', sShowSources); drawSingle(); });
+document.getElementById('btnSingleRipples').addEventListener('click', e => { sShowRipples = !sShowRipples; e.target.classList.toggle('active', sShowRipples); drawSingle(); });
+document.getElementById('btnSingleRays').addEventListener('click', e => { sShowRays = !sShowRays; e.target.classList.toggle('active', sShowRays); drawSingle(); });
+document.getElementById('btnSingleMinima').addEventListener('click', e => { sShowMinima = !sShowMinima; e.target.classList.toggle('active', sShowMinima); drawSingle(); });
+document.getElementById('btnSinglePairing').addEventListener('click', e => { sShowPairing = !sShowPairing; e.target.classList.toggle('active', sShowPairing); drawSingle(); });
+document.getElementById('btnSingleIntensity').addEventListener('click', e => { sShowIntensity = !sShowIntensity; e.target.classList.toggle('active', sShowIntensity); drawSingle(); });
+
+// ======================================================================
+//  SECTION 3: COMBINED (Double slit with width)
+// ======================================================================
+const combinedC = document.getElementById('combinedCanvas');
+const combinedCtx = combinedC.getContext('2d');
+
+let cA = 2, cD = 6, cLam = 500;
+let cShowEnvelope = true, cShowFringes = true;
+let cHoverX = null;
+
+function resizeCombined() {
+    const w = combinedC.parentElement;
+    combinedC.width = w.clientWidth - 16;
+    combinedC.height = w.clientHeight - 16;
+    drawCombined();
+}
+
+function drawCombined() {
+    const W = combinedC.width, H = combinedC.height, ctx = combinedCtx;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    const a_m = cA * 1e-6;
+    const d_m = cD * 1e-6;
+    const lam_m = cLam * 1e-9;
+    const col = nmToColor(cLam);
+
+    const plotLeft = 80;
+    const plotRight = W - 40;
+    const plotW = plotRight - plotLeft;
+    const plotTop = 60;
+    const plotBottom = H - 100;
+    const plotH = plotBottom - plotTop;
+
+    // Screen bar at top
+    const barTop = 20;
+    const barH = 30;
+    const thetaMax = Math.min(0.3, 5 * lam_m / a_m);
+
+    ctx.fillStyle = '#222';
+    ctx.fillRect(plotLeft, barTop, plotW, barH);
+
+    for (let px = 0; px < plotW; px++) {
+        const theta = ((px / plotW) - 0.5) * 2 * thetaMax;
+        const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+        const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+        const env = sinc(beta) * sinc(beta);
+        const fringe = Math.cos(alpha) * Math.cos(alpha);
+        const I = env * fringe;
+
+        const colParts = col.match(/\d+/g);
+        ctx.fillStyle = `rgb(${Math.round(colParts[0] * I)},${Math.round(colParts[1] * I)},${Math.round(colParts[2] * I)})`;
+        ctx.fillRect(plotLeft + px, barTop, 1, barH);
+    }
+
+    // Axes
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(plotLeft, plotTop);
+    ctx.lineTo(plotLeft, plotBottom);
+    ctx.lineTo(plotRight, plotBottom);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('θ (radians)', (plotLeft + plotRight) / 2, H - 40);
+
+    // Y-axis labels
+    for (let i = 0; i <= 4; i++) {
+        const f = i / 4;
+        const py = plotBottom - f * plotH;
+        ctx.fillStyle = '#666';
+        ctx.font = '9px Segoe UI';
+        ctx.textAlign = 'right';
+        ctx.fillText(f.toFixed(2), plotLeft - 8, py + 3);
+    }
+
+    // Envelope (sinc²) - dashed
+    if (cShowEnvelope) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const theta = ((px / plotW) - 0.5) * 2 * thetaMax;
+            const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+            const env = sinc(beta) * sinc(beta);
+            const py = plotBottom - env * plotH;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = 'rgba(255,152,0,0.7)';
+        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // Fringes (cos²) - dotted
+    if (cShowFringes) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const theta = ((px / plotW) - 0.5) * 2 * thetaMax;
+            const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+            const fringe = Math.cos(alpha) * Math.cos(alpha);
+            const py = plotBottom - fringe * plotH;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = 'rgba(0,230,118,0.5)';
+        ctx.setLineDash([2, 2]);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    // Combined pattern
+    ctx.beginPath();
+    for (let px = 0; px <= plotW; px++) {
+        const theta = ((px / plotW) - 0.5) * 2 * thetaMax;
+        const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+        const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+        const env = sinc(beta) * sinc(beta);
+        const fringe = Math.cos(alpha) * Math.cos(alpha);
+        const I = env * fringe;
+        const py = plotBottom - I * plotH;
+        if (px === 0) ctx.moveTo(plotLeft + px, py);
+        else ctx.lineTo(plotLeft + px, py);
+    }
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Legend
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'left';
+    if (cShowEnvelope) {
+        ctx.fillStyle = 'rgba(255,152,0,0.9)';
+        ctx.fillText('Envelope (sinc² from slit width a)', plotLeft + 10, plotTop + 15);
+    }
+    if (cShowFringes) {
+        ctx.fillStyle = 'rgba(0,230,118,0.7)';
+        ctx.fillText('Fringes (cos² from slit separation d)', plotLeft + 10, plotTop + (cShowEnvelope ? 30 : 15));
+    }
+    ctx.fillStyle = col;
+    ctx.fillText('Combined pattern', plotLeft + 10, plotTop + (cShowEnvelope && cShowFringes ? 45 : (cShowEnvelope || cShowFringes ? 30 : 15)));
+
+    // Order labels below the plot
+    ctx.font = '9px Segoe UI';
+    ctx.textAlign = 'center';
+
+    // Envelope (diffraction) minima: a*sin(θ) = m*λ → θ = arcsin(m*λ/a)
+    // Show in orange below the axis
+    if (cShowEnvelope) {
+        ctx.fillStyle = 'rgba(255,152,0,0.8)';
+        for (let m = -5; m <= 5; m++) {
+            if (m === 0) continue;  // No minimum at m=0
+            const sinTheta = m * lam_m / a_m;
+            if (Math.abs(sinTheta) <= 1) {
+                const theta = Math.asin(sinTheta);
+                const px = plotLeft + ((theta / thetaMax + 1) / 2) * plotW;
+                if (px >= plotLeft && px <= plotRight) {
+                    ctx.fillText(`m=${m}`, px, plotBottom + 25);
+                }
+            }
+        }
+        ctx.fillText('Envelope minima', plotLeft - 35, plotBottom + 25);
+    }
+
+    // Fringe (interference) maxima: d*sin(θ) = m*λ → θ = arcsin(m*λ/d)
+    // Show in green below the envelope labels
+    if (cShowFringes) {
+        ctx.fillStyle = 'rgba(0,230,118,0.8)';
+        for (let m = -10; m <= 10; m++) {
+            const sinTheta = m * lam_m / d_m;
+            if (Math.abs(sinTheta) <= 1) {
+                const theta = Math.asin(sinTheta);
+                const px = plotLeft + ((theta / thetaMax + 1) / 2) * plotW;
+                if (px >= plotLeft && px <= plotRight) {
+                    ctx.fillText(`${m}`, px, plotBottom + 40);
+                }
+            }
+        }
+        ctx.fillText('Fringe maxima', plotLeft - 35, plotBottom + 40);
+    }
+
+    // Hover line and info
+    if (cHoverX !== null && cHoverX >= plotLeft && cHoverX <= plotRight) {
+        const theta = ((cHoverX - plotLeft) / plotW - 0.5) * 2 * thetaMax;
+
+        // Draw vertical dashed line
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.beginPath();
+        ctx.moveTo(cHoverX, plotTop);
+        ctx.lineTo(cHoverX, plotBottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Calculate values
+        const beta = Math.PI * a_m * Math.sin(theta) / lam_m;
+        const alpha = Math.PI * d_m * Math.sin(theta) / lam_m;
+        const env = sinc(beta) * sinc(beta);
+        const fringe = Math.cos(alpha) * Math.cos(alpha);
+        const combined = env * fringe;
+
+        // Update info panel
+        let info = `θ = ${(theta * 180 / Math.PI).toFixed(2)}°<br>`;
+        info += `sin θ = ${Math.sin(theta).toFixed(4)}<br>`;
+        if (cShowEnvelope) info += `Envelope: ${(env * 100).toFixed(1)}%<br>`;
+        if (cShowFringes) info += `Fringes: ${(fringe * 100).toFixed(1)}%<br>`;
+        info += `<strong>Combined: ${(combined * 100).toFixed(1)}%</strong>`;
+        document.getElementById('combinedInfo').innerHTML = info;
+    } else {
+        // Reset to default info
+        const ratio = cD / cA;
+        const fringesInCentral = 2 * Math.floor(ratio) + 1;
+        document.getElementById('combinedInfo').innerHTML = `Fringes in central max: <strong>${fringesInCentral}</strong>`;
+    }
+
+    // Update ratio
+    const ratio = cD / cA;
+    document.getElementById('ratioVal').textContent = ratio.toFixed(1);
+
+    // Count fringes in central max
+    // Central max goes from first envelope zero to first envelope zero
+    // Envelope zeros at a*sin(theta) = m*lambda, so sin(theta) = lambda/a
+    // Fringes at d*sin(theta) = m*lambda, so sin(theta) = m*lambda/d
+    // Number of fringes = 2 * floor(d/a) + 1 (including m=0)
+    const fringesInCentral = 2 * Math.floor(ratio) + 1;
+    document.getElementById('fringeCount').textContent = fringesInCentral;
+}
+
+document.getElementById('cA').addEventListener('input', e => { cA = parseFloat(e.target.value); document.getElementById('cAVal').textContent = cA + ' μm'; drawCombined(); });
+document.getElementById('cD').addEventListener('input', e => { cD = parseFloat(e.target.value); document.getElementById('cDVal').textContent = cD + ' μm'; drawCombined(); });
+document.getElementById('cLam').addEventListener('input', e => { cLam = parseInt(e.target.value); document.getElementById('cLamVal').textContent = cLam + ' nm'; drawCombined(); });
+document.getElementById('btnShowEnvelope').addEventListener('click', e => { cShowEnvelope = !cShowEnvelope; e.target.classList.toggle('active', cShowEnvelope); drawCombined(); });
+document.getElementById('btnShowFringes').addEventListener('click', e => { cShowFringes = !cShowFringes; e.target.classList.toggle('active', cShowFringes); drawCombined(); });
+combinedC.addEventListener('mousemove', e => { cHoverX = e.clientX - combinedC.getBoundingClientRect().left; drawCombined(); });
+combinedC.addEventListener('mouseleave', () => { cHoverX = null; drawCombined(); });
+
+// ======================================================================
+//  SECTION 4: INTENSITY EQUATIONS
+// ======================================================================
+const intC = document.getElementById('intCanvas');
+const intCtx = intC.getContext('2d');
+
+let iN = 5;
+let iShow2Slit = true, iShowNSlit = false, iShowSingle = false;
+let iHoverX = null;
+
+function resizeInt() {
+    const w = intC.parentElement;
+    intC.width = w.clientWidth - 16;
+    intC.height = w.clientHeight - 16;
+    drawInt();
+}
+
+function drawInt() {
+    const W = intC.width, H = intC.height, ctx = intCtx;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    const plotLeft = 80;
+    const plotRight = W - 40;
+    const plotW = plotRight - plotLeft;
+    const plotTop = 40;
+    const plotBottom = H - 60;
+    const plotH = plotBottom - plotTop;
+
+    // Axes
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(plotLeft, plotTop);
+    ctx.lineTo(plotLeft, plotBottom);
+    ctx.lineTo(plotRight, plotBottom);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('α = πd sinθ / λ  (or πa sinθ / λ for single slit)', (plotLeft + plotRight) / 2, H - 15);
+
+    // Alpha range: -3π to 3π
+    const alphaMax = 3 * Math.PI;
+
+    // Tick marks
+    for (let m = -3; m <= 3; m++) {
+        const px = plotLeft + ((m * Math.PI + alphaMax) / (2 * alphaMax)) * plotW;
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.beginPath();
+        ctx.moveTo(px, plotTop);
+        ctx.lineTo(px, plotBottom);
+        ctx.stroke();
+        ctx.fillStyle = '#666';
+        ctx.font = '9px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText(m === 0 ? '0' : `${m}π`, px, plotBottom + 15);
+    }
+
+    // Y-axis normalization depends on what's shown
+    let maxY = 1;
+    if (iShowNSlit) maxY = iN * iN;
+    if (iShow2Slit && !iShowNSlit) maxY = 4;
+
+    // 2-slit pattern
+    if (iShow2Slit) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const alpha = ((px / plotW) - 0.5) * 2 * alphaMax;
+            const I = 4 * Math.cos(alpha) * Math.cos(alpha);
+            const py = plotBottom - (I / maxY) * plotH * 0.95;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = '#ff9800';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // N-slit pattern
+    if (iShowNSlit) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const alpha = ((px / plotW) - 0.5) * 2 * alphaMax;
+            const I = nSlitIntensity(iN, alpha);
+            const py = plotBottom - (I / maxY) * plotH * 0.95;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = '#00d4ff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // Single slit pattern
+    if (iShowSingle) {
+        ctx.beginPath();
+        for (let px = 0; px <= plotW; px++) {
+            const beta = ((px / plotW) - 0.5) * 2 * alphaMax;
+            const I = sinc(beta) * sinc(beta);
+            const py = plotBottom - I * plotH * 0.95;
+            if (px === 0) ctx.moveTo(plotLeft + px, py);
+            else ctx.lineTo(plotLeft + px, py);
+        }
+        ctx.strokeStyle = '#e91e63';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // Legend
+    ctx.font = '10px Segoe UI';
+    ctx.textAlign = 'left';
+    let legendY = plotTop + 15;
+    if (iShow2Slit) {
+        ctx.fillStyle = '#ff9800';
+        ctx.fillText('2-Slit: I = 4I₀cos²(α)', plotLeft + 10, legendY);
+        legendY += 15;
+    }
+    if (iShowNSlit) {
+        ctx.fillStyle = '#00d4ff';
+        ctx.fillText(`${iN}-Slit: I = I₀[sin(${iN}α)/sin(α)]²`, plotLeft + 10, legendY);
+        legendY += 15;
+    }
+    if (iShowSingle) {
+        ctx.fillStyle = '#e91e63';
+        ctx.fillText('Single: I = I₀sinc²(β)', plotLeft + 10, legendY);
+    }
+
+    // Hover
+    if (iHoverX !== null && iHoverX >= plotLeft && iHoverX <= plotRight) {
+        const alpha = ((iHoverX - plotLeft) / plotW - 0.5) * 2 * alphaMax;
+
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath();
+        ctx.moveTo(iHoverX, plotTop);
+        ctx.lineTo(iHoverX, plotBottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        let info = `α = ${(alpha / Math.PI).toFixed(3)}π rad<br>`;
+        if (iShow2Slit) {
+            const I2 = 4 * Math.cos(alpha) * Math.cos(alpha);
+            info += `2-Slit: I = ${I2.toFixed(3)}I₀<br>`;
+        }
+        if (iShowNSlit) {
+            const IN = nSlitIntensity(iN, alpha);
+            info += `${iN}-Slit: I = ${IN.toFixed(3)}I₀<br>`;
+        }
+        if (iShowSingle) {
+            const Is = sinc(alpha) * sinc(alpha);
+            info += `Single: I = ${Is.toFixed(4)}I₀`;
+        }
+        document.getElementById('intInfo').innerHTML = info;
+    }
+}
+
+intC.addEventListener('mousemove', e => { iHoverX = e.clientX - intC.getBoundingClientRect().left; drawInt(); });
+intC.addEventListener('mouseleave', () => { iHoverX = null; drawInt(); });
+
+document.getElementById('iN').addEventListener('input', e => { iN = parseInt(e.target.value); document.getElementById('iNVal').textContent = iN; drawInt(); });
+document.getElementById('btnInt2Slit').addEventListener('click', e => { iShow2Slit = !iShow2Slit; e.target.classList.toggle('active', iShow2Slit); drawInt(); });
+document.getElementById('btnIntNSlit').addEventListener('click', e => { iShowNSlit = !iShowNSlit; e.target.classList.toggle('active', iShowNSlit); drawInt(); });
+document.getElementById('btnIntSingle').addEventListener('click', e => { iShowSingle = !iShowSingle; e.target.classList.toggle('active', iShowSingle); drawInt(); });
+
+// ========== INIT ==========
+window.addEventListener('resize', () => {
+    if (document.getElementById('sec-grating').classList.contains('active')) resizeGrating();
+    if (document.getElementById('sec-huygens').classList.contains('active')) resizeHuygens();
+    if (document.getElementById('sec-single').classList.contains('active')) resizeSingle();
+    if (document.getElementById('sec-combined').classList.contains('active')) resizeCombined();
+    if (document.getElementById('sec-intensity').classList.contains('active')) resizeInt();
+});
+
+// Initialize N from logarithmic slider
+gN = sliderToN(parseInt(document.getElementById('gNSlider').value));
+document.getElementById('gNVal').textContent = gN;
+
+resizeGrating();
+renderLatex();
+
+// Start Huygens animation if that tab becomes active
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        if (tab.dataset.tab === 'huygens' && !hAnimFrame) {
+            resizeHuygens();
+            animateHuygens();
+        }
+    });
+});
+</script>
+</body>
+</html>

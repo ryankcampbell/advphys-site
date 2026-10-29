@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Fiber Diffraction - Analytical Helical Theory</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #7eb8da;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .panel {
+            background: #252540;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        canvas {
+            background: #000;
+            border-radius: 4px;
+        }
+        .controls {
+            width: 280px;
+        }
+        .controls h3 {
+            color: #7eb8da;
+            font-size: 14px;
+            margin: 15px 0 10px 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        .controls h3:first-child { margin-top: 0; }
+        .slider-group {
+            margin-bottom: 10px;
+        }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .slider-group .value {
+            color: #7eb8da;
+            font-family: monospace;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .info {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .info code {
+            color: #7eb8da;
+            background: #333;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        .status {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #7eb8da;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #9ecfeb;
+        }
+    </style>
+</head>
+<body>
+    <h1>DNA Fiber Diffraction</h1>
+    <p class="subtitle">Analytical helical diffraction with Bessel functions</p>
+
+    <div class="container">
+        <div class="panel">
+            <canvas id="canvas" width="512" height="512"></canvas>
+            <div class="status" id="status">Ready</div>
+        </div>
+
+        <div class="panel controls">
+            <h3>B-DNA Parameters</h3>
+            <div class="slider-group">
+                <label>Pitch (P): <span class="value" id="pitchVal">3.4 nm</span></label>
+                <input type="range" id="pitch" min="2" max="5" step="0.1" value="3.4">
+            </div>
+            <div class="slider-group">
+                <label>Helix radius (R): <span class="value" id="radiusVal">1.0 nm</span></label>
+                <input type="range" id="radius" min="0.5" max="2" step="0.1" value="1.0">
+            </div>
+            <div class="slider-group">
+                <label>Bases per turn: <span class="value" id="basesVal">10</span></label>
+                <input type="range" id="bases" min="6" max="14" step="1" value="10">
+            </div>
+            <div class="slider-group">
+                <label>Strand offset: <span class="value" id="offsetVal">3/8 P</span></label>
+                <input type="range" id="offset" min="0" max="0.5" step="0.025" value="0.375">
+            </div>
+
+            <h3>Display</h3>
+            <div class="slider-group">
+                <label>Max layer line: <span class="value" id="maxLayerVal">8</span></label>
+                <input type="range" id="maxLayer" min="4" max="12" step="1" value="8">
+            </div>
+            <div class="slider-group">
+                <label>Brightness: <span class="value" id="brightnessVal">1.0</span></label>
+                <input type="range" id="brightness" min="0.2" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="slider-group">
+                <label>Radial falloff: <span class="value" id="falloffVal">2.0</span></label>
+                <input type="range" id="falloff" min="0" max="4" step="0.2" value="2.0">
+            </div>
+            <div class="slider-group">
+                <label>Threshold (cut low): <span class="value" id="thresholdVal">0.000</span></label>
+                <input type="range" id="threshold" min="0" max="0.04" step="0.001" value="0">
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="logScale" checked> Log intensity scale</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="bwMode"> B/W mode (like Photo 51)</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="showBeamstop" checked> Show beamstop</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="showLayerLines"> Show layer line labels</label>
+            </div>
+
+            <button id="render">Render</button>
+
+            <div class="info">
+                <strong>Physics:</strong><br>
+                Intensity on layer line <code>l</code>:<br>
+                <code>I ∝ |F|² × |J_l(2πRq)|²</code><br><br>
+                <code>F</code> = structure factor (strand interference)<br>
+                <code>J_l</code> = Bessel function of order l<br>
+                <code>R</code> = helix radius<br>
+                <code>q</code> = radial position in reciprocal space<br><br>
+                Strand offset of 3/8 P → missing 4th layer line
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+
+        // Bessel function J_n(x) using series expansion
+        function besselJ(n, x) {
+            if (Math.abs(x) < 1e-10) return n === 0 ? 1 : 0;
+
+            // For large x, use asymptotic approximation
+            if (Math.abs(x) > 20) {
+                const phase = x - (n / 2 + 0.25) * Math.PI;
+                return Math.sqrt(2 / (Math.PI * Math.abs(x))) * Math.cos(phase);
+            }
+
+            let sum = 0;
+            for (let m = 0; m < 30; m++) {
+                const sign = (m % 2 === 0) ? 1 : -1;
+                const num = Math.pow(x / 2, 2 * m + n);
+                const denom = factorial(m) * factorial(m + n);
+                if (denom === Infinity) break;
+                const term = sign * num / denom;
+                sum += term;
+                if (Math.abs(term) < 1e-15 * Math.abs(sum)) break;
+            }
+            return sum;
+        }
+
+        // Factorial with memoization
+        const factorialCache = [1, 1];
+        function factorial(n) {
+            if (n < 0) return Infinity;
+            if (n < factorialCache.length) return factorialCache[n];
+            let result = factorialCache[factorialCache.length - 1];
+            for (let i = factorialCache.length; i <= n; i++) {
+                result *= i;
+                factorialCache[i] = result;
+                if (result === Infinity) break;
+            }
+            return result;
+        }
+
+        // Structure factor for double helix with offset
+        // Returns |1 + e^(i * 2π * l * offset)|²
+        function structureFactor(layerLine, strandOffset) {
+            const phase = 2 * Math.PI * layerLine * strandOffset;
+            // |1 + e^(iφ)|² = |1 + cos(φ) + i*sin(φ)|² = (1+cos(φ))² + sin²(φ) = 2(1 + cos(φ))
+            return 2 * (1 + Math.cos(phase));
+        }
+
+        // Compute the diffraction pattern
+        function computeDiffraction() {
+            const status = document.getElementById('status');
+            status.textContent = 'Computing...';
+
+            const pitch = parseFloat(document.getElementById('pitch').value);
+            const radius = parseFloat(document.getElementById('radius').value);
+            const basesPerTurn = parseInt(document.getElementById('bases').value);
+            const strandOffset = parseFloat(document.getElementById('offset').value);
+            const maxLayer = parseInt(document.getElementById('maxLayer').value);
+            const brightness = parseFloat(document.getElementById('brightness').value);
+            const falloff = parseFloat(document.getElementById('falloff').value);
+            const threshold = parseFloat(document.getElementById('threshold').value);
+            const logScale = document.getElementById('logScale').checked;
+            const bwMode = document.getElementById('bwMode').checked;
+            const showBeamstop = document.getElementById('showBeamstop').checked;
+            const showLayerLines = document.getElementById('showLayerLines').checked;
+
+            const cx = size / 2;
+            const cy = size / 2;
+
+            // Scale factors - map reciprocal space to pixels
+            // Layer lines spaced by 1/P in reciprocal space
+            const layerSpacingPx = size / (2 * maxLayer);  // pixels per layer line
+            const qScale = 0.8;  // Scale for radial coordinate
+
+            const intensity = new Float64Array(size * size);
+            let maxI = 0;
+
+            // Layer line width (Gaussian envelope)
+            const layerWidth = 0.15;
+
+            for (let py = 0; py < size; py++) {
+                for (let px = 0; px < size; px++) {
+                    // Position relative to center (in layer-line units)
+                    const qx = (px - cx) / layerSpacingPx;  // Radial (horizontal)
+                    const qy = (py - cy) / layerSpacingPx;  // Meridional (vertical)
+
+                    // Radial distance from meridian
+                    const qRadial = Math.abs(qx) * qScale;
+
+                    let totalIntensity = 0;
+
+                    // Sum contributions from each layer line
+                    for (let l = -maxLayer; l <= maxLayer; l++) {
+                        // Distance to this layer line
+                        const layerDist = qy - l;
+
+                        // Layer line envelope (Gaussian)
+                        const envelope = Math.exp(-layerDist * layerDist / (2 * layerWidth * layerWidth));
+                        if (envelope < 0.001) continue;
+
+                        // Bessel function argument: 2πRq
+                        // Scale so first beads appear at reasonable position
+                        const besselArg = 2 * Math.PI * radius * qRadial * 1.5;
+
+                        // Bessel function for this layer line
+                        const J = besselJ(Math.abs(l), besselArg);
+
+                        // Structure factor (double helix interference)
+                        const F = structureFactor(l, strandOffset);
+
+                        // Intensity contribution from this layer line
+                        const I = envelope * F * J * J;
+                        totalIntensity += I;
+                    }
+
+                    // Apply radial falloff (simulates atomic form factor, geometry)
+                    const distFromCenter = Math.sqrt(qx * qx + qy * qy);
+                    const radialFalloff = 1 / Math.pow(1 + distFromCenter * 0.5, falloff);
+
+                    intensity[py * size + px] = totalIntensity * radialFalloff;
+                    if (totalIntensity > maxI) maxI = totalIntensity;
+                }
+            }
+
+            // Render to canvas
+            const imgData = ctx.createImageData(size, size);
+
+            for (let i = 0; i < size * size; i++) {
+                let val = intensity[i] / maxI;
+
+                // Apply threshold - cut low values to zero
+                if (val < threshold) val = 0;
+
+                if (logScale) {
+                    val = Math.log(1 + val * 100 * brightness) / Math.log(1 + 100 * brightness);
+                } else {
+                    val = val * brightness;
+                }
+                val = Math.min(1, Math.max(0, val));
+
+                let r, g, b;
+                if (bwMode) {
+                    // Invert for film-like appearance
+                    const gray = Math.round((1 - val) * 255);
+                    r = g = b = gray;
+                } else {
+                    // Heat map
+                    r = Math.min(255, val * 3 * 255);
+                    g = Math.min(255, Math.max(0, (val - 0.33) * 3 * 255));
+                    b = Math.min(255, Math.max(0, (val - 0.67) * 3 * 255));
+                }
+
+                imgData.data[i * 4] = r;
+                imgData.data[i * 4 + 1] = g;
+                imgData.data[i * 4 + 2] = b;
+                imgData.data[i * 4 + 3] = 255;
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+
+            // Draw beamstop
+            if (showBeamstop) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, size * 0.04, 0, 2 * Math.PI);
+                ctx.fillStyle = bwMode ? '#fff' : '#000';
+                ctx.fill();
+                ctx.strokeStyle = bwMode ? '#888' : '#444';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw layer line labels
+            if (showLayerLines) {
+                ctx.font = '12px monospace';
+                ctx.fillStyle = bwMode ? '#000' : '#fff';
+                ctx.textAlign = 'left';
+                for (let l = -maxLayer; l <= maxLayer; l++) {
+                    const y = cy - l * layerSpacingPx;
+                    if (y > 15 && y < size - 5) {
+                        ctx.fillText(l.toString(), 5, y + 4);
+                    }
+                }
+            }
+
+            status.textContent = `Done. Max layer: ±${maxLayer}, Strand offset: ${strandOffset.toFixed(3)}P`;
+        }
+
+        // Event listeners
+        document.getElementById('render').addEventListener('click', computeDiffraction);
+
+        // Update value displays and auto-render
+        const sliders = ['pitch', 'radius', 'bases', 'offset', 'maxLayer', 'brightness', 'falloff', 'threshold'];
+        sliders.forEach(id => {
+            const slider = document.getElementById(id);
+            const valSpan = document.getElementById(id + 'Val');
+            slider.addEventListener('input', () => {
+                let val = slider.value;
+                if (id === 'pitch') val += ' nm';
+                else if (id === 'radius') val += ' nm';
+                else if (id === 'threshold') val = parseFloat(val).toFixed(3);
+                else if (id === 'offset') {
+                    const f = parseFloat(val);
+                    if (Math.abs(f - 0.375) < 0.01) val = '3/8 P';
+                    else if (Math.abs(f - 0.5) < 0.01) val = '1/2 P';
+                    else if (Math.abs(f - 0.25) < 0.01) val = '1/4 P';
+                    else val = f.toFixed(3) + ' P';
+                }
+                valSpan.textContent = val;
+            });
+        });
+
+        // Checkboxes auto-render
+        ['logScale', 'bwMode', 'showBeamstop', 'showLayerLines'].forEach(id => {
+            document.getElementById(id).addEventListener('change', computeDiffraction);
+        });
+
+        // Initial render
+        computeDiffraction();
+    </script>
+</body>
+</html>

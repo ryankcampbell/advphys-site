@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two-Source Interference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            height: 100vh;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .canvas-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        .zoom-label {
+            font-size: 0.8rem;
+            color: #00d4ff;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        canvas {
+            border-radius: 8px;
+            cursor: crosshair;
+            background: #0a0a1a;
+        }
+
+        .controls {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00d4ff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-toggle {
+            background: rgba(123, 44, 191, 0.3);
+            color: #e0e0e0;
+            border: 1px solid rgba(123, 44, 191, 0.5);
+        }
+
+        .btn-toggle.active {
+            background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+            color: #fff;
+            border-color: #9d4edd;
+        }
+
+        .btn-animate {
+            background: rgba(0, 200, 83, 0.3);
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 200, 83, 0.5);
+        }
+
+        .btn-animate.active {
+            background: linear-gradient(135deg, #00c853, #00e676);
+            color: #000;
+            border-color: #00e676;
+        }
+
+        .slider-row {
+            margin: 8px 0 4px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+        }
+
+        .slider-value {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 212, 255, 0.4);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+        }
+
+        .legend-line {
+            width: 20px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        .legend-solid { background: #00d4ff; }
+        .legend-dashed {
+            background: repeating-linear-gradient(90deg, #00d4ff, #00d4ff 3px, transparent 3px, transparent 6px);
+        }
+        .legend-antinodal { background: #00e676; }
+        .legend-nodal { background: #ff5252; }
+
+        .click-info {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .click-info .label {
+            color: #ffc107;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.7rem;
+        }
+
+        .hint {
+            font-size: 0.65rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        @media (max-height: 700px) {
+            .controls {
+                width: 250px;
+                padding: 8px;
+                gap: 6px;
+            }
+            .control-section {
+                padding: 8px;
+            }
+            .btn {
+                padding: 6px 8px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-panel">
+            <div class="canvas-header">
+                <h1>Two-Source Wave Interference</h1>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomOut" title="Zoom Out">-</button>
+                    <span class="zoom-label" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+                </div>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas id="waveCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <div class="section-title">Source Separation</div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" id="btnCloser">&#9664; Closer</button>
+                    <button class="btn btn-secondary" id="btnFarther">Farther &#9654;</button>
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>Separation</span>
+                        <span class="slider-value" id="separationValue">4.0 λ</span>
+                    </div>
+                    <input type="range" id="separationSlider" min="1" max="10" step="0.1" value="4">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Interference Lines</div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle" id="btnAntinodal">Anti-Nodal</button>
+                    <button class="btn btn-toggle" id="btnNodal">Nodal</button>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-line legend-solid"></div><span>Crest</span></div>
+                    <div class="legend-item"><div class="legend-line legend-dashed"></div><span>Trough</span></div>
+                    <div class="legend-item"><div class="legend-line legend-antinodal"></div><span>Anti-Nodal</span></div>
+                    <div class="legend-item"><div class="legend-line legend-nodal"></div><span>Nodal</span></div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Animation</div>
+                <button class="btn btn-animate" id="btnAnimate" style="width: 100%;">&#9654; Start Rippling</button>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>Speed</span>
+                        <span class="slider-value" id="speedValue">1.0x</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.2" max="3" step="0.1" value="1">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Wave Properties</div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>Wavelength</span>
+                        <span class="slider-value" id="wavelengthValue">40 px</span>
+                    </div>
+                    <input type="range" id="wavelengthSlider" min="15" max="80" step="5" value="40">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>Wave Count</span>
+                        <span class="slider-value" id="waveCountValue">20</span>
+                    </div>
+                    <input type="range" id="waveCountSlider" min="10" max="40" step="1" value="20">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">Measurement</div>
+                <div class="click-info" id="clickInfo">
+                    <div class="label">Path Information</div>
+                    <div id="pathDetails">Click canvas to measure...</div>
+                </div>
+                <div class="hint">Click to measure | Double-click to clear</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // State
+        let wavelength = 40;
+        let waveCount = 20;
+        let separation = 4;
+        let showAntinodal = false;
+        let showNodal = false;
+        let isAnimating = false;
+        let animationPhase = 0;
+        let animationSpeed = 1;
+        let clickPoint = null;
+        let animationId = null;
+        let zoom = 1.0;
+
+        let source1, source2;
+
+        function resizeCanvas() {
+            const wrapper = document.querySelector('.canvas-wrapper');
+            const maxWidth = wrapper.clientWidth - 20;
+            const maxHeight = wrapper.clientHeight - 20;
+            const size = Math.min(maxWidth, maxHeight);
+            canvas.width = size;
+            canvas.height = size;
+            draw();
+        }
+
+        function updateSourcePositions() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const effectiveWavelength = wavelength * zoom;
+            const halfSep = (separation * effectiveWavelength) / 2;
+            source1 = { x: centerX - halfSep, y: centerY };
+            source2 = { x: centerX + halfSep, y: centerY };
+        }
+
+        function drawWaves(source, phase = 0) {
+            const maxRadius = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height);
+            const effectiveWavelength = wavelength * zoom;
+            // Half wavelength spacing: crest at 0, 1λ, 2λ... and trough at 0.5λ, 1.5λ, 2.5λ...
+            const halfWave = effectiveWavelength / 2;
+            // Track how many half-waves have passed to keep crest/trough pattern consistent
+            const halfWavesPassed = Math.floor(phase / halfWave);
+            const effectivePhase = phase % halfWave;
+
+            for (let i = 0; i < waveCount * 2; i++) {
+                const radius = (i * halfWave) + effectivePhase;
+                if (radius <= 0 || radius > maxRadius) continue;
+
+                // Flip crest/trough based on half-waves passed for seamless animation
+                const isCrest = (i + halfWavesPassed) % 2 === 0;
+
+                ctx.beginPath();
+                ctx.arc(source.x, source.y, radius, 0, Math.PI * 2);
+
+                if (isCrest) {
+                    ctx.strokeStyle = 'rgba(0, 212, 255, 0.7)';
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.strokeStyle = 'rgba(0, 212, 255, 0.4)';
+                    ctx.setLineDash([8, 8]);
+                }
+
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            ctx.setLineDash([]);
+        }
+
+        function drawSource(source, label) {
+            ctx.beginPath();
+            ctx.arc(source.x, source.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffc107';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, source.x, source.y - 15);
+        }
+
+        function getPathDifference(x, y) {
+            const d1 = Math.sqrt((x - source1.x) ** 2 + (y - source1.y) ** 2);
+            const d2 = Math.sqrt((x - source2.x) ** 2 + (y - source2.y) ** 2);
+            return { d1, d2, delta: Math.abs(d1 - d2) };
+        }
+
+        function drawInterferenceLines() {
+            const effectiveWavelength = wavelength * zoom;
+            const maxOrder = Math.ceil(separation) + 2;
+
+            for (let order = 0; order <= maxOrder; order++) {
+                if (showAntinodal) {
+                    const targetDelta = order * effectiveWavelength;
+                    drawInterferenceLine(targetDelta, '#00e676', `Δx = ${order}λ`, order);
+                }
+
+                if (showNodal) {
+                    const targetDelta = (order + 0.5) * effectiveWavelength;
+                    drawInterferenceLine(targetDelta, '#ff5252', `Δx = ${order + 0.5}λ`, order + 0.5);
+                }
+            }
+        }
+
+        function drawInterferenceLine(targetDelta, color, label, order) {
+            const midX = canvas.width / 2;
+            const midY = canvas.height / 2;
+            const effectiveWavelength = wavelength * zoom;
+            const c = separation * effectiveWavelength / 2;
+
+            if (targetDelta === 0) {
+                ctx.beginPath();
+                ctx.moveTo(midX, 0);
+                ctx.lineTo(midX, canvas.height);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = color;
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, midX + 25, 20);
+                return;
+            }
+
+            const a = targetDelta / 2;
+            if (a >= c) return;
+
+            const b = Math.sqrt(c * c - a * a);
+
+            for (let branch = -1; branch <= 1; branch += 2) {
+                const branchPoints = [];
+
+                for (let y = -canvas.height; y <= canvas.height * 2; y += 3) {
+                    const relY = y - midY;
+                    const xSquared = a * a * (1 + (relY * relY) / (b * b));
+                    const x = branch * Math.sqrt(xSquared);
+
+                    const canvasX = midX + x;
+                    const canvasY = y;
+
+                    if (canvasX >= 0 && canvasX <= canvas.width && canvasY >= 0 && canvasY <= canvas.height) {
+                        branchPoints.push({ x: canvasX, y: canvasY });
+                    }
+                }
+
+                if (branchPoints.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(branchPoints[0].x, branchPoints[0].y);
+                    for (let i = 1; i < branchPoints.length; i++) {
+                        ctx.lineTo(branchPoints[i].x, branchPoints[i].y);
+                    }
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    if (branchPoints.length > 0) {
+                        const labelPoint = branchPoints[Math.floor(branchPoints.length * 0.1)];
+                        if (labelPoint) {
+                            ctx.fillStyle = color;
+                            ctx.font = 'bold 10px Segoe UI';
+                            ctx.textAlign = branch > 0 ? 'left' : 'right';
+                            const offsetX = branch > 0 ? 4 : -4;
+                            ctx.fillText(label, labelPoint.x + offsetX, labelPoint.y - 4);
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawPathLines() {
+            if (!clickPoint) return;
+
+            const effectiveWavelength = wavelength * zoom;
+            const { d1, d2, delta } = getPathDifference(clickPoint.x, clickPoint.y);
+
+            ctx.beginPath();
+            ctx.moveTo(clickPoint.x, clickPoint.y);
+            ctx.lineTo(source1.x, source1.y);
+            ctx.strokeStyle = '#ff9800';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([]);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(clickPoint.x, clickPoint.y);
+            ctx.lineTo(source2.x, source2.y);
+            ctx.strokeStyle = '#e91e63';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(clickPoint.x, clickPoint.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            const d1Lambda = (d1 / effectiveWavelength).toFixed(2);
+            const d2Lambda = (d2 / effectiveWavelength).toFixed(2);
+            const deltaLambda = (delta / effectiveWavelength).toFixed(2);
+
+            let interferenceType = '';
+            const deltaInWavelengths = delta / effectiveWavelength;
+            const remainder = deltaInWavelengths % 1;
+
+            if (remainder < 0.1 || remainder > 0.9) {
+                interferenceType = '<span style="color: #00e676;">Constructive</span>';
+            } else if (Math.abs(remainder - 0.5) < 0.1) {
+                interferenceType = '<span style="color: #ff5252;">Destructive</span>';
+            } else {
+                interferenceType = '<span style="color: #888;">Partial</span>';
+            }
+
+            document.getElementById('pathDetails').innerHTML = `
+                <span style="color: #ff9800;">d₁ = ${d1Lambda}λ</span> |
+                <span style="color: #e91e63;">d₂ = ${d2Lambda}λ</span><br>
+                <strong>Δx = ${deltaLambda}λ</strong> ${interferenceType}
+            `;
+        }
+
+        function draw() {
+            updateSourcePositions();
+
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            if (showAntinodal || showNodal) {
+                drawInterferenceLines();
+            }
+
+            drawWaves(source1, animationPhase * zoom);
+            drawWaves(source2, animationPhase * zoom);
+
+            drawSource(source1, 'S₁');
+            drawSource(source2, 'S₂');
+
+            drawPathLines();
+        }
+
+        function animate() {
+            if (!isAnimating) return;
+
+            // Animate continuously - modulo in drawWaves handles the wrapping
+            animationPhase += animationSpeed * 0.8;
+            // Prevent number from growing too large over time
+            if (animationPhase > 10000) {
+                animationPhase = 0;
+            }
+
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Event listeners
+        document.getElementById('separationSlider').addEventListener('input', (e) => {
+            separation = parseFloat(e.target.value);
+            document.getElementById('separationValue').textContent = `${separation.toFixed(1)} λ`;
+            draw();
+        });
+
+        document.getElementById('wavelengthSlider').addEventListener('input', (e) => {
+            wavelength = parseInt(e.target.value);
+            document.getElementById('wavelengthValue').textContent = `${wavelength} px`;
+            draw();
+        });
+
+        document.getElementById('waveCountSlider').addEventListener('input', (e) => {
+            waveCount = parseInt(e.target.value);
+            document.getElementById('waveCountValue').textContent = waveCount;
+            draw();
+        });
+
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+            document.getElementById('speedValue').textContent = `${animationSpeed.toFixed(1)}x`;
+        });
+
+        document.getElementById('btnCloser').addEventListener('click', () => {
+            separation = Math.max(1, separation - 0.5);
+            document.getElementById('separationSlider').value = separation;
+            document.getElementById('separationValue').textContent = `${separation.toFixed(1)} λ`;
+            draw();
+        });
+
+        document.getElementById('btnFarther').addEventListener('click', () => {
+            separation = Math.min(10, separation + 0.5);
+            document.getElementById('separationSlider').value = separation;
+            document.getElementById('separationValue').textContent = `${separation.toFixed(1)} λ`;
+            draw();
+        });
+
+        document.getElementById('btnAntinodal').addEventListener('click', (e) => {
+            showAntinodal = !showAntinodal;
+            e.target.classList.toggle('active', showAntinodal);
+            draw();
+        });
+
+        document.getElementById('btnNodal').addEventListener('click', (e) => {
+            showNodal = !showNodal;
+            e.target.classList.toggle('active', showNodal);
+            draw();
+        });
+
+        document.getElementById('btnAnimate').addEventListener('click', (e) => {
+            isAnimating = !isAnimating;
+            e.target.classList.toggle('active', isAnimating);
+            e.target.innerHTML = isAnimating ? '&#9632; Stop' : '&#9654; Start Rippling';
+
+            if (isAnimating) {
+                animate();
+            } else {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                animationPhase = 0;
+                draw();
+            }
+        });
+
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            zoom = Math.min(2.0, zoom + 0.1);
+            document.getElementById('zoomLevel').textContent = `${Math.round(zoom * 100)}%`;
+            draw();
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            zoom = Math.max(0.3, zoom - 0.1);
+            document.getElementById('zoomLevel').textContent = `${Math.round(zoom * 100)}%`;
+            draw();
+        });
+
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            clickPoint = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            draw();
+        });
+
+        canvas.addEventListener('dblclick', () => {
+            clickPoint = null;
+            document.getElementById('pathDetails').textContent = 'Click canvas to measure...';
+            draw();
+        });
+
+        // Mouse wheel zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoom = Math.min(2.0, zoom + 0.05);
+            } else {
+                zoom = Math.max(0.3, zoom - 0.05);
+            }
+            document.getElementById('zoomLevel').textContent = `${Math.round(zoom * 100)}%`;
+            draw();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>

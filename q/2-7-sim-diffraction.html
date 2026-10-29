@@ -1,0 +1,4169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraunhofer Diffraction Simulator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { text-align: center; margin: 10px 0; font-size: 24px; }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        .tab-btn {
+            padding: 10px 25px;
+            border: none;
+            background: #2a2a4a;
+            color: #aaa;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background: #3a3a5a; }
+        .tab-btn.active { background: #4a4a7a; color: #fff; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .main-container {
+            display: flex;
+            gap: 15px;
+            max-width: 1600px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .panel {
+            background: #252540;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .panel h3 {
+            margin: 0 0 10px 0;
+            color: #7eb8da;
+            font-size: 13px;
+            border-bottom: 1px solid #3a3a5a;
+            padding-bottom: 6px;
+        }
+
+        .canvas-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .canvas-box {
+            text-align: center;
+        }
+        .canvas-box label {
+            display: block;
+            margin-bottom: 5px;
+            color: #7eb8da;
+            font-size: 12px;
+        }
+        canvas {
+            background: #000;
+            border-radius: 4px;
+            image-rendering: pixelated;
+        }
+        #apertureCanvas, #diffractionCanvas {
+            width: 220px;
+            height: 220px;
+        }
+        #dnaStructureCanvas, #dnaDiffractionCanvas {
+            width: 300px;
+            height: 300px;
+        }
+
+        .controls-column {
+            flex: 1;
+            min-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .controls-row > .panel {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .slider-group {
+            margin-bottom: 8px;
+        }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 2px;
+            color: #ccc;
+        }
+        .slider-group .value {
+            color: #7eb8da;
+            font-family: monospace;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            height: 18px;
+        }
+
+        .slider-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .btn-grid button {
+            padding: 6px 2px;
+            border: none;
+            background: #3a3a5c;
+            color: #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: background 0.2s;
+        }
+        .btn-grid button:hover { background: #4a4a7c; }
+        .btn-grid button.active { background: #6a8caf; color: #fff; }
+
+        .checkbox-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+        }
+        .checkbox-group input { cursor: pointer; }
+        .checkbox-group label { cursor: pointer; white-space: nowrap; }
+
+        .cross-section {
+            width: 100%;
+            height: 80px;
+            background: #0a0a15;
+            border-radius: 4px;
+        }
+
+        #aperture1dCanvas, #intensity1dStrip, #intensity1dPlot {
+            width: 100%;
+            background: #0a0a15;
+            border-radius: 4px;
+        }
+
+        #airyDiskCanvas {
+            border-radius: 4px;
+        }
+        #airyProfileCanvas, #twoStarsCanvas, #combinedIntensityCanvas {
+            width: 100%;
+            background: #0a0a15;
+            border-radius: 4px;
+        }
+
+        .formula-box {
+            background: #1a1a2e;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .instructions {
+            font-size: 10px;
+            color: #888;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* DNA Tab specific */
+        .dna-stage {
+            background: #1e1e3a;
+            border-left: 3px solid #4a6fa5;
+        }
+
+        .color-scale {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        .color-bar {
+            flex: 1;
+            height: 15px;
+            background: linear-gradient(to right, #000, #300, #630, #960, #c90, #fc0, #ff6, #ffc, #fff);
+            border-radius: 3px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .modal canvas {
+            border: 2px solid #444;
+            border-radius: 8px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .modal-close:hover { color: #f66; }
+        .modal-label {
+            color: #7eb8da;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .modal-box { text-align: center; }
+
+        /* Photo 51 comparison */
+        .photo51-compare {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .photo51-img {
+            width: 220px;
+            height: 220px;
+            border-radius: 4px;
+            object-fit: contain;
+            background: #000;
+        }
+        .compare-label {
+            text-align: center;
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .clickable-canvas {
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .clickable-canvas:hover {
+            box-shadow: 0 0 10px rgba(126, 184, 218, 0.5);
+        }
+
+        /* DNA Tab Layout */
+        .dna-layout {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .dna-panel {
+            flex: 0 0 auto;
+        }
+        .dna-panel canvas {
+            width: 300px;
+            height: 300px;
+        }
+        .dna-controls {
+            min-width: 280px;
+            max-width: 320px;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #4a6fa5;
+            background: rgba(74,111,165,0.2);
+            color: #aaa;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn:hover {
+            background: rgba(74,111,165,0.3);
+        }
+        .mode-btn.active {
+            background: #4a6fa5;
+            color: #fff;
+            border-color: #6a8fc5;
+        }
+        .btn-compare {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #4a6fa5, #3a5f95);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-compare:hover {
+            background: linear-gradient(135deg, #5a7fb5, #4a6fa5);
+        }
+    </style>
+</head>
+<body>
+    <h1>Fraunhofer Diffraction Simulator</h1>
+
+    <!-- Modal for high-res view -->
+    <div id="modal" class="modal">
+        <span class="modal-close" id="modalClose">&times;</span>
+        <div class="modal-content">
+            <div class="modal-box">
+                <div class="modal-label" id="modalLabel1">Aperture</div>
+                <canvas id="modalCanvas1" width="512" height="512"></canvas>
+            </div>
+            <div class="modal-box">
+                <div class="modal-label" id="modalLabel2">Diffraction Pattern</div>
+                <canvas id="modalCanvas2" width="512" height="512"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolution Modal -->
+    <div id="resolutionModal" class="modal">
+        <span class="modal-close" id="resolutionModalClose">&times;</span>
+        <div class="modal-content" style="flex-direction:column; gap:15px;">
+            <div class="modal-box">
+                <div class="modal-label">Combined PSF (2D view of two stars)</div>
+                <canvas id="modalCombinedPsf" width="600" height="200"></canvas>
+            </div>
+            <div class="modal-box">
+                <div class="modal-label">Intensity Cross-Section</div>
+                <canvas id="modalTwoStars" width="600" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1D Apertures Modal -->
+    <div id="modal1d" class="modal">
+        <span class="modal-close" id="modal1dClose">&times;</span>
+        <div class="modal-content" style="flex-direction:column; gap:15px;">
+            <div class="modal-box">
+                <div class="modal-label">Intensity Pattern</div>
+                <canvas id="modal1dStrip" width="800" height="80"></canvas>
+            </div>
+            <div class="modal-box">
+                <div class="modal-label">Intensity I(θ)</div>
+                <canvas id="modal1dPlot" width="800" height="350"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- DNA Modal with Photo 51 comparison -->
+    <div id="dnaModal" class="modal">
+        <span class="modal-close" id="dnaModalClose">&times;</span>
+        <div class="modal-content">
+            <div class="modal-box">
+                <div class="modal-label">Your Simulation</div>
+                <canvas id="dnaModalCanvas" width="512" height="512"></canvas>
+            </div>
+            <div class="modal-box">
+                <div class="modal-label">Photo 51 (Franklin, 1952)</div>
+                <img src="https://upload.wikimedia.org/wikipedia/en/b/b2/Photo_51_x-ray_diffraction_image.jpg" alt="Photo 51" style="width:512px; height:512px; border:2px solid #444; border-radius:8px;">
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="apertures1d">1D Apertures</button>
+        <button class="tab-btn" data-tab="apertures">2D Apertures</button>
+        <button class="tab-btn" data-tab="resolution">Resolution</button>
+        <button class="tab-btn" data-tab="xray">X-ray Diffraction</button>
+        <button class="tab-btn" data-tab="dna">DNA &amp; Photo 51</button>
+    </div>
+
+    <!-- 1D Apertures Tab -->
+    <div id="apertures1d" class="tab-content active">
+        <div class="main-container">
+            <div class="canvas-column">
+                <div class="panel">
+                    <h3>Aperture Function A(x)</h3>
+                    <canvas id="aperture1dCanvas" width="460" height="120"></canvas>
+                </div>
+                <div class="panel">
+                    <h3>Intensity Pattern</h3>
+                    <canvas id="intensity1dStrip" width="460" height="60"></canvas>
+                </div>
+                <div class="panel">
+                    <h3>Intensity I(θ)</h3>
+                    <canvas id="intensity1dPlot" width="460" height="180"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-column">
+                <div class="panel">
+                    <h3>Aperture Type</h3>
+                    <div class="btn-grid" id="shape1dButtons">
+                        <button data-shape="twoDelta" class="active">2 δ-slits</button>
+                        <button data-shape="singleRect">1 Slit</button>
+                        <button data-shape="twoRect">2 Slits</button>
+                        <button data-shape="nSlits">N Slits</button>
+                        <button data-shape="gaussian">Gaussian</button>
+                        <button data-shape="triangle">Triangle</button>
+                    </div>
+                    <div class="slider-row">
+                        <div class="slider-group" id="width1dGroup" style="display:none;">
+                            <label>Slit width a: <span class="value" id="width1dVal">2.0</span> μm</label>
+                            <input type="range" id="width1dSlider" min="0.5" max="20" step="0.5" value="2">
+                        </div>
+                        <div class="slider-group" id="sep1dGroup">
+                            <label>Separation d: <span class="value" id="sep1dVal">10</span> μm</label>
+                            <input type="range" id="sep1dSlider" min="1" max="50" step="1" value="10">
+                        </div>
+                        <div class="slider-group" id="nSlits1dGroup" style="display:none;">
+                            <label>Number N: <span class="value" id="nSlits1dVal">5</span></label>
+                            <input type="range" id="nSlits1dSlider" min="2" max="20" value="5">
+                        </div>
+                        <div class="slider-group">
+                            <label>Wavelength λ: <span class="value" id="lambda1dVal">500</span> nm</label>
+                            <input type="range" id="lambda1dSlider" min="380" max="700" step="10" value="500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Display</h3>
+                    <div class="slider-row">
+                        <div class="slider-group">
+                            <label>Max angle: <span class="value" id="maxAngle1dVal">30</span>°</label>
+                            <input type="range" id="maxAngle1dSlider" min="5" max="90" step="5" value="30">
+                        </div>
+                        <div class="slider-group">
+                            <label>Brightness: <span class="value" id="brightness1dVal">1.0</span>×</label>
+                            <input type="range" id="brightness1dSlider" min="0.5" max="10" step="0.5" value="1">
+                        </div>
+                    </div>
+                    <div class="checkbox-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="logScale1d">
+                            <label for="logScale1d">Log scale</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="showEnvelope1d">
+                            <label for="showEnvelope1d" style="color:#4ecdc4;">Envelope (sinc²)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="showFringes1d">
+                            <label for="showFringes1d" style="color:#ff6b6b;">Fringes (cos²)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Formula</h3>
+                    <div class="formula-box" style="margin-bottom:8px; font-size:11px; color:#7eb8da;">
+                        $$I(\theta) = \left| \mathcal{F}\{A(x)\} \right|^2$$ <span style="font-size:10px; color:#888;">(Fraunhofer diffraction = Fourier transform squared)</span>
+                    </div>
+                    <div class="formula-box" id="formula1dBox">
+                        $$I(\theta) = I_0 \cos^2\left(\frac{\pi d \sin\theta}{\lambda}\right)$$
+                    </div>
+                    <p class="instructions" id="formula1dDesc">Two infinitesimal slits: interference only, no diffraction envelope.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2D Apertures Tab -->
+    <div id="apertures" class="tab-content">
+        <div class="main-container">
+            <div class="canvas-column">
+                <div class="canvas-row">
+                    <div class="canvas-box">
+                        <label>Aperture A(x,y)</label>
+                        <canvas id="apertureCanvas" width="256" height="256"></canvas>
+                    </div>
+                    <div class="canvas-box">
+                        <label>Diffraction |F{A}|² (click to enlarge)</label>
+                        <canvas id="diffractionCanvas" width="256" height="256" class="clickable-canvas"></canvas>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h3>Cross Section (horizontal)</h3>
+                    <canvas id="crossSectionCanvas" class="cross-section" width="460" height="80"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-column">
+                <div class="panel">
+                    <h3>Aperture Shape</h3>
+                    <div class="btn-grid" id="shapeButtons">
+                        <button data-shape="circle" class="active">Circle</button>
+                        <button data-shape="square">Square</button>
+                        <button data-shape="rectangle">Rect</button>
+                        <button data-shape="triangle">Triangle</button>
+                        <button data-shape="pentagon">Pentagon</button>
+                        <button data-shape="hexagon">Hexagon</button>
+                        <button data-shape="star5">5-Star</button>
+                        <button data-shape="ring">Ring</button>
+                        <button data-shape="cross">Cross</button>
+                        <button data-shape="doubleSlit">2-Slit</button>
+                        <button data-shape="grating">Grating</button>
+                        <button data-shape="squareLattice">Sq.Lat</button>
+                        <button data-shape="hexLattice">Hex.Lat</button>
+                        <button data-shape="orion">Orion</button>
+                        <button data-shape="custom">Custom</button>
+                    </div>
+                    <div class="slider-row">
+                        <div class="slider-group">
+                            <label>Size: <span class="value" id="sizeVal">20</span>%</label>
+                            <input type="range" id="sizeSlider" min="3" max="60" value="20">
+                        </div>
+                        <div class="slider-group" id="aspectGroup">
+                            <label>Aspect: <span class="value" id="aspectVal">1.0</span></label>
+                            <input type="range" id="aspectSlider" min="0.2" max="3" step="0.1" value="1">
+                        </div>
+                        <div class="slider-group" id="latticeGroup" style="display:none;">
+                            <label>Lattice N: <span class="value" id="latticeVal">5</span></label>
+                            <input type="range" id="latticeSlider" min="2" max="12" value="5">
+                        </div>
+                        <div class="slider-group" id="gratingGroup" style="display:none;">
+                            <label>Slits: <span class="value" id="gratingVal">5</span></label>
+                            <input type="range" id="gratingSlider" min="2" max="15" value="5">
+                        </div>
+                        <div class="slider-group" id="telescopeGroup" style="display:none;">
+                            <label>Telescope Aperture: <span class="value" id="telescopeVal">1.0</span>×</label>
+                            <input type="range" id="telescopeSlider" min="0.2" max="15" step="0.2" value="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-row">
+                    <div class="panel">
+                        <h3>Display</h3>
+                        <div class="checkbox-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="logScale" checked>
+                                <label for="logScale">Log scale</label>
+                            </div>
+                        </div>
+                        <div class="slider-row">
+                            <div class="slider-group">
+                                <label>Brightness: <span class="value" id="brightnessVal">1.0</span></label>
+                                <input type="range" id="brightnessSlider" min="0.1" max="3" step="0.1" value="1">
+                            </div>
+                            <div class="slider-group">
+                                <label>Zoom: <span class="value" id="zoomVal">1.0</span>×</label>
+                                <input type="range" id="zoomSlider" min="1" max="8" step="0.5" value="1">
+                            </div>
+                        </div>
+                        <div class="color-scale">
+                            <span>0</span>
+                            <div class="color-bar"></div>
+                            <span>I_max</span>
+                        </div>
+                    </div>
+
+                    <div class="panel" id="customPanel" style="display:none;">
+                        <h3>Custom Polygon</h3>
+                        <p class="instructions">Click to place vertices. Double-click to close.</p>
+                        <button id="clearCustom" style="padding:6px 12px;">Clear</button>
+                    </div>
+
+                    <div class="panel">
+                        <div class="formula-box">
+                            $$I(k_x, k_y) = \left| \mathcal{F}\{A(x,y)\} \right|^2$$
+                        </div>
+                        <p class="instructions"><strong>Tip:</strong> Smaller aperture → wider diffraction.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolution Tab -->
+    <div id="resolution" class="tab-content">
+        <div class="main-container">
+            <div class="canvas-column" style="flex:0 0 auto; justify-content:flex-start;">
+                <!-- Top row: Single Airy + Radial Profile -->
+                <div class="canvas-row" style="gap:8px; align-items:flex-start; flex:0 0 auto;">
+                    <div class="canvas-box" style="flex:0 0 auto;">
+                        <label>Single Airy</label>
+                        <canvas id="airyDiskCanvas" width="235" height="235" style="display:block;"></canvas>
+                    </div>
+                    <div class="canvas-box" style="flex:0 0 auto;">
+                        <label>Radial Profile</label>
+                        <canvas id="airyProfileCanvas" width="470" height="235" style="display:block;"></canvas>
+                    </div>
+                </div>
+                <!-- Bottom row: Combined PSF + Two Stars -->
+                <div class="canvas-row" style="gap:8px; align-items:flex-start; flex:0 0 auto;">
+                    <div class="canvas-box" style="flex:0 0 auto;">
+                        <label>Combined PSF</label>
+                        <canvas id="combinedPsfCanvas" width="235" height="235" style="display:block;"></canvas>
+                    </div>
+                    <div class="canvas-box" style="flex:0 0 auto;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Combined <span style="font-size:9px; color:#888;">(click to enlarge)</span></label>
+                            <span id="resolutionStatus" style="font-size:11px; font-weight:bold;"><span style="color:#4ecdc4;">✓ RESOLVED</span></span>
+                        </div>
+                        <canvas id="twoStarsCanvas" width="470" height="235" style="display:block;" class="clickable-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-column" style="min-width:160px; max-width:180px; gap:6px;">
+                <div class="panel" style="padding:6px;">
+                    <h3 style="margin-bottom:4px; font-size:12px;">Telescope</h3>
+                    <div class="slider-group" style="margin-bottom:3px;">
+                        <label style="font-size:10px;">D: <span class="value" id="apertureDVal">10</span> cm</label>
+                        <input type="range" id="apertureDSlider" min="1" max="100" step="1" value="10">
+                    </div>
+                    <div class="slider-group" style="margin-bottom:0;">
+                        <label style="font-size:10px;">λ: <span class="value" id="lambdaResVal">550</span> nm</label>
+                        <input type="range" id="lambdaResSlider" min="380" max="700" step="10" value="550">
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:6px;">
+                    <h3 style="margin-bottom:4px; font-size:12px;">Two Stars</h3>
+                    <div class="slider-group" style="margin-bottom:3px;">
+                        <label style="font-size:10px;">Δθ: <span class="value" id="separationVal">1.50</span>″</label>
+                        <input type="range" id="separationSlider" min="0.1" max="5" step="0.05" value="1.5">
+                    </div>
+                    <div class="slider-group" style="margin-bottom:3px;">
+                        <label style="font-size:10px;">Star 2: <span class="value" id="star2BrightVal">100</span>%</label>
+                        <input type="range" id="star2BrightSlider" min="10" max="100" step="5" value="100">
+                    </div>
+                    <div class="slider-group" style="margin-bottom:3px;">
+                        <label style="font-size:10px;">Zoom: <span class="value" id="resZoomVal">1.0</span>×</label>
+                        <input type="range" id="resZoomSlider" min="0.5" max="5" step="0.1" value="1">
+                    </div>
+                    <div class="checkbox-row" style="margin:0; gap:6px; font-size:10px;">
+                        <div class="checkbox-group"><input type="checkbox" id="showStar1" checked><label for="showStar1" style="color:#4ecdc4;">★1</label></div>
+                        <div class="checkbox-group"><input type="checkbox" id="showStar2" checked><label for="showStar2" style="color:#ff6b6b;">★2</label></div>
+                        <div class="checkbox-group"><input type="checkbox" id="showCombined" checked><label for="showCombined" style="color:#ffe66d;">Σ</label></div>
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:6px;">
+                    <h3 style="margin-bottom:4px; font-size:12px;">Rayleigh Criterion</h3>
+                    <div style="font-size:12px; color:#7eb8da; margin-bottom:6px; padding-bottom:6px; border-bottom:1px solid #333;">
+                        θ<sub>R</sub> = 1.22 <sup style="font-size:10px;">λ</sup>/<sub style="font-size:10px;">D</sub>
+                    </div>
+                    <div style="font-size:10px; line-height:1.4;">
+                        <div>θ<sub>R</sub> = <span id="rayleighAngle">1.38</span>″</div>
+                        <div>Δθ = <span id="yourSeparation">1.50</span>″</div>
+                        <div>Ratio = <span id="ratioValue" style="font-weight:bold;">1.09</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- X-ray Diffraction Tab -->
+    <div id="xray" class="tab-content">
+        <div class="main-container">
+            <div class="canvas-column" style="flex:1;">
+                <div class="canvas-box">
+                    <label>Bragg Diffraction: mλ = 2d sin θ</label>
+                    <canvas id="braggCanvas" width="700" height="450" style="display:block;"></canvas>
+                </div>
+            </div>
+
+            <div class="controls-column" style="min-width:180px; max-width:200px; gap:8px;">
+                <div class="panel" style="padding:8px;">
+                    <h3 style="margin-bottom:6px; font-size:12px;">Bragg's Law</h3>
+                    <div style="font-size:13px; color:#7eb8da; margin-bottom:8px; text-align:center;">
+                        mλ = 2d sin θ
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:8px;">
+                    <h3 style="margin-bottom:6px; font-size:12px;">Parameters</h3>
+                    <div class="slider-group" style="margin-bottom:6px;">
+                        <label style="font-size:10px;">θ: <span class="value" id="braggAngleVal">30</span>°</label>
+                        <input type="range" id="braggAngleSlider" min="5" max="85" step="1" value="30">
+                    </div>
+                    <div class="slider-group" style="margin-bottom:6px;">
+                        <label style="font-size:10px;">λ: <span class="value" id="xrayLambdaVal">1.54</span> Å</label>
+                        <input type="range" id="xrayLambdaSlider" min="0.5" max="3" step="0.01" value="1.54">
+                    </div>
+                    <div class="slider-group" style="margin-bottom:6px;">
+                        <label style="font-size:10px;">d: <span class="value" id="latticeSpacingVal">2.0</span> Å</label>
+                        <input type="range" id="latticeSpacingSlider" min="1" max="5" step="0.1" value="2.0">
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:8px;">
+                    <h3 style="margin-bottom:6px; font-size:12px;">Display</h3>
+                    <div class="checkbox-group" style="margin-bottom:4px;">
+                        <input type="checkbox" id="showPathDiff" checked>
+                        <label for="showPathDiff" style="font-size:10px;">Show path difference</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="showMaxima">
+                        <label for="showMaxima" style="font-size:10px;">Show maxima angles</label>
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:8px;">
+                    <h3 style="margin-bottom:6px; font-size:12px;">Current Values</h3>
+                    <div style="font-size:10px; line-height:1.5;">
+                        <div>2d sin θ = <span id="pathDiffValue">2.00</span> Å</div>
+                        <div>Δx/λ = <span id="pathDiffRatio">1.30</span></div>
+                        <div id="braggStatus" style="margin-top:4px; font-weight:bold; color:#ff6b6b;">
+                            No maximum
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="padding:8px;">
+                    <h3 style="margin-bottom:6px; font-size:12px;">Maxima (mλ = 2d sin θ)</h3>
+                    <div id="maximaList" style="font-size:10px; line-height:1.5;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DNA Tab -->
+    <div id="dna" class="tab-content">
+        <div class="main-container dna-layout">
+            <!-- DNA Structure Panel -->
+            <div class="canvas-box dna-panel">
+                <label>DNA Structure</label>
+                <canvas id="dnaStructureCanvas" width="300" height="300"></canvas>
+            </div>
+
+            <!-- Diffraction Pattern Panel -->
+            <div class="canvas-box dna-panel">
+                <label>X-ray Diffraction</label>
+                <canvas id="dnaDiffractionCanvas" width="300" height="300"></canvas>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="controls-column dna-controls">
+                <!-- Mode Selector -->
+                <div class="panel">
+                    <h3>Structure Mode</h3>
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-dna-mode="zigzag">Zigzag</button>
+                        <button class="mode-btn" data-dna-mode="helix">True Helix</button>
+                    </div>
+                    <p class="instructions dna-zigzag-info">Simple zigzag → X pattern from tilted lines</p>
+                    <p class="instructions dna-helix-info" style="display:none;">Analytical helical diffraction with Bessel functions</p>
+                </div>
+
+                <!-- Zigzag Controls -->
+                <div class="panel dna-zigzag-controls">
+                    <h3>Zigzag Parameters</h3>
+                    <div class="slider-group">
+                        <label>Helix Angle: <span class="value" id="dnaHelixAngleVal">36</span>°</label>
+                        <input type="range" id="dnaHelixAngle" min="15" max="60" value="36">
+                    </div>
+                    <div class="slider-group">
+                        <label>Pitch (repeats): <span class="value" id="dnaZigzagPitchVal">4</span></label>
+                        <input type="range" id="dnaZigzagPitch" min="2" max="8" value="4">
+                    </div>
+                </div>
+
+                <!-- True Helix Controls -->
+                <div class="panel dna-helix-controls" style="display:none;">
+                    <h3>Helix Parameters</h3>
+                    <div class="slider-group">
+                        <label>Bases per turn: <span class="value" id="dnaBasesPerTurnVal">10</span></label>
+                        <input type="range" id="dnaBasesPerTurn" min="6" max="14" step="1" value="10">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dnaShowStrand2">
+                        <label for="dnaShowStrand2">Add second strand (double helix)</label>
+                    </div>
+                    <div class="slider-group dna-strand2-controls" style="display:none;">
+                        <label>Strand offset: <span class="value" id="dnaStrandOffsetVal">3/8 P</span></label>
+                        <input type="range" id="dnaStrandOffset" min="0" max="0.5" step="0.025" value="0.375">
+                    </div>
+                    <p class="instructions dna-strand2-controls" style="display:none;"><strong>3/8 P offset</strong> → missing 4th layer line!</p>
+                </div>
+
+                <!-- Display Controls -->
+                <div class="panel">
+                    <h3>Display</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dnaFiberMode" checked>
+                        <label for="dnaFiberMode">Fiber mode (cylindrical average)</label>
+                    </div>
+                    <div class="slider-group">
+                        <label>Dynamic Range: <span class="value" id="dnaDynamicRangeVal">0.50</span></label>
+                        <input type="range" id="dnaDynamicRange" min="0" max="1" step="0.02" value="0.5">
+                    </div>
+                    <p class="instructions" style="font-size:9px;">Left = all details, Right = high contrast</p>
+                    <div class="checkbox-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="dnaBWMode">
+                            <label for="dnaBWMode">B/W mode</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="dnaShowLayerLines" checked>
+                            <label for="dnaShowLayerLines">Layer labels</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compare Button -->
+                <div class="panel">
+                    <button class="btn-compare" id="dnaCompareBtn">Compare with Photo 51</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ============== FFT Implementation ==============
+    class FFT {
+        constructor(size) {
+            this.size = size;
+            this.levels = Math.log2(size);
+            // Precompute twiddle factors
+            this.cosTable = new Float64Array(size / 2);
+            this.sinTable = new Float64Array(size / 2);
+            for (let i = 0; i < size / 2; i++) {
+                this.cosTable[i] = Math.cos(2 * Math.PI * i / size);
+                this.sinTable[i] = Math.sin(2 * Math.PI * i / size);
+            }
+        }
+
+        // In-place Cooley-Tukey FFT
+        transform(real, imag) {
+            const n = this.size;
+
+            // Bit-reversal permutation
+            for (let i = 0, j = 0; i < n; i++) {
+                if (j > i) {
+                    [real[i], real[j]] = [real[j], real[i]];
+                    [imag[i], imag[j]] = [imag[j], imag[i]];
+                }
+                let m = n >> 1;
+                while (m >= 1 && j >= m) {
+                    j -= m;
+                    m >>= 1;
+                }
+                j += m;
+            }
+
+            // Cooley-Tukey decimation-in-time
+            for (let size = 2; size <= n; size *= 2) {
+                const halfsize = size / 2;
+                const step = n / size;
+                for (let i = 0; i < n; i += size) {
+                    for (let j = 0, k = 0; j < halfsize; j++, k += step) {
+                        const idx1 = i + j;
+                        const idx2 = i + j + halfsize;
+                        const tpre = real[idx2] * this.cosTable[k] + imag[idx2] * this.sinTable[k];
+                        const tpim = -real[idx2] * this.sinTable[k] + imag[idx2] * this.cosTable[k];
+                        real[idx2] = real[idx1] - tpre;
+                        imag[idx2] = imag[idx1] - tpim;
+                        real[idx1] += tpre;
+                        imag[idx1] += tpim;
+                    }
+                }
+            }
+        }
+    }
+
+    // 2D FFT using row-column decomposition
+    function fft2d(real, imag, size) {
+        const fft = new FFT(size);
+        const rowReal = new Float64Array(size);
+        const rowImag = new Float64Array(size);
+
+        // Transform rows
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                rowReal[x] = real[y * size + x];
+                rowImag[x] = imag[y * size + x];
+            }
+            fft.transform(rowReal, rowImag);
+            for (let x = 0; x < size; x++) {
+                real[y * size + x] = rowReal[x];
+                imag[y * size + x] = rowImag[x];
+            }
+        }
+
+        // Transform columns
+        const colReal = new Float64Array(size);
+        const colImag = new Float64Array(size);
+        for (let x = 0; x < size; x++) {
+            for (let y = 0; y < size; y++) {
+                colReal[y] = real[y * size + x];
+                colImag[y] = imag[y * size + x];
+            }
+            fft.transform(colReal, colImag);
+            for (let y = 0; y < size; y++) {
+                real[y * size + x] = colReal[y];
+                imag[y * size + x] = colImag[y];
+            }
+        }
+    }
+
+    // FFT shift - move zero frequency to center
+    function fftShift(data, size) {
+        const half = size / 2;
+        const temp = new Float64Array(size * size);
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                const newY = (y + half) % size;
+                const newX = (x + half) % size;
+                temp[newY * size + newX] = data[y * size + x];
+            }
+        }
+        data.set(temp);
+    }
+
+    // ============== Bessel Function ==============
+    const factorialCache = [1, 1];
+    function factorial(n) {
+        if (n < 0) return Infinity;
+        if (n < factorialCache.length) return factorialCache[n];
+        let result = factorialCache[factorialCache.length - 1];
+        for (let i = factorialCache.length; i <= n; i++) {
+            result *= i;
+            factorialCache[i] = result;
+            if (result === Infinity) break;
+        }
+        return result;
+    }
+
+    function besselJ(n, x) {
+        if (Math.abs(x) < 1e-10) return n === 0 ? 1 : 0;
+        if (Math.abs(x) > 20) {
+            const phase = x - (n / 2 + 0.25) * Math.PI;
+            return Math.sqrt(2 / (Math.PI * Math.abs(x))) * Math.cos(phase);
+        }
+        let sum = 0;
+        for (let m = 0; m < 30; m++) {
+            const sign = (m % 2 === 0) ? 1 : -1;
+            const num = Math.pow(x / 2, 2 * m + n);
+            const denom = factorial(m) * factorial(m + n);
+            if (denom === Infinity) break;
+            const term = sign * num / denom;
+            sum += term;
+            if (Math.abs(term) < 1e-15 * Math.abs(sum)) break;
+        }
+        return sum;
+    }
+
+    // ============== DNA Tab State ==============
+    let dnaState = {
+        mode: 'zigzag',  // 'zigzag' or 'helix'
+        helixAngle: 36,
+        zigzagPitch: 4,
+        basesPerTurn: 10,
+        showStrand2: false,
+        strandOffset: 0.375,
+        fiberMode: true,
+        dynamicRange: 0.5,
+        bwMode: false,
+        showLayerLines: true
+    };
+
+    // ============== Aperture Drawing ==============
+    function createAperture(shape, size, params) {
+        const aperture = new Float64Array(size * size);
+        const cx = size / 2;
+        const cy = size / 2;
+        const baseRadius = size * params.size / 100;
+
+        switch(shape) {
+            case 'circle':
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const r = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                        if (r <= baseRadius) aperture[y * size + x] = 1;
+                    }
+                }
+                break;
+
+            case 'square':
+                const halfSq = baseRadius;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        if (Math.abs(x - cx) <= halfSq && Math.abs(y - cy) <= halfSq)
+                            aperture[y * size + x] = 1;
+                    }
+                }
+                break;
+
+            case 'rectangle':
+                const halfW = baseRadius * params.aspect;
+                const halfH = baseRadius / params.aspect;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        if (Math.abs(x - cx) <= halfW && Math.abs(y - cy) <= halfH)
+                            aperture[y * size + x] = 1;
+                    }
+                }
+                break;
+
+            case 'triangle':
+                drawPolygon(aperture, size, cx, cy, baseRadius, 3, Math.PI/2);
+                break;
+
+            case 'pentagon':
+                drawPolygon(aperture, size, cx, cy, baseRadius, 5, -Math.PI/2);
+                break;
+
+            case 'hexagon':
+                drawPolygon(aperture, size, cx, cy, baseRadius, 6, 0);
+                break;
+
+            case 'star5':
+                drawStar(aperture, size, cx, cy, baseRadius, 5);
+                break;
+
+            case 'ring':
+                const outerR = baseRadius;
+                const innerR = baseRadius * 0.5;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const r = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                        if (r <= outerR && r >= innerR) aperture[y * size + x] = 1;
+                    }
+                }
+                break;
+
+            case 'cross':
+                const armW = baseRadius * 0.3;
+                const armL = baseRadius;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const dx = Math.abs(x - cx);
+                        const dy = Math.abs(y - cy);
+                        if ((dx <= armW && dy <= armL) || (dy <= armW && dx <= armL))
+                            aperture[y * size + x] = 1;
+                    }
+                }
+                break;
+
+            case 'doubleSlit':
+                const slitW = baseRadius * 0.15;
+                const slitH = baseRadius * 1.5;
+                const slitSep = baseRadius * 0.6;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const dy = Math.abs(y - cy);
+                        if (dy <= slitH) {
+                            if (Math.abs(x - cx - slitSep) <= slitW || Math.abs(x - cx + slitSep) <= slitW)
+                                aperture[y * size + x] = 1;
+                        }
+                    }
+                }
+                break;
+
+            case 'grating':
+                const gSlitW = baseRadius * 0.08;
+                const gSlitH = baseRadius * 1.5;
+                const gN = params.gratingN;
+                const gSpacing = baseRadius * 0.4;
+                const gStart = cx - (gN - 1) * gSpacing / 2;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const dy = Math.abs(y - cy);
+                        if (dy <= gSlitH) {
+                            for (let i = 0; i < gN; i++) {
+                                if (Math.abs(x - gStart - i * gSpacing) <= gSlitW)
+                                    aperture[y * size + x] = 1;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 'squareLattice':
+                const sqN = params.latticeN;
+                const sqSpacing = baseRadius * 2 / sqN;
+                const dotR = sqSpacing * 0.2;
+                const sqStart = cx - baseRadius + sqSpacing / 2;
+                for (let i = 0; i < sqN; i++) {
+                    for (let j = 0; j < sqN; j++) {
+                        const dotX = sqStart + i * sqSpacing;
+                        const dotY = sqStart + j * sqSpacing;
+                        for (let y = 0; y < size; y++) {
+                            for (let x = 0; x < size; x++) {
+                                const r = Math.sqrt((x - dotX) ** 2 + (y - dotY) ** 2);
+                                if (r <= dotR) aperture[y * size + x] = 1;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 'hexLattice':
+                const hN = params.latticeN;
+                const hSpacing = baseRadius * 2 / hN;
+                const hDotR = hSpacing * 0.2;
+                for (let i = -hN; i <= hN; i++) {
+                    for (let j = -hN; j <= hN; j++) {
+                        const dotX = cx + i * hSpacing + (j % 2) * hSpacing / 2;
+                        const dotY = cy + j * hSpacing * 0.866;
+                        if (Math.sqrt((dotX - cx) ** 2 + (dotY - cy) ** 2) > baseRadius) continue;
+                        for (let y = 0; y < size; y++) {
+                            for (let x = 0; x < size; x++) {
+                                const r = Math.sqrt((x - dotX) ** 2 + (y - dotY) ** 2);
+                                if (r <= hDotR) aperture[y * size + x] = 1;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 'orion':
+                // For Orion, we DON'T create an aperture mask.
+                // Instead, we'll handle telescope imaging specially in the render function.
+                // Store star data in a special property and return empty aperture.
+                aperture.isOrion = true;
+                aperture.orionData = {
+                    stars: [
+                        // Main figure - shoulders and feet
+                        { name: 'Betelgeuse', ra: 5.919, dec: 7.41, mag: 0.50 },
+                        { name: 'Rigel', ra: 5.242, dec: -8.20, mag: 0.13 },
+                        { name: 'Bellatrix', ra: 5.419, dec: 6.35, mag: 1.64 },
+                        { name: 'Saiph', ra: 5.796, dec: -9.67, mag: 2.06 },
+                        // Belt
+                        { name: 'Mintaka', ra: 5.533, dec: -0.30, mag: 2.23 },
+                        { name: 'Alnilam', ra: 5.604, dec: -1.20, mag: 1.69 },
+                        { name: 'Alnitak', ra: 5.679, dec: -1.95, mag: 1.77 },
+                        // Head
+                        { name: 'Meissa', ra: 5.585, dec: 9.93, mag: 3.54 },
+                        { name: 'φ¹ Ori', ra: 5.580, dec: 9.49, mag: 4.41 },
+                        { name: 'φ² Ori', ra: 5.615, dec: 9.30, mag: 4.09 },
+                        // Sword
+                        { name: 'ι Ori', ra: 5.591, dec: -5.91, mag: 2.77 },
+                        { name: 'θ² Ori', ra: 5.590, dec: -5.42, mag: 5.08 },
+                        { name: '42 Ori', ra: 5.590, dec: -4.83, mag: 4.59 },
+                        { name: 'η Ori', ra: 5.408, dec: -2.40, mag: 3.36 },
+                        { name: 'σ Ori', ra: 5.646, dec: -2.60, mag: 3.80 },
+                        // Lower body
+                        { name: 'τ Ori', ra: 5.293, dec: -6.85, mag: 3.60 },
+                        { name: '29 Ori', ra: 5.394, dec: -7.82, mag: 4.14 },
+                        { name: 'υ Ori', ra: 5.532, dec: -7.30, mag: 4.62 },
+                        // Shield
+                        { name: 'π³ Ori', ra: 4.949, dec: 6.97, mag: 3.19 },
+                        { name: 'π⁴ Ori', ra: 4.972, dec: 5.60, mag: 3.69 },
+                        { name: 'π⁵ Ori', ra: 4.987, dec: 2.44, mag: 3.72 },
+                        { name: 'π² Ori', ra: 4.928, dec: 8.90, mag: 4.35 },
+                        { name: 'π⁶ Ori', ra: 5.001, dec: 1.72, mag: 4.47 },
+                        { name: 'π¹ Ori', ra: 4.904, dec: 10.15, mag: 4.64 },
+                        // Club
+                        { name: 'μ Ori', ra: 5.065, dec: 9.49, mag: 4.12 },
+                        { name: 'ξ Ori', ra: 5.068, dec: 14.21, mag: 4.45 },
+                        { name: 'ο² Ori', ra: 5.040, dec: 13.52, mag: 4.07 },
+                        // Body
+                        { name: 'ρ Ori', ra: 5.217, dec: 2.86, mag: 4.46 },
+                        { name: 'ψ² Ori', ra: 5.440, dec: 3.10, mag: 4.59 },
+                        { name: 'ω Ori', ra: 5.653, dec: 4.12, mag: 4.57 },
+                        { name: '32 Ori', ra: 5.513, dec: 5.95, mag: 4.20 },
+                    ],
+                    size: size,
+                    baseRadius: baseRadius,
+                    telescopeAperture: params.telescopeAperture || 1.0
+                };
+                // Draw stars as points for the aperture display
+                const stars = aperture.orionData.stars;
+                const raMin = Math.min(...stars.map(s => s.ra));
+                const raMax = Math.max(...stars.map(s => s.ra));
+                const decMin = Math.min(...stars.map(s => s.dec));
+                const decMax = Math.max(...stars.map(s => s.dec));
+                const orionScale = baseRadius * 1.6;
+                const raCen = (raMin + raMax) / 2;
+                const decCen = (decMin + decMax) / 2;
+                const maxRange = Math.max((raMax - raMin) * 15, decMax - decMin);
+
+                for (const star of stars) {
+                    const starX = cx - ((star.ra - raCen) * 15 / maxRange) * orionScale;
+                    const starY = cy - ((star.dec - decCen) / maxRange) * orionScale;
+                    star.px = starX;
+                    star.py = starY;
+                    // Draw small dot for aperture view
+                    const dotR = Math.max(1.5, (5.5 - star.mag) * 0.8);
+                    for (let y = 0; y < size; y++) {
+                        for (let x = 0; x < size; x++) {
+                            const dist = Math.sqrt((x - starX) ** 2 + (y - starY) ** 2);
+                            if (dist <= dotR) aperture[y * size + x] = 1;
+                        }
+                    }
+                }
+                break;
+
+            case 'custom':
+                if (params.customVertices && params.customVertices.length >= 3) {
+                    drawCustomPolygon(aperture, size, params.customVertices);
+                }
+                break;
+        }
+
+        return aperture;
+    }
+
+    function drawPolygon(aperture, size, cx, cy, radius, sides, rotation) {
+        const vertices = [];
+        for (let i = 0; i < sides; i++) {
+            const angle = rotation + (2 * Math.PI * i) / sides;
+            vertices.push({
+                x: cx + radius * Math.cos(angle),
+                y: cy + radius * Math.sin(angle)
+            });
+        }
+        fillPolygon(aperture, size, vertices);
+    }
+
+    function drawStar(aperture, size, cx, cy, radius, points) {
+        const vertices = [];
+        const innerR = radius * 0.4;
+        for (let i = 0; i < points * 2; i++) {
+            const angle = -Math.PI / 2 + (Math.PI * i) / points;
+            const r = i % 2 === 0 ? radius : innerR;
+            vertices.push({
+                x: cx + r * Math.cos(angle),
+                y: cy + r * Math.sin(angle)
+            });
+        }
+        fillPolygon(aperture, size, vertices);
+    }
+
+    function fillPolygon(aperture, size, vertices) {
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                if (pointInPolygon(x, y, vertices)) {
+                    aperture[y * size + x] = 1;
+                }
+            }
+        }
+    }
+
+    function drawCustomPolygon(aperture, size, vertices) {
+        fillPolygon(aperture, size, vertices);
+    }
+
+    function pointInPolygon(x, y, vertices) {
+        let inside = false;
+        const n = vertices.length;
+        for (let i = 0, j = n - 1; i < n; j = i++) {
+            const xi = vertices[i].x, yi = vertices[i].y;
+            const xj = vertices[j].x, yj = vertices[j].y;
+            if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+    // ============== DNA Aperture ==============
+    function createDNAAperture(size, params) {
+        const aperture = new Float64Array(size * size);
+        const cx = size / 2;
+        const cy = size / 2;
+
+        // Zoom < 1 means smaller DNA structure = larger/more spread diffraction
+        const scale = params.zoom || 1;
+        const pitchPx = (size / (params.pitch + 0.5)) * scale;
+        const helixAngle = params.helixAngle * Math.PI / 180;
+        const amplitude = pitchPx * Math.tan(helixAngle) / 2;
+        const lineWidth = 2 * scale;
+
+        // Draw zigzag strands
+        const strandWeight = params.strandWeight !== undefined ? params.strandWeight : 1.0;
+        const drawStrand = (offset) => {
+            for (let y = 0; y < size; y++) {
+                // Zigzag: x oscillates as we go down
+                const phase = ((y + offset * pitchPx) / pitchPx) * 2 * Math.PI;
+                const triangleWave = Math.asin(Math.sin(phase)) * 2 / Math.PI; // Triangle wave
+                const strandX = cx + amplitude * triangleWave;
+
+                for (let x = 0; x < size; x++) {
+                    const dist = Math.abs(x - strandX);
+                    if (dist <= lineWidth) {
+                        aperture[y * size + x] = strandWeight;
+                    }
+                }
+            }
+        };
+
+        // Draw nucleotide bases along strand
+        const drawBases = (offset) => {
+            const basesPerPitch = params.basesPerTurn;
+            const baseSpacing = pitchPx / basesPerPitch;
+            const baseRadius = Math.max(2, 5 * scale);  // Increased radius for more prominent scatterers
+            const baseWeight = params.baseProminence || 1.0;
+
+            for (let i = 0; i < size / baseSpacing + basesPerPitch; i++) {
+                const baseY = (i * baseSpacing + offset * pitchPx) % size;
+                const phase = ((baseY + offset * pitchPx) / pitchPx) * 2 * Math.PI;
+                const triangleWave = Math.asin(Math.sin(phase)) * 2 / Math.PI;
+                const baseX = cx + amplitude * triangleWave;
+
+                // Draw base as small circle with weighted intensity
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const dist = Math.sqrt((x - baseX) ** 2 + (y - baseY) ** 2);
+                        if (dist <= baseRadius) {
+                            aperture[y * size + x] += baseWeight;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Strand 1
+        if (params.showStrand1) {
+            drawStrand(0);
+            if (params.showBases) drawBases(0);
+        }
+
+        // Strand 2
+        if (params.showStrand2) {
+            drawStrand(params.strandOffset);
+            if (params.showBases) drawBases(params.strandOffset);
+        }
+
+        return aperture;
+    }
+
+    // Scale aperture X-dimension to simulate rotating helix around vertical axis
+    // At angle=0: full width. At angle=90°: compressed to line (edge-on view)
+    function scaleApertureForFiber(aperture, size, angle) {
+        const scaled = new Float64Array(size * size);
+        const cx = size / 2;
+        const scaleX = Math.cos(angle);  // X gets compressed as we rotate around Y axis
+
+        if (Math.abs(scaleX) < 0.01) return scaled;  // Edge-on, essentially invisible
+
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                // Inverse scale to find source pixel
+                const dx = x - cx;
+                const srcX = cx + dx / scaleX;
+
+                // Bilinear interpolation
+                const x0 = Math.floor(srcX);
+                const x1 = x0 + 1;
+
+                if (x0 >= 0 && x1 < size) {
+                    const fx = srcX - x0;
+                    const v0 = aperture[y * size + x0];
+                    const v1 = aperture[y * size + x1];
+                    scaled[y * size + x] = v0 * (1-fx) + v1 * fx;
+                }
+            }
+        }
+        return scaled;
+    }
+
+    // Compute fiber diffraction (cylindrical average around helix axis)
+    function computeFiberDiffraction(aperture, size, numRotations) {
+        const avgIntensity = new Float64Array(size * size);
+
+        for (let r = 0; r < numRotations; r++) {
+            // Rotate from 0 to π/2 (quarter turn covers all unique views due to symmetry)
+            const angle = (r / numRotations) * Math.PI / 2;
+            const scaledAperture = scaleApertureForFiber(aperture, size, angle);
+
+            // Compute FFT
+            const real = new Float64Array(scaledAperture);
+            const imag = new Float64Array(size * size);
+            fft2d(real, imag, size);
+
+            // Add intensity to average
+            for (let i = 0; i < size * size; i++) {
+                avgIntensity[i] += (real[i] * real[i] + imag[i] * imag[i]) / numRotations;
+            }
+        }
+
+        return avgIntensity;
+    }
+
+    // Bessel function Jn approximation (series expansion)
+    function besselJ(n, x) {
+        if (Math.abs(x) < 1e-10) return n === 0 ? 1 : 0;
+        let sum = 0;
+        for (let m = 0; m < 20; m++) {
+            const sign = (m % 2 === 0) ? 1 : -1;
+            const term = sign * Math.pow(x / 2, 2 * m + n) / (factorial(m) * factorial(m + n));
+            sum += term;
+            if (Math.abs(term) < 1e-12) break;
+        }
+        return sum;
+    }
+
+    function factorial(n) {
+        if (n <= 1) return 1;
+        let result = 1;
+        for (let i = 2; i <= n; i++) result *= i;
+        return result;
+    }
+
+    // Apply Bessel function modulation to create "beads" on layer lines
+    // Uses a gentler approach: modulates existing pattern rather than replacing
+    function applyBesselModulation(intensity, size, params) {
+        const cx = size / 2;
+        const cy = size / 2;
+
+        // Helix radius controls bead spacing - larger = more beads
+        const helixRadius = 8.0;  // Tune this for bead count
+
+        // Modulation strength (0 = no effect, 1 = full Bessel)
+        const strength = 0.7;
+
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                // Radial distance from center (for polar coordinates)
+                const dx = x - cx;
+                const dy = y - cy;
+                const radialDist = Math.sqrt(dx * dx + dy * dy) / size;
+
+                // Bessel argument based on radial distance
+                const besselArg = 2 * Math.PI * helixRadius * radialDist;
+
+                // Use J0 for radial oscillation (creates concentric rings of beads)
+                const J = besselJ(0, besselArg);
+
+                // Gentle modulation: blend between original and Bessel-modulated
+                // This preserves the X pattern while adding radial bead structure
+                const modulation = 1 - strength + strength * J * J;
+
+                const idx = y * size + x;
+                intensity[idx] *= modulation;
+            }
+        }
+
+        return intensity;
+    }
+
+    // Render pre-computed intensity to canvas
+    function renderIntensity(intensity, size, canvas, params) {
+        // Find max
+        let maxI = 0;
+        for (let i = 0; i < size * size; i++) {
+            if (intensity[i] > maxI) maxI = intensity[i];
+        }
+
+        // Shift zero frequency to center
+        fftShift(intensity, size);
+
+        const ctx = canvas.getContext('2d');
+        const displaySize = canvas.width;
+        const imgData = ctx.createImageData(displaySize, displaySize);
+
+        for (let py = 0; py < displaySize; py++) {
+            for (let px = 0; px < displaySize; px++) {
+                const sx = (px / displaySize) * size;
+                const sy = (py / displaySize) * size;
+
+                const x0 = Math.floor(sx);
+                const y0 = Math.floor(sy);
+                const x1 = Math.min(x0 + 1, size - 1);
+                const y1 = Math.min(y0 + 1, size - 1);
+                const fx = sx - x0;
+                const fy = sy - y0;
+
+                let val;
+                if (x0 >= 0 && x0 < size && y0 >= 0 && y0 < size) {
+                    const i00 = intensity[y0 * size + x0];
+                    const i10 = intensity[y0 * size + x1];
+                    const i01 = intensity[y1 * size + x0];
+                    const i11 = intensity[y1 * size + x1];
+                    const intVal = i00 * (1-fx) * (1-fy) + i10 * fx * (1-fy) + i01 * (1-fx) * fy + i11 * fx * fy;
+
+                    if (params.logScale) {
+                        val = Math.log(1 + intVal * params.brightness) / Math.log(1 + maxI * params.brightness);
+                    } else {
+                        val = (intVal / maxI) * params.brightness;
+                    }
+                } else {
+                    val = 0;
+                }
+                val = Math.min(1, Math.max(0, val));
+
+                let r, g, b;
+                if (params.bwMode) {
+                    const gray = Math.round((1 - val) * 255);
+                    r = g = b = gray;
+                } else {
+                    r = Math.min(255, val * 3 * 255);
+                    g = Math.min(255, Math.max(0, (val - 0.33) * 3 * 255));
+                    b = Math.min(255, Math.max(0, (val - 0.67) * 3 * 255));
+                }
+
+                const idx = (py * displaySize + px) * 4;
+                imgData.data[idx] = r;
+                imgData.data[idx + 1] = g;
+                imgData.data[idx + 2] = b;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Draw beamstop if enabled
+        if (params.beamstop) {
+            const beamstopRadius = displaySize * 0.06;
+            ctx.beginPath();
+            ctx.arc(displaySize / 2, displaySize / 2, beamstopRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = params.bwMode ? '#fff' : '#000';
+            ctx.fill();
+            ctx.strokeStyle = params.bwMode ? '#888' : '#444';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+    }
+
+    // ============== Telescope PSF for Orion ==============
+    function computeTelescopePSF(apertureRadius, size) {
+        // Create circular telescope aperture
+        const real = new Float64Array(size * size);
+        const imag = new Float64Array(size * size);
+        const cx = size / 2;
+        const cy = size / 2;
+
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                const r = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                if (r <= apertureRadius) {
+                    real[y * size + x] = 1;
+                }
+            }
+        }
+
+        // FFT shift input
+        fftShift(real, size);
+
+        // Compute FFT
+        fft2d(real, imag, size);
+
+        // Compute PSF = |FFT|²
+        const psf = new Float64Array(size * size);
+        for (let i = 0; i < size * size; i++) {
+            psf[i] = real[i] * real[i] + imag[i] * imag[i];
+        }
+
+        // Shift to center
+        fftShift(psf, size);
+
+        // Normalize
+        let maxPSF = 0;
+        for (let i = 0; i < size * size; i++) {
+            if (psf[i] > maxPSF) maxPSF = psf[i];
+        }
+        for (let i = 0; i < size * size; i++) {
+            psf[i] /= maxPSF;
+        }
+
+        return psf;
+    }
+
+    function renderTelescopeImage(aperture, size, canvas, params) {
+        const data = aperture.orionData;
+        const stars = data.stars;
+
+        // Telescope aperture size (in pixels) - controls PSF width
+        // Smaller aperture = wider Airy disk = more visible rings
+        const telescopeR = 8 * data.telescopeAperture;
+
+        // Compute the telescope PSF (Airy disk pattern)
+        const psf = computeTelescopePSF(telescopeR, size);
+
+        // Create output image - sum of PSFs at each star position
+        const image = new Float64Array(size * size);
+        const cx = size / 2;
+        const cy = size / 2;
+
+        for (const star of stars) {
+            // Star brightness from magnitude (flux ratio)
+            const flux = Math.pow(2.512, 5.5 - star.mag);
+
+            // Add PSF centered at star position
+            const sx = Math.round(star.px);
+            const sy = Math.round(star.py);
+
+            for (let dy = -size/2; dy < size/2; dy++) {
+                for (let dx = -size/2; dx < size/2; dx++) {
+                    const imgX = sx + dx;
+                    const imgY = sy + dy;
+                    if (imgX >= 0 && imgX < size && imgY >= 0 && imgY < size) {
+                        // PSF value at this offset from center
+                        const psfX = cx + dx;
+                        const psfY = cy + dy;
+                        if (psfX >= 0 && psfX < size && psfY >= 0 && psfY < size) {
+                            image[imgY * size + imgX] += flux * psf[psfY * size + psfX];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Find max for normalization
+        let maxI = 0;
+        for (let i = 0; i < size * size; i++) {
+            if (image[i] > maxI) maxI = image[i];
+        }
+
+        // Render to canvas
+        const ctx = canvas.getContext('2d');
+        const displaySize = canvas.width;
+        const imgData = ctx.createImageData(displaySize, displaySize);
+
+        const zoom = params.zoom || 1;
+        const halfView = size / (2 * zoom);
+
+        for (let py = 0; py < displaySize; py++) {
+            for (let px = 0; px < displaySize; px++) {
+                const sx = cx - halfView + (px / displaySize) * (2 * halfView);
+                const sy = cy - halfView + (py / displaySize) * (2 * halfView);
+
+                const x0 = Math.floor(sx);
+                const y0 = Math.floor(sy);
+                const x1 = Math.min(x0 + 1, size - 1);
+                const y1 = Math.min(y0 + 1, size - 1);
+                const fx = sx - x0;
+                const fy = sy - y0;
+
+                let val;
+                if (x0 >= 0 && x0 < size && y0 >= 0 && y0 < size) {
+                    const i00 = image[y0 * size + x0];
+                    const i10 = image[y0 * size + x1];
+                    const i01 = image[y1 * size + x0];
+                    const i11 = image[y1 * size + x1];
+                    const intVal = i00 * (1-fx) * (1-fy) + i10 * fx * (1-fy) + i01 * (1-fx) * fy + i11 * fx * fy;
+
+                    if (params.logScale) {
+                        val = Math.log(1 + intVal * params.brightness * 10) / Math.log(1 + maxI * params.brightness * 10);
+                    } else {
+                        val = (intVal / maxI) * params.brightness;
+                    }
+                } else {
+                    val = 0;
+                }
+                val = Math.min(1, Math.max(0, val));
+
+                // Hot colormap
+                const r = Math.min(255, val * 3 * 255);
+                const g = Math.min(255, Math.max(0, (val - 0.33) * 3 * 255));
+                const b = Math.min(255, Math.max(0, (val - 0.67) * 3 * 255));
+
+                const idx = (py * displaySize + px) * 4;
+                imgData.data[idx] = r;
+                imgData.data[idx + 1] = g;
+                imgData.data[idx + 2] = b;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        return { intensity: image, maxI, zoom };
+    }
+
+    // ============== Rendering ==============
+    function computeAndRender(aperture, size, canvas, params) {
+        // Special case: Orion uses telescope imaging (incoherent sum of PSFs)
+        if (aperture.isOrion) {
+            return renderTelescopeImage(aperture, size, canvas, params);
+        }
+        const real = new Float64Array(aperture);
+        const imag = new Float64Array(size * size);
+
+        // Apply FFT shift to input (center the aperture)
+        fftShift(real, size);
+
+        // Compute 2D FFT
+        fft2d(real, imag, size);
+
+        // Compute magnitude squared and find max
+        const intensity = new Float64Array(size * size);
+        let maxI = 0;
+        for (let i = 0; i < size * size; i++) {
+            intensity[i] = real[i] * real[i] + imag[i] * imag[i];
+            if (intensity[i] > maxI) maxI = intensity[i];
+        }
+
+        // Shift zero frequency to center
+        fftShift(intensity, size);
+
+        // Render to canvas with zoom
+        const ctx = canvas.getContext('2d');
+        const displaySize = canvas.width;
+        const imgData = ctx.createImageData(displaySize, displaySize);
+
+        const zoom = params.zoom || 1;
+        const cx = size / 2;
+        const cy = size / 2;
+        const halfView = size / (2 * zoom);
+
+        for (let py = 0; py < displaySize; py++) {
+            for (let px = 0; px < displaySize; px++) {
+                // Map display pixel to intensity array (with zoom)
+                const sx = cx - halfView + (px / displaySize) * (2 * halfView);
+                const sy = cy - halfView + (py / displaySize) * (2 * halfView);
+
+                // Bilinear interpolation for smooth zoom
+                const x0 = Math.floor(sx);
+                const y0 = Math.floor(sy);
+                const x1 = Math.min(x0 + 1, size - 1);
+                const y1 = Math.min(y0 + 1, size - 1);
+                const fx = sx - x0;
+                const fy = sy - y0;
+
+                let val;
+                if (x0 >= 0 && x0 < size && y0 >= 0 && y0 < size) {
+                    const i00 = intensity[y0 * size + x0];
+                    const i10 = intensity[y0 * size + x1];
+                    const i01 = intensity[y1 * size + x0];
+                    const i11 = intensity[y1 * size + x1];
+                    const intVal = i00 * (1-fx) * (1-fy) + i10 * fx * (1-fy) + i01 * (1-fx) * fy + i11 * fx * fy;
+
+                    if (params.logScale) {
+                        val = Math.log(1 + intVal * params.brightness) / Math.log(1 + maxI * params.brightness);
+                    } else {
+                        val = (intVal / maxI) * params.brightness;
+                    }
+                } else {
+                    val = 0;
+                }
+                val = Math.min(1, Math.max(0, val));
+
+                let r, g, b;
+                if (params.bwMode) {
+                    // Inverted grayscale (like X-ray film: bright = dark)
+                    const gray = Math.round((1 - val) * 255);
+                    r = g = b = gray;
+                } else {
+                    // Hot colormap
+                    r = Math.min(255, val * 3 * 255);
+                    g = Math.min(255, Math.max(0, (val - 0.33) * 3 * 255));
+                    b = Math.min(255, Math.max(0, (val - 0.67) * 3 * 255));
+                }
+
+                const idx = (py * displaySize + px) * 4;
+                imgData.data[idx] = r;
+                imgData.data[idx + 1] = g;
+                imgData.data[idx + 2] = b;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Draw beamstop if enabled
+        if (params.beamstop) {
+            const beamstopRadius = displaySize * 0.06;
+            ctx.beginPath();
+            ctx.arc(displaySize / 2, displaySize / 2, beamstopRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = params.bwMode ? '#fff' : '#000';
+            ctx.fill();
+            ctx.strokeStyle = params.bwMode ? '#888' : '#444';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        return { intensity, maxI, zoom };
+    }
+
+    function renderAperture(aperture, size, canvas) {
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.createImageData(size, size);
+
+        for (let i = 0; i < size * size; i++) {
+            const val = aperture[i] * 255;
+            imgData.data[i * 4] = val;
+            imgData.data[i * 4 + 1] = val * 0.3;
+            imgData.data[i * 4 + 2] = val * 0.3;
+            imgData.data[i * 4 + 3] = 255;
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    function renderCrossSection(intensity, size, canvas, params, horizontal = true) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        // Extract cross section through center, respecting zoom
+        const mid = Math.floor(size / 2);
+        const zoom = params.zoom || 1;
+        const halfView = Math.floor(size / (2 * zoom));
+        const startIdx = mid - halfView;
+        const endIdx = mid + halfView;
+        const viewSize = endIdx - startIdx;
+
+        const section = new Float64Array(viewSize);
+        let maxVal = 0;
+
+        for (let i = 0; i < viewSize; i++) {
+            const idx = startIdx + i;
+            if (idx >= 0 && idx < size) {
+                if (horizontal) {
+                    section[i] = intensity[mid * size + idx];
+                } else {
+                    section[i] = intensity[idx * size + mid];
+                }
+                if (section[i] > maxVal) maxVal = section[i];
+            }
+        }
+
+        // Draw
+        ctx.strokeStyle = '#ffe66d';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+
+        for (let i = 0; i < viewSize; i++) {
+            let val;
+            if (params.logScale) {
+                val = Math.log(1 + section[i] * params.brightness) / Math.log(1 + maxVal * params.brightness);
+            } else {
+                val = section[i] / maxVal * params.brightness;
+            }
+            val = Math.min(1, val);
+
+            const x = (i / viewSize) * w;
+            const y = h - 10 - val * (h - 20);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Axis
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, h - 10);
+        ctx.lineTo(w, h - 10);
+        ctx.stroke();
+    }
+
+    // ============== 1D Aperture Functions ==============
+    let current1dShape = 'twoDelta';
+
+    const aperture1dCanvas = document.getElementById('aperture1dCanvas');
+    const intensity1dStrip = document.getElementById('intensity1dStrip');
+    const intensity1dPlot = document.getElementById('intensity1dPlot');
+
+    function get1dParams() {
+        return {
+            a: parseFloat(document.getElementById('width1dSlider').value),  // slit width in μm
+            d: parseFloat(document.getElementById('sep1dSlider').value),    // separation in μm
+            N: parseInt(document.getElementById('nSlits1dSlider').value),   // number of slits
+            lambda: parseFloat(document.getElementById('lambda1dSlider').value) / 1000, // wavelength in μm
+            maxAngle: parseFloat(document.getElementById('maxAngle1dSlider').value) * Math.PI / 180, // in radians
+            brightness: parseFloat(document.getElementById('brightness1dSlider').value),
+            logScale: document.getElementById('logScale1d').checked,
+            showEnvelope: document.getElementById('showEnvelope1d').checked,
+            showFringes: document.getElementById('showFringes1d').checked
+        };
+    }
+
+    function sinc(x) {
+        if (Math.abs(x) < 1e-10) return 1;
+        return Math.sin(x) / x;
+    }
+
+    // Compute intensity for different aperture types
+    function compute1dIntensity(shape, theta, params) {
+        const { a, d, lambda, N } = params;
+        const sinTheta = Math.sin(theta);
+
+        // Common terms
+        const alpha = Math.PI * a * sinTheta / lambda;  // single slit phase
+        const beta = Math.PI * d * sinTheta / lambda;   // double slit phase
+
+        switch (shape) {
+            case 'twoDelta':
+                // Two delta functions: I = cos²(πd sinθ/λ)
+                return Math.cos(beta) ** 2;
+
+            case 'singleRect':
+                // Single slit: I = sinc²(πa sinθ/λ)
+                return sinc(alpha) ** 2;
+
+            case 'twoRect':
+                // Two slits with width: I = sinc²(α) × cos²(β)
+                return sinc(alpha) ** 2 * Math.cos(beta) ** 2;
+
+            case 'nSlits':
+                // N slits: I = sinc²(α) × [sin(Nβ)/sin(β)]² / N²
+                const sincTerm = sinc(alpha) ** 2;
+                let gratingTerm;
+                if (Math.abs(Math.sin(beta)) < 1e-10) {
+                    gratingTerm = 1; // Limit as β → nπ
+                } else {
+                    gratingTerm = (Math.sin(N * beta) / (N * Math.sin(beta))) ** 2;
+                }
+                return sincTerm * gratingTerm;
+
+            case 'gaussian':
+                // Gaussian aperture: I = exp(-2(πσ sinθ/λ)²)
+                // Using a as the 1/e width (σ = a/2)
+                const sigma = a / 2;
+                const gaussArg = Math.PI * sigma * sinTheta / lambda;
+                return Math.exp(-2 * gaussArg * gaussArg);
+
+            case 'triangle':
+                // Triangle aperture: I = sinc⁴(πa sinθ/2λ)
+                const triArg = Math.PI * a * sinTheta / (2 * lambda);
+                return sinc(triArg) ** 4;
+
+            default:
+                return 1;
+        }
+    }
+
+    // Draw aperture function A(x)
+    function draw1dAperture(shape, canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const { a, d, N } = params;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        // Scale: show range based on aperture size
+        const xRange = Math.max(d * 1.5, a * 3, 30); // μm
+        const xScale = w / (2 * xRange);
+        const cx = w / 2;
+        const baseY = h - 20;
+
+        // Draw axis
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, baseY);
+        ctx.lineTo(w, baseY);
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx, h);
+        ctx.stroke();
+
+        // Axis labels
+        ctx.fillStyle = '#888';
+        ctx.font = '10px sans-serif';
+        ctx.fillText('x', w - 15, baseY - 5);
+        ctx.fillText('0', cx + 3, baseY + 12);
+        ctx.fillText(`-${xRange.toFixed(0)}μm`, 5, baseY + 12);
+        ctx.fillText(`${xRange.toFixed(0)}μm`, w - 40, baseY + 12);
+
+        // Draw aperture
+        ctx.fillStyle = '#ff6b6b';
+        ctx.strokeStyle = '#ff6b6b';
+        ctx.lineWidth = 2;
+
+        const apertureHeight = h - 40;
+
+        switch (shape) {
+            case 'twoDelta':
+                // Two delta functions at ±d/2
+                ctx.beginPath();
+                ctx.moveTo(cx - d/2 * xScale, baseY);
+                ctx.lineTo(cx - d/2 * xScale, baseY - apertureHeight);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx + d/2 * xScale, baseY);
+                ctx.lineTo(cx + d/2 * xScale, baseY - apertureHeight);
+                ctx.stroke();
+                // Arrows
+                ctx.beginPath();
+                ctx.moveTo(cx - d/2 * xScale - 5, baseY - apertureHeight + 10);
+                ctx.lineTo(cx - d/2 * xScale, baseY - apertureHeight);
+                ctx.lineTo(cx - d/2 * xScale + 5, baseY - apertureHeight + 10);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx + d/2 * xScale - 5, baseY - apertureHeight + 10);
+                ctx.lineTo(cx + d/2 * xScale, baseY - apertureHeight);
+                ctx.lineTo(cx + d/2 * xScale + 5, baseY - apertureHeight + 10);
+                ctx.stroke();
+                break;
+
+            case 'singleRect':
+                // Single rectangle of width a centered at origin
+                ctx.fillRect(cx - a/2 * xScale, baseY - apertureHeight, a * xScale, apertureHeight);
+                break;
+
+            case 'twoRect':
+                // Two rectangles of width a at ±d/2
+                ctx.fillRect(cx - d/2 * xScale - a/2 * xScale, baseY - apertureHeight, a * xScale, apertureHeight);
+                ctx.fillRect(cx + d/2 * xScale - a/2 * xScale, baseY - apertureHeight, a * xScale, apertureHeight);
+                break;
+
+            case 'nSlits':
+                // N rectangles
+                const startX = -d * (N - 1) / 2;
+                for (let i = 0; i < N; i++) {
+                    const slitX = startX + i * d;
+                    ctx.fillRect(cx + slitX * xScale - a/2 * xScale, baseY - apertureHeight, a * xScale, apertureHeight);
+                }
+                break;
+
+            case 'gaussian':
+                // Gaussian curve
+                ctx.beginPath();
+                const sigma = a / 2;
+                for (let px = 0; px < w; px++) {
+                    const x = (px - cx) / xScale;
+                    const val = Math.exp(-x * x / (2 * sigma * sigma));
+                    const y = baseY - val * apertureHeight;
+                    if (px === 0) ctx.moveTo(px, y);
+                    else ctx.lineTo(px, y);
+                }
+                ctx.stroke();
+                // Fill under curve
+                ctx.lineTo(w, baseY);
+                ctx.lineTo(0, baseY);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 107, 107, 0.3)';
+                ctx.fill();
+                break;
+
+            case 'triangle':
+                // Triangle function
+                ctx.beginPath();
+                ctx.moveTo(cx - a * xScale, baseY);
+                ctx.lineTo(cx, baseY - apertureHeight);
+                ctx.lineTo(cx + a * xScale, baseY);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
+                ctx.fill();
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.stroke();
+                break;
+        }
+
+        // Label dimensions
+        ctx.fillStyle = '#7eb8da';
+        ctx.font = '11px sans-serif';
+        if (shape === 'twoDelta' || shape === 'twoRect') {
+            ctx.fillText(`d = ${d} μm`, cx - 20, 15);
+        }
+        if (shape === 'singleRect' || shape === 'twoRect' || shape === 'nSlits') {
+            ctx.fillText(`a = ${a} μm`, 10, 15);
+        }
+        if (shape === 'nSlits') {
+            ctx.fillText(`N = ${N}, d = ${d} μm`, cx - 30, 15);
+        }
+        if (shape === 'gaussian') {
+            ctx.fillText(`σ = ${(a/2).toFixed(1)} μm`, 10, 15);
+        }
+        if (shape === 'triangle') {
+            ctx.fillText(`a = ${a} μm`, 10, 15);
+        }
+    }
+
+    // Draw intensity strip (1D interference pattern visualization)
+    function draw1dIntensityStrip(shape, canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const { maxAngle, lambda, brightness, logScale } = params;
+
+        const imgData = ctx.createImageData(w, h);
+
+        for (let px = 0; px < w; px++) {
+            // Map pixel to angle
+            const theta = (px / w - 0.5) * 2 * maxAngle;
+            let intensity = compute1dIntensity(shape, theta, params);
+
+            // Apply brightness and optional log scale
+            if (logScale) {
+                intensity = Math.log(1 + intensity * brightness * 50) / Math.log(1 + brightness * 50);
+            } else {
+                intensity = Math.min(1, intensity * brightness);
+            }
+
+            // Color based on wavelength (approximate visible spectrum)
+            let r, g, b;
+            if (lambda >= 0.38 && lambda <= 0.70) {
+                // Approximate wavelength to RGB
+                const wl = lambda * 1000; // back to nm
+                if (wl >= 380 && wl < 440) {
+                    r = (440 - wl) / 60 * 0.3; g = 0; b = 1;
+                } else if (wl >= 440 && wl < 490) {
+                    r = 0; g = (wl - 440) / 50; b = 1;
+                } else if (wl >= 490 && wl < 510) {
+                    r = 0; g = 1; b = (510 - wl) / 20;
+                } else if (wl >= 510 && wl < 580) {
+                    r = (wl - 510) / 70; g = 1; b = 0;
+                } else if (wl >= 580 && wl < 645) {
+                    r = 1; g = (645 - wl) / 65; b = 0;
+                } else {
+                    r = 1; g = 0; b = 0;
+                }
+            } else {
+                r = 1; g = 1; b = 1;
+            }
+
+            // Apply intensity
+            r = Math.floor(r * intensity * 255);
+            g = Math.floor(g * intensity * 255);
+            b = Math.floor(b * intensity * 255);
+
+            // Fill vertical stripe
+            for (let py = 0; py < h; py++) {
+                const idx = (py * w + px) * 4;
+                imgData.data[idx] = r;
+                imgData.data[idx + 1] = g;
+                imgData.data[idx + 2] = b;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Angle markers
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '9px sans-serif';
+        const maxDeg = maxAngle * 180 / Math.PI;
+        ctx.fillText(`-${maxDeg.toFixed(0)}°`, 5, h - 3);
+        ctx.fillText('0°', w/2 - 5, h - 3);
+        ctx.fillText(`${maxDeg.toFixed(0)}°`, w - 25, h - 3);
+    }
+
+    // Draw intensity plot I(θ)
+    function draw1dIntensityPlot(shape, canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const { maxAngle } = params;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        const margin = { left: 40, right: 20, top: 20, bottom: 30 };
+        const plotW = w - margin.left - margin.right;
+        const plotH = h - margin.top - margin.bottom;
+
+        // Draw axes
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, h - margin.bottom);
+        ctx.lineTo(w - margin.right, h - margin.bottom);
+        ctx.stroke();
+
+        // Axis labels
+        ctx.fillStyle = '#888';
+        ctx.font = '10px sans-serif';
+        ctx.fillText('I/I₀', margin.left - 25, margin.top + 10);
+        ctx.fillText('θ', w - margin.right + 5, h - margin.bottom + 5);
+        ctx.fillText('1', margin.left - 15, margin.top + 5);
+        ctx.fillText('0', margin.left - 15, h - margin.bottom + 5);
+
+        const maxDeg = maxAngle * 180 / Math.PI;
+        ctx.fillText(`-${maxDeg.toFixed(0)}°`, margin.left - 5, h - margin.bottom + 15);
+        ctx.fillText('0°', margin.left + plotW/2 - 5, h - margin.bottom + 15);
+        ctx.fillText(`${maxDeg.toFixed(0)}°`, w - margin.right - 20, h - margin.bottom + 15);
+
+        // Grid lines
+        ctx.strokeStyle = '#333';
+        ctx.setLineDash([2, 2]);
+        for (let i = 0.25; i < 1; i += 0.25) {
+            const y = margin.top + plotH * (1 - i);
+            ctx.beginPath();
+            ctx.moveTo(margin.left, y);
+            ctx.lineTo(w - margin.right, y);
+            ctx.stroke();
+        }
+        // Vertical center line
+        ctx.beginPath();
+        ctx.moveTo(margin.left + plotW/2, margin.top);
+        ctx.lineTo(margin.left + plotW/2, h - margin.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const numPoints = plotW * 2;
+        const { a, d, lambda } = params;
+
+        // Draw envelope (sinc²) if enabled - for shapes that have it
+        if (params.showEnvelope && ['singleRect', 'twoRect', 'nSlits'].includes(shape)) {
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath();
+            for (let i = 0; i <= numPoints; i++) {
+                const theta = (i / numPoints - 0.5) * 2 * maxAngle;
+                const sinTheta = Math.sin(theta);
+                const alpha = Math.PI * a * sinTheta / lambda;
+                const envelope = sinc(alpha) ** 2;
+                const x = margin.left + (i / numPoints) * plotW;
+                const y = margin.top + plotH * (1 - envelope);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Draw fringes (cos²) if enabled - for shapes that have interference
+        if (params.showFringes && ['twoDelta', 'twoRect', 'nSlits'].includes(shape)) {
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 2]);
+            ctx.beginPath();
+            for (let i = 0; i <= numPoints; i++) {
+                const theta = (i / numPoints - 0.5) * 2 * maxAngle;
+                const sinTheta = Math.sin(theta);
+                const beta = Math.PI * d * sinTheta / lambda;
+                let fringes;
+                if (shape === 'nSlits') {
+                    const N = params.N;
+                    if (Math.abs(Math.sin(beta)) < 1e-10) {
+                        fringes = 1;
+                    } else {
+                        fringes = (Math.sin(N * beta) / (N * Math.sin(beta))) ** 2;
+                    }
+                } else {
+                    fringes = Math.cos(beta) ** 2;
+                }
+                const x = margin.left + (i / numPoints) * plotW;
+                const y = margin.top + plotH * (1 - fringes);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Plot intensity curve - use more points for smooth fringes
+        ctx.strokeStyle = '#ffe66d';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+
+        for (let i = 0; i <= numPoints; i++) {
+            const theta = (i / numPoints - 0.5) * 2 * maxAngle;
+            const intensity = compute1dIntensity(shape, theta, params);
+            const x = margin.left + (i / numPoints) * plotW;
+            const y = margin.top + plotH * (1 - intensity);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Fill under curve
+        ctx.lineTo(margin.left + plotW, h - margin.bottom);
+        ctx.lineTo(margin.left, h - margin.bottom);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 230, 109, 0.15)';
+        ctx.fill();
+    }
+
+    function update1dFormula(shape) {
+        const formulaBox = document.getElementById('formula1dBox');
+        const descBox = document.getElementById('formula1dDesc');
+
+        const formulas = {
+            twoDelta: {
+                latex: '$$I(\\theta) = I_0 \\cos^2\\left(\\frac{\\pi d \\sin\\theta}{\\lambda}\\right)$$',
+                desc: 'F{δ(x-d/2) + δ(x+d/2)} = 2cos(kd/2) → cos² interference pattern.'
+            },
+            singleRect: {
+                latex: '$$I(\\theta) = I_0 \\mathrm{sinc}^2\\left(\\frac{\\pi a \\sin\\theta}{\\lambda}\\right)$$',
+                desc: 'F{rect(x/a)} = a·sinc(ka/2) → sinc² diffraction envelope.'
+            },
+            twoRect: {
+                latex: '$$I(\\theta) = I_0 \\mathrm{sinc}^2\\left(\\frac{\\pi a \\sin\\theta}{\\lambda}\\right) \\cos^2\\left(\\frac{\\pi d \\sin\\theta}{\\lambda}\\right)$$',
+                desc: 'F{rect ⊗ two δs} = sinc × cos → sinc² envelope with cos² fringes inside.'
+            },
+            nSlits: {
+                latex: '$$I(\\theta) = I_0 \\mathrm{sinc}^2\\left(\\frac{\\pi a \\sin\\theta}{\\lambda}\\right) \\left[\\frac{\\sin(N\\pi d\\sin\\theta/\\lambda)}{N\\sin(\\pi d\\sin\\theta/\\lambda)}\\right]^2$$',
+                desc: 'F{rect ⊗ comb_N} = sinc × Dirichlet → sharp principal maxima.'
+            },
+            gaussian: {
+                latex: '$$I(\\theta) = I_0 \\exp\\left(-\\frac{2\\pi^2 \\sigma^2 \\sin^2\\theta}{\\lambda^2}\\right)$$',
+                desc: 'F{Gaussian} = Gaussian → no side lobes (Gaussian is its own FT).'
+            },
+            triangle: {
+                latex: '$$I(\\theta) = I_0 \\mathrm{sinc}^4\\left(\\frac{\\pi a \\sin\\theta}{2\\lambda}\\right)$$',
+                desc: 'F{triangle} = sinc² (triangle = rect ⊗ rect → FT is sinc×sinc).'
+            }
+        };
+
+        const f = formulas[shape] || formulas.twoDelta;
+        formulaBox.innerHTML = f.latex;
+        descBox.textContent = f.desc;
+
+        // Re-render KaTeX
+        if (typeof renderMathInElement !== 'undefined') {
+            renderMathInElement(formulaBox, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false }
+                ]
+            });
+        }
+    }
+
+    function update1dApertures() {
+        const params = get1dParams();
+        draw1dAperture(current1dShape, aperture1dCanvas, params);
+        draw1dIntensityStrip(current1dShape, intensity1dStrip, params);
+        draw1dIntensityPlot(current1dShape, intensity1dPlot, params);
+    }
+
+    // 1D event listeners
+    document.querySelectorAll('#shape1dButtons button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#shape1dButtons button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            current1dShape = btn.dataset.shape;
+
+            // Show/hide relevant controls
+            const showWidth = ['singleRect', 'twoRect', 'nSlits', 'gaussian', 'triangle'].includes(current1dShape);
+            const showSep = ['twoDelta', 'twoRect', 'nSlits'].includes(current1dShape);
+            const showN = current1dShape === 'nSlits';
+
+            document.getElementById('width1dGroup').style.display = showWidth ? 'block' : 'none';
+            document.getElementById('sep1dGroup').style.display = showSep ? 'block' : 'none';
+            document.getElementById('nSlits1dGroup').style.display = showN ? 'block' : 'none';
+
+            update1dFormula(current1dShape);
+            update1dApertures();
+        });
+    });
+
+    ['width1dSlider', 'sep1dSlider', 'nSlits1dSlider', 'lambda1dSlider', 'maxAngle1dSlider', 'brightness1dSlider'].forEach(id => {
+        document.getElementById(id).addEventListener('input', (e) => {
+            const valId = id.replace('Slider', 'Val');
+            document.getElementById(valId).textContent = e.target.value;
+            update1dApertures();
+        });
+    });
+
+    document.getElementById('logScale1d').addEventListener('change', update1dApertures);
+    document.getElementById('showEnvelope1d').addEventListener('change', update1dApertures);
+    document.getElementById('showFringes1d').addEventListener('change', update1dApertures);
+
+    // 1D Modal
+    const modal1d = document.getElementById('modal1d');
+    const modal1dStrip = document.getElementById('modal1dStrip');
+    const modal1dPlot = document.getElementById('modal1dPlot');
+
+    function open1dModal() {
+        const params = get1dParams();
+        draw1dIntensityStrip(current1dShape, modal1dStrip, params);
+        draw1dIntensityPlot(current1dShape, modal1dPlot, params);
+        modal1d.classList.add('active');
+    }
+
+    intensity1dStrip.addEventListener('click', open1dModal);
+    intensity1dPlot.addEventListener('click', open1dModal);
+    intensity1dStrip.classList.add('clickable-canvas');
+    intensity1dPlot.classList.add('clickable-canvas');
+
+    document.getElementById('modal1dClose').addEventListener('click', () => modal1d.classList.remove('active'));
+    modal1d.addEventListener('click', (e) => { if (e.target === modal1d) modal1d.classList.remove('active'); });
+
+    // ============== Resolution Tab ==============
+    const airyDiskCanvas = document.getElementById('airyDiskCanvas');
+    const airyProfileCanvas = document.getElementById('airyProfileCanvas');
+    const twoStarsCanvas = document.getElementById('twoStarsCanvas');
+
+    // Bessel function J₁(x) using series expansion
+    function besselJ1(x) {
+        if (!isFinite(x)) return 0;
+        if (Math.abs(x) < 1e-10) return 0;
+
+        // For small x, use series expansion
+        if (Math.abs(x) < 8) {
+            let sum = 0;
+            let term = x / 2;
+            sum = term;
+            for (let k = 1; k < 25; k++) {
+                term *= -x * x / (4 * k * (k + 1));
+                sum += term;
+                if (Math.abs(term) < 1e-15 * Math.abs(sum)) break;
+            }
+            return isFinite(sum) ? sum : 0;
+        }
+
+        // For large x, use asymptotic approximation
+        const z = 8 / x;
+        const z2 = z * z;
+        const p1 = 1 + z2 * (-0.1098628627e-2 + z2 * (0.2734510407e-4 +
+                   z2 * (-0.2073370639e-5 + z2 * 0.2093887211e-6)));
+        const q1 = -0.1562499995e-1 + z2 * (0.1430488765e-3 + z2 * (-0.6911147651e-5 +
+                   z2 * (0.7621095161e-6 - z2 * 0.934945152e-7)));
+        const theta = x - 3 * Math.PI / 4;
+        const result = Math.sqrt(2 / (Math.PI * x)) * (p1 * Math.cos(theta) - z * q1 * Math.sin(theta));
+        return isFinite(result) ? result : 0;
+    }
+
+    // Airy pattern intensity: I = [2*J₁(x)/x]²
+    function airyIntensity(x) {
+        if (!isFinite(x)) return 0;
+        if (Math.abs(x) < 1e-10) return 1;
+        const j1 = besselJ1(x);
+        const val = 2 * j1 / x;
+        const result = val * val;
+        return isFinite(result) ? result : 0;
+    }
+
+    const combinedPsfCanvas = document.getElementById('combinedPsfCanvas');
+
+    function getResolutionParams() {
+        return {
+            D: parseFloat(document.getElementById('apertureDSlider').value) / 100, // meters
+            lambda: parseFloat(document.getElementById('lambdaResSlider').value) * 1e-9, // meters
+            separation: parseFloat(document.getElementById('separationSlider').value), // arcseconds
+            star2Brightness: parseFloat(document.getElementById('star2BrightSlider').value) / 100,
+            zoom: parseFloat(document.getElementById('resZoomSlider').value),
+            showStar1: document.getElementById('showStar1').checked,
+            showStar2: document.getElementById('showStar2').checked,
+            showCombined: document.getElementById('showCombined').checked
+        };
+    }
+
+    function drawAiryDisk(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        const cx = size / 2;
+        const cy = size / 2;
+
+        const imgData = ctx.createImageData(size, size);
+        const xMax = 12;
+
+        for (let py = 0; py < size; py++) {
+            for (let px = 0; px < size; px++) {
+                const dx = (px - cx) / (size / 2) * xMax;
+                const dy = (py - cy) / (size / 2) * xMax;
+                const r = Math.sqrt(dx * dx + dy * dy);
+
+                let intensity = airyIntensity(r);
+                intensity = Math.log(1 + intensity * 100) / Math.log(101);
+
+                const rv = Math.min(255, intensity * 3 * 255);
+                const gv = Math.min(255, Math.max(0, (intensity - 0.33) * 3 * 255));
+                const bv = Math.min(255, Math.max(0, (intensity - 0.67) * 3 * 255));
+
+                const idx = (py * size + px) * 4;
+                imgData.data[idx] = rv;
+                imgData.data[idx + 1] = gv;
+                imgData.data[idx + 2] = bv;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Draw circle at Rayleigh limit
+        ctx.strokeStyle = 'rgba(100, 200, 255, 0.5)';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3.83 / xMax * (size / 2), 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawCombinedPsf(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        const cx = size / 2;
+        const cy = size / 2;
+
+        // Calculate separation in "x units" (where first min is at 3.83)
+        // Rayleigh angle corresponds to x = 3.83
+        // So separation of θ_R maps to x = 3.83
+        const rayleighRad = 1.22 * params.lambda / params.D;
+        const rayleighArcsec = rayleighRad * 206265;
+        const separationX = (params.separation / rayleighArcsec) * 3.83;
+
+        const imgData = ctx.createImageData(size, size);
+        const xMax = 12;
+
+        // Star positions (offset by half separation each direction)
+        const star1Offset = -separationX / 2;
+        const star2Offset = separationX / 2;
+
+        for (let py = 0; py < size; py++) {
+            for (let px = 0; px < size; px++) {
+                const x = (px - cx) / (size / 2) * xMax;
+                const y = (py - cy) / (size / 2) * xMax;
+
+                // Distance from each star center
+                const r1 = Math.sqrt((x - star1Offset) ** 2 + y ** 2);
+                const r2 = Math.sqrt((x - star2Offset) ** 2 + y ** 2);
+
+                // Combined intensity (incoherent sum)
+                const i1 = airyIntensity(r1);
+                const i2 = airyIntensity(r2) * params.star2Brightness;
+                let intensity = i1 + i2;
+
+                // Normalize and log scale
+                intensity = intensity / (1 + params.star2Brightness);
+                intensity = Math.log(1 + intensity * 100) / Math.log(101);
+
+                const rv = Math.min(255, intensity * 3 * 255);
+                const gv = Math.min(255, Math.max(0, (intensity - 0.33) * 3 * 255));
+                const bv = Math.min(255, Math.max(0, (intensity - 0.67) * 3 * 255));
+
+                const idx = (py * size + px) * 4;
+                imgData.data[idx] = rv;
+                imgData.data[idx + 1] = gv;
+                imgData.data[idx + 2] = bv;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Mark star positions
+        const star1px = cx + star1Offset / xMax * (size / 2);
+        const star2px = cx + star2Offset / xMax * (size / 2);
+
+        ctx.fillStyle = 'rgba(78, 205, 196, 0.8)';
+        ctx.beginPath();
+        ctx.arc(star1px, cy, 3, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(255, 107, 107, 0.8)';
+        ctx.beginPath();
+        ctx.arc(star2px, cy, 3, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    function drawAiryProfile(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        const margin = { left: 35, right: 15, top: 15, bottom: 25 };
+        const plotW = w - margin.left - margin.right;
+        const plotH = h - margin.top - margin.bottom;
+
+        // Axes
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, h - margin.bottom);
+        ctx.lineTo(w - margin.right, h - margin.bottom);
+        ctx.stroke();
+
+        // Labels
+        ctx.fillStyle = '#888';
+        ctx.font = '10px sans-serif';
+        ctx.fillText('I/I₀', 5, margin.top + 10);
+        ctx.fillText('x = πDθ/λ', w - 60, h - 5);
+
+        const xMax = 12;
+
+        // Grid and x-axis labels
+        ctx.strokeStyle = '#333';
+        ctx.setLineDash([2, 2]);
+        [3.83, 7.02, 10.17].forEach(xVal => {
+            const px = margin.left + (xVal / xMax) * plotW;
+            ctx.beginPath();
+            ctx.moveTo(px, margin.top);
+            ctx.lineTo(px, h - margin.bottom);
+            ctx.stroke();
+            ctx.fillStyle = '#666';
+            ctx.fillText(xVal.toFixed(1), px - 10, h - margin.bottom + 12);
+        });
+        ctx.setLineDash([]);
+
+        // Plot Airy pattern
+        ctx.strokeStyle = '#ffe66d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let i = 0; i <= plotW; i++) {
+            const x = (i / plotW) * xMax;
+            let intensity = airyIntensity(x);
+            // Slight log compression for visibility
+            intensity = Math.pow(intensity, 0.7);
+            const px = margin.left + i;
+            const py = margin.top + plotH * (1 - intensity);
+
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Mark first minimum
+        ctx.fillStyle = '#4ecdc4';
+        ctx.beginPath();
+        ctx.arc(margin.left + (3.83 / xMax) * plotW, h - margin.bottom, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillText('1st min', margin.left + (3.83 / xMax) * plotW - 15, h - margin.bottom - 8);
+    }
+
+    function drawTwoStars(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        const margin = { left: 40, right: 20, top: 25, bottom: 25 };
+        const plotW = w - margin.left - margin.right;
+        const plotH = h - margin.top - margin.bottom;
+
+        // Calculate Rayleigh angle in arcseconds
+        const rayleighRad = 1.22 * params.lambda / params.D;
+        const rayleighArcsec = rayleighRad * 206265;
+
+        // Angular range to display (in arcseconds), affected by zoom
+        const baseRange = Math.max(3, params.separation * 2, rayleighArcsec * 3);
+        const thetaMax = baseRange / params.zoom;
+
+        // Axes
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, h - margin.bottom);
+        ctx.lineTo(w - margin.right, h - margin.bottom);
+        ctx.stroke();
+
+        ctx.fillStyle = '#888';
+        ctx.font = '10px sans-serif';
+        ctx.fillText('I', 15, margin.top + 10);
+        ctx.fillText('θ (arcsec)', w/2 - 25, h - 3);
+
+        // Star positions
+        const star1Pos = -params.separation / 2;
+        const star2Pos = params.separation / 2;
+
+        // Convert angular position to x parameter
+        const thetaToX = (thetaArcsec) => Math.PI * params.D * (thetaArcsec / 206265) / params.lambda;
+
+        // Compute intensities
+        const intensities1 = [];
+        const intensities2 = [];
+        const combined = [];
+
+        for (let i = 0; i <= plotW; i++) {
+            const theta = (i / plotW - 0.5) * 2 * thetaMax;
+            const x1 = thetaToX(theta - star1Pos);
+            const x2 = thetaToX(theta - star2Pos);
+            const i1 = airyIntensity(x1);
+            const i2 = airyIntensity(x2) * params.star2Brightness;
+            intensities1.push(isNaN(i1) ? 0 : i1);
+            intensities2.push(isNaN(i2) ? 0 : i2);
+            combined.push((isNaN(i1) ? 0 : i1) + (isNaN(i2) ? 0 : i2));
+        }
+
+        let maxCombined = Math.max(...combined);
+        if (maxCombined < 1e-10 || isNaN(maxCombined)) maxCombined = 1; // Prevent division by zero
+
+        // Draw combined intensity first (background, yellow fill)
+        if (params.showCombined) {
+            ctx.fillStyle = 'rgba(255, 230, 109, 0.15)';
+            ctx.beginPath();
+            ctx.moveTo(margin.left, h - margin.bottom);
+            for (let i = 0; i <= plotW; i++) {
+                const intensity = combined[i] / maxCombined;
+                const px = margin.left + i;
+                const py = margin.top + plotH * (1 - intensity);
+                ctx.lineTo(px, py);
+            }
+            ctx.lineTo(margin.left + plotW, h - margin.bottom);
+            ctx.closePath();
+            ctx.fill();
+
+            // Combined curve
+            ctx.strokeStyle = '#ffe66d';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i <= plotW; i++) {
+                const intensity = combined[i] / maxCombined;
+                const px = margin.left + i;
+                const py = margin.top + plotH * (1 - intensity);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        // Draw Star 1 (cyan)
+        if (params.showStar1) {
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let i = 0; i <= plotW; i++) {
+                const intensity = intensities1[i] / maxCombined;
+                const px = margin.left + i;
+                const py = margin.top + plotH * (1 - intensity);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        // Draw Star 2 (red/orange)
+        if (params.showStar2) {
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let i = 0; i <= plotW; i++) {
+                const intensity = intensities2[i] / maxCombined;
+                const px = margin.left + i;
+                const py = margin.top + plotH * (1 - intensity);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        // Mark star positions (only if in view)
+        if (Math.abs(star1Pos) < thetaMax && params.showStar1) {
+            ctx.fillStyle = '#4ecdc4';
+            const star1px = margin.left + (0.5 + star1Pos / (2 * thetaMax)) * plotW;
+            ctx.beginPath();
+            ctx.arc(star1px, margin.top - 8, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.font = '11px sans-serif';
+            ctx.fillText('★1', star1px - 10, margin.top - 15);
+        }
+
+        if (Math.abs(star2Pos) < thetaMax && params.showStar2) {
+            ctx.fillStyle = '#ff6b6b';
+            const star2px = margin.left + (0.5 + star2Pos / (2 * thetaMax)) * plotW;
+            ctx.beginPath();
+            ctx.arc(star2px, margin.top - 8, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.font = '11px sans-serif';
+            ctx.fillText('★2', star2px - 10, margin.top - 15);
+        }
+
+        // X-axis labels
+        ctx.fillStyle = '#666';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${(-thetaMax).toFixed(2)}`, margin.left - 15, h - margin.bottom + 15);
+        ctx.fillText('0', margin.left + plotW/2 - 3, h - margin.bottom + 15);
+        ctx.fillText(`${thetaMax.toFixed(2)}`, w - margin.right - 25, h - margin.bottom + 15);
+
+        // Legend
+        ctx.font = '9px sans-serif';
+        let legendX = margin.left + 5;
+        if (params.showStar1) {
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillText('― Star 1', legendX, margin.top + 12);
+            legendX += 50;
+        }
+        if (params.showStar2) {
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillText('― Star 2', legendX, margin.top + 12);
+            legendX += 50;
+        }
+        if (params.showCombined) {
+            ctx.fillStyle = '#ffe66d';
+            ctx.fillText('― Combined', legendX, margin.top + 12);
+        }
+
+        return { intensities1, intensities2, combined, thetaMax };
+    }
+
+    function updateResolutionStatus(params) {
+        const rayleighRad = 1.22 * params.lambda / params.D;
+        const rayleighArcsec = rayleighRad * 206265;
+        const ratio = params.separation / rayleighArcsec;
+
+        // Update calculations display
+        document.getElementById('rayleighAngle').textContent = rayleighArcsec.toFixed(2);
+        document.getElementById('yourSeparation').textContent = params.separation.toFixed(2);
+        document.getElementById('ratioValue').textContent = ratio.toFixed(2);
+
+        // Update status
+        const statusEl = document.getElementById('resolutionStatus');
+        if (ratio > 1.1) {
+            statusEl.innerHTML = '<span style="color:#4ecdc4;">✓ RESOLVED</span> — clear separation visible';
+        } else if (ratio > 0.9) {
+            statusEl.innerHTML = '<span style="color:#ffe66d;">≈ JUST RESOLVED</span> — at Rayleigh limit';
+        } else {
+            statusEl.innerHTML = '<span style="color:#ff6b6b;">✗ NOT RESOLVED</span> — stars appear as one';
+        }
+    }
+
+    function updateResolution() {
+        const params = getResolutionParams();
+
+        drawAiryDisk(airyDiskCanvas, params);
+        drawCombinedPsf(combinedPsfCanvas, params);
+        drawAiryProfile(airyProfileCanvas, params);
+        drawTwoStars(twoStarsCanvas, params);
+        updateResolutionStatus(params);
+    }
+
+    // Resolution tab event listeners
+    ['apertureDSlider', 'lambdaResSlider', 'separationSlider', 'star2BrightSlider', 'resZoomSlider'].forEach(id => {
+        document.getElementById(id).addEventListener('input', (e) => {
+            const valId = id.replace('Slider', 'Val');
+            document.getElementById(valId).textContent = e.target.value;
+            updateResolution();
+        });
+    });
+
+    // Checkboxes for resolution tab
+    ['showStar1', 'showStar2', 'showCombined'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateResolution);
+    });
+
+    // Resolution Modal
+    const resolutionModal = document.getElementById('resolutionModal');
+    const modalCombinedPsf = document.getElementById('modalCombinedPsf');
+    const modalTwoStars = document.getElementById('modalTwoStars');
+
+    function drawModalCombinedPsf(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Calculate separation in "x units" (where first min is at 3.83)
+        const rayleighRad = 1.22 * params.lambda / params.D;
+        const rayleighArcsec = rayleighRad * 206265;
+        const separationX = (params.separation / rayleighArcsec) * 3.83;
+
+        const imgData = ctx.createImageData(w, h);
+        const xMax = 15; // Wider horizontal view
+        const yMax = xMax * (h / w);
+
+        const cx = w / 2;
+        const cy = h / 2;
+
+        // Star positions (offset by half separation each direction)
+        const star1Offset = -separationX / 2;
+        const star2Offset = separationX / 2;
+
+        for (let py = 0; py < h; py++) {
+            for (let px = 0; px < w; px++) {
+                const x = (px - cx) / (w / 2) * xMax;
+                const y = (py - cy) / (h / 2) * yMax;
+
+                // Distance from each star center
+                const r1 = Math.sqrt((x - star1Offset) ** 2 + y ** 2);
+                const r2 = Math.sqrt((x - star2Offset) ** 2 + y ** 2);
+
+                // Combined intensity (incoherent sum)
+                const i1 = airyIntensity(r1);
+                const i2 = airyIntensity(r2) * params.star2Brightness;
+                let intensity = i1 + i2;
+
+                // Normalize and log scale
+                intensity = intensity / (1 + params.star2Brightness);
+                intensity = Math.log(1 + intensity * 100) / Math.log(101);
+
+                const rv = Math.min(255, intensity * 3 * 255);
+                const gv = Math.min(255, Math.max(0, (intensity - 0.33) * 3 * 255));
+                const bv = Math.min(255, Math.max(0, (intensity - 0.67) * 3 * 255));
+
+                const idx = (py * w + px) * 4;
+                imgData.data[idx] = rv;
+                imgData.data[idx + 1] = gv;
+                imgData.data[idx + 2] = bv;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Mark star positions
+        const star1px = cx + star1Offset / xMax * (w / 2);
+        const star2px = cx + star2Offset / xMax * (w / 2);
+
+        ctx.fillStyle = 'rgba(78, 205, 196, 0.8)';
+        ctx.beginPath();
+        ctx.arc(star1px, cy, 4, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(255, 107, 107, 0.8)';
+        ctx.beginPath();
+        ctx.arc(star2px, cy, 4, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    function drawModalTwoStars(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        const margin = { left: 50, right: 30, top: 30, bottom: 35 };
+        const plotW = w - margin.left - margin.right;
+        const plotH = h - margin.top - margin.bottom;
+
+        // Calculate Rayleigh angle in arcseconds
+        const rayleighRad = 1.22 * params.lambda / params.D;
+        const rayleighArcsec = rayleighRad * 206265;
+
+        // Angular range to display - match the PSF view above
+        const separationX = (params.separation / rayleighArcsec) * 3.83;
+        const xMax = 15;
+        const thetaMax = xMax * rayleighArcsec / 3.83;
+
+        // Axes
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, margin.top);
+        ctx.lineTo(margin.left, h - margin.bottom);
+        ctx.lineTo(w - margin.right, h - margin.bottom);
+        ctx.stroke();
+
+        ctx.fillStyle = '#999';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Intensity', 5, margin.top + 30);
+        ctx.fillText('θ (arcseconds)', w/2 - 40, h - 5);
+
+        // Draw axis labels
+        ctx.fillStyle = '#666';
+        ctx.font = '10px sans-serif';
+        for (let i = -2; i <= 2; i++) {
+            const theta = i * thetaMax / 2;
+            const px = margin.left + (i + 2) / 4 * plotW;
+            ctx.fillText(theta.toFixed(2), px - 15, h - margin.bottom + 15);
+        }
+
+        // Star positions
+        const star1Pos = -params.separation / 2;
+        const star2Pos = params.separation / 2;
+
+        // Convert angular position to x parameter
+        const thetaToX = (thetaArcsec) => Math.PI * params.D * (thetaArcsec / 206265) / params.lambda;
+
+        // Compute intensities
+        const intensities1 = [];
+        const intensities2 = [];
+        const combined = [];
+
+        for (let i = 0; i <= plotW; i++) {
+            const theta = (i / plotW - 0.5) * 2 * thetaMax;
+            const x1 = thetaToX(theta - star1Pos);
+            const x2 = thetaToX(theta - star2Pos);
+            const i1 = airyIntensity(x1);
+            const i2 = airyIntensity(x2) * params.star2Brightness;
+            intensities1.push(isNaN(i1) ? 0 : i1);
+            intensities2.push(isNaN(i2) ? 0 : i2);
+            combined.push((isNaN(i1) ? 0 : i1) + (isNaN(i2) ? 0 : i2));
+        }
+
+        let maxCombined = Math.max(...combined);
+        if (maxCombined < 1e-10 || isNaN(maxCombined)) maxCombined = 1;
+
+        // Draw combined intensity fill
+        ctx.fillStyle = 'rgba(255, 230, 109, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(margin.left, h - margin.bottom);
+        for (let i = 0; i <= plotW; i++) {
+            const intensity = combined[i] / maxCombined;
+            const px = margin.left + i;
+            const py = margin.top + plotH * (1 - intensity);
+            ctx.lineTo(px, py);
+        }
+        ctx.lineTo(margin.left + plotW, h - margin.bottom);
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw combined intensity line
+        ctx.strokeStyle = '#ffe66d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i <= plotW; i++) {
+            const intensity = combined[i] / maxCombined;
+            const px = margin.left + i;
+            const py = margin.top + plotH * (1 - intensity);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Draw individual stars
+        ctx.setLineDash([4, 3]);
+        ctx.lineWidth = 1.5;
+
+        // Star 1
+        ctx.strokeStyle = '#4ecdc4';
+        ctx.beginPath();
+        for (let i = 0; i <= plotW; i++) {
+            const intensity = intensities1[i] / maxCombined;
+            const px = margin.left + i;
+            const py = margin.top + plotH * (1 - intensity);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Star 2
+        ctx.strokeStyle = '#ff6b6b';
+        ctx.beginPath();
+        for (let i = 0; i <= plotW; i++) {
+            const intensity = intensities2[i] / maxCombined;
+            const px = margin.left + i;
+            const py = margin.top + plotH * (1 - intensity);
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw Rayleigh criterion marker
+        ctx.strokeStyle = '#888';
+        ctx.setLineDash([2, 2]);
+        ctx.lineWidth = 1;
+        const rayleighPx1 = margin.left + plotW * (0.5 - rayleighArcsec / (2 * thetaMax));
+        const rayleighPx2 = margin.left + plotW * (0.5 + rayleighArcsec / (2 * thetaMax));
+        ctx.beginPath();
+        ctx.moveTo(rayleighPx1, margin.top);
+        ctx.lineTo(rayleighPx1, h - margin.bottom);
+        ctx.moveTo(rayleighPx2, margin.top);
+        ctx.lineTo(rayleighPx2, h - margin.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Legend
+        ctx.fillStyle = '#4ecdc4';
+        ctx.fillRect(w - 120, margin.top, 12, 12);
+        ctx.fillStyle = '#aaa';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('Star 1', w - 103, margin.top + 10);
+
+        ctx.fillStyle = '#ff6b6b';
+        ctx.fillRect(w - 120, margin.top + 18, 12, 12);
+        ctx.fillText('Star 2', w - 103, margin.top + 28);
+
+        ctx.fillStyle = '#ffe66d';
+        ctx.fillRect(w - 120, margin.top + 36, 12, 12);
+        ctx.fillText('Combined', w - 103, margin.top + 46);
+    }
+
+    function openResolutionModal() {
+        const params = getResolutionParams();
+        drawModalCombinedPsf(modalCombinedPsf, params);
+        drawModalTwoStars(modalTwoStars, params);
+        resolutionModal.classList.add('active');
+    }
+
+    twoStarsCanvas.addEventListener('click', openResolutionModal);
+    twoStarsCanvas.classList.add('clickable-canvas');
+
+    document.getElementById('resolutionModalClose').addEventListener('click', () => resolutionModal.classList.remove('active'));
+    resolutionModal.addEventListener('click', (e) => { if (e.target === resolutionModal) resolutionModal.classList.remove('active'); });
+
+    // ============== X-ray Diffraction Tab ==============
+    const braggCanvas = document.getElementById('braggCanvas');
+
+    function getBraggParams() {
+        return {
+            theta: parseFloat(document.getElementById('braggAngleSlider').value) * Math.PI / 180,
+            thetaDeg: parseFloat(document.getElementById('braggAngleSlider').value),
+            lambda: parseFloat(document.getElementById('xrayLambdaSlider').value),
+            d: parseFloat(document.getElementById('latticeSpacingSlider').value),
+            showPathDiff: document.getElementById('showPathDiff').checked,
+            showMaxima: document.getElementById('showMaxima').checked
+        };
+    }
+
+    function drawBraggDiffraction(canvas, params) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Clear
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, w, h);
+
+        const centerX = w * 0.4;
+        const centerY = h * 0.4;
+        // Scale plane spacing based on d parameter (d=2 Å → 70px)
+        const planeSpacing = params.d * 35;
+        const atomRadius = 8;
+        const numPlanes = 3;
+        const atomsPerPlane = 8;
+        const atomSpacingX = 65;
+
+        // Draw atomic planes
+        ctx.strokeStyle = '#334';
+        ctx.lineWidth = 1;
+        for (let plane = 0; plane < numPlanes; plane++) {
+            const y = centerY + plane * planeSpacing;
+            ctx.beginPath();
+            ctx.moveTo(30, y);
+            ctx.lineTo(w - 30, y);
+            ctx.stroke();
+        }
+
+        // Draw atoms
+        for (let plane = 0; plane < numPlanes; plane++) {
+            const y = centerY + plane * planeSpacing;
+            for (let i = 0; i < atomsPerPlane; i++) {
+                const x = centerX + (i - Math.floor(atomsPerPlane / 2)) * atomSpacingX;
+                ctx.fillStyle = '#4a7c9b';
+                ctx.beginPath();
+                ctx.arc(x, y, atomRadius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#6ab0d4';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // Calculate ray geometry
+        const theta = params.theta;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+
+        // Impact points on first two planes
+        const impact1X = centerX;
+        const impact1Y = centerY;
+        const impact2X = centerX;
+        const impact2Y = centerY + planeSpacing;
+
+        // Incoming ray direction (coming from upper left, angle θ above horizontal)
+        const rayLength = 180;
+        const inDir = { x: cosT, y: sinT }; // pointing right and down
+        const outDir = { x: cosT, y: -sinT }; // pointing right and up (reflected)
+
+        // Draw "d" spacing label
+        ctx.fillStyle = '#aaa';
+        ctx.font = '14px sans-serif';
+        const dLabelX = w - 70;
+        ctx.fillText('d', dLabelX + 15, centerY + planeSpacing / 2 + 5);
+        ctx.strokeStyle = '#888';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(dLabelX, centerY + 5);
+        ctx.lineTo(dLabelX, centerY + planeSpacing - 5);
+        ctx.stroke();
+        // Arrow heads
+        ctx.beginPath();
+        ctx.moveTo(dLabelX - 4, centerY + 10);
+        ctx.lineTo(dLabelX, centerY + 5);
+        ctx.lineTo(dLabelX + 4, centerY + 10);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(dLabelX - 4, centerY + planeSpacing - 10);
+        ctx.lineTo(dLabelX, centerY + planeSpacing - 5);
+        ctx.lineTo(dLabelX + 4, centerY + planeSpacing - 10);
+        ctx.stroke();
+
+        // Draw incident rays
+        ctx.strokeStyle = '#4ecdc4';
+        ctx.lineWidth = 2.5;
+
+        // Ray 1 (hits top plane)
+        const in1StartX = impact1X - rayLength * inDir.x;
+        const in1StartY = impact1Y - rayLength * inDir.y;
+        ctx.beginPath();
+        ctx.moveTo(in1StartX, in1StartY);
+        ctx.lineTo(impact1X, impact1Y);
+        ctx.stroke();
+        drawArrow(ctx, in1StartX + rayLength * 0.4 * inDir.x, in1StartY + rayLength * 0.4 * inDir.y, inDir, '#4ecdc4');
+
+        // Ray 2 (hits second plane) - parallel to ray 1
+        const in2StartX = impact2X - rayLength * inDir.x;
+        const in2StartY = impact2Y - rayLength * inDir.y;
+        ctx.beginPath();
+        ctx.moveTo(in2StartX, in2StartY);
+        ctx.lineTo(impact2X, impact2Y);
+        ctx.stroke();
+        drawArrow(ctx, in2StartX + rayLength * 0.4 * inDir.x, in2StartY + rayLength * 0.4 * inDir.y, inDir, '#4ecdc4');
+
+        // Draw reflected rays
+        ctx.strokeStyle = '#ff6b6b';
+        ctx.lineWidth = 2.5;
+
+        // Reflected ray 1
+        const out1EndX = impact1X + rayLength * outDir.x;
+        const out1EndY = impact1Y + rayLength * outDir.y;
+        ctx.beginPath();
+        ctx.moveTo(impact1X, impact1Y);
+        ctx.lineTo(out1EndX, out1EndY);
+        ctx.stroke();
+        drawArrow(ctx, impact1X + rayLength * 0.6 * outDir.x, impact1Y + rayLength * 0.6 * outDir.y, outDir, '#ff6b6b');
+
+        // Reflected ray 2
+        const out2EndX = impact2X + rayLength * outDir.x;
+        const out2EndY = impact2Y + rayLength * outDir.y;
+        ctx.beginPath();
+        ctx.moveTo(impact2X, impact2Y);
+        ctx.lineTo(out2EndX, out2EndY);
+        ctx.stroke();
+        drawArrow(ctx, impact2X + rayLength * 0.6 * outDir.x, impact2Y + rayLength * 0.6 * outDir.y, outDir, '#ff6b6b');
+
+        // Draw angle arcs - θ is angle between ray and the horizontal plane
+        ctx.strokeStyle = '#ffe66d';
+        ctx.lineWidth = 1.5;
+        const arcRadius = 35;
+
+        // Angle arc for incident ray (small arc between horizontal-left and incoming ray)
+        // Horizontal-left is at π, ray source direction is at (π + θ) in upper-left quadrant
+        ctx.beginPath();
+        ctx.arc(impact1X, impact1Y, arcRadius, Math.PI, Math.PI + theta, false);
+        ctx.stroke();
+
+        // Label for incident angle (positioned in middle of arc near vertex)
+        ctx.fillStyle = '#ffe66d';
+        ctx.font = '14px sans-serif';
+        const incidentMidAngle = Math.PI + theta / 2;
+        const angleLabelX = impact1X + arcRadius * 0.55 * Math.cos(incidentMidAngle) - 5;
+        const angleLabelY = impact1Y + arcRadius * 0.55 * Math.sin(incidentMidAngle) + 5;
+        ctx.fillText('θ', angleLabelX, angleLabelY);
+
+        // Angle arc for reflected ray (small arc from horizontal-right to ray direction)
+        // Ray goes up-right at angle -θ, horizontal-right is at 0
+        ctx.beginPath();
+        ctx.arc(impact1X, impact1Y, arcRadius, -theta, 0, false);
+        ctx.stroke();
+
+        // Label for reflected angle
+        const angleLabelX2 = impact1X + arcRadius * 0.7 * Math.cos(theta/2);
+        const angleLabelY2 = impact1Y - arcRadius * 0.7 * Math.sin(theta/2) + 5;
+        ctx.fillText('θ', angleLabelX2 - 3, angleLabelY2);
+
+        // Draw horizontal reference line at impact point (dashed)
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(impact1X - 50, impact1Y);
+        ctx.lineTo(impact1X + 50, impact1Y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Show path difference visualization
+        if (params.showPathDiff) {
+            const dSinTheta = planeSpacing * sinT;
+
+            // The extra path for ray 2:
+            // 1. Extra distance going IN (from perpendicular drop from ray1 to impact2)
+            // 2. Extra distance going OUT (from impact2 to perpendicular to ray1's outgoing)
+
+            ctx.strokeStyle = '#ffe66d';
+            ctx.lineWidth = 4;
+
+            // Calculate perpendicular points
+            // Point on incoming ray 2 where perpendicular from impact1 hits
+            const perpIn_X = impact2X - dSinTheta * inDir.x;
+            const perpIn_Y = impact2Y - dSinTheta * inDir.y;
+
+            // Highlight extra incoming path
+            ctx.beginPath();
+            ctx.moveTo(perpIn_X, perpIn_Y);
+            ctx.lineTo(impact2X, impact2Y);
+            ctx.stroke();
+
+            // Point on outgoing ray 2 where perpendicular meets
+            const perpOut_X = impact2X + dSinTheta * outDir.x;
+            const perpOut_Y = impact2Y + dSinTheta * outDir.y;
+
+            // Highlight extra outgoing path
+            ctx.beginPath();
+            ctx.moveTo(impact2X, impact2Y);
+            ctx.lineTo(perpOut_X, perpOut_Y);
+            ctx.stroke();
+
+            // Draw perpendicular lines (dashed) - both should meet at top plane
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+
+            // Perpendicular from impact1 to incoming ray 2
+            ctx.beginPath();
+            ctx.moveTo(impact1X, impact1Y);
+            ctx.lineTo(perpIn_X, perpIn_Y);
+            ctx.stroke();
+
+            // Perpendicular from impact1 to outgoing ray 2
+            ctx.beginPath();
+            ctx.moveTo(impact1X, impact1Y);
+            ctx.lineTo(perpOut_X, perpOut_Y);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#ffe66d';
+            ctx.font = '11px sans-serif';
+            ctx.fillText('d sin θ', perpIn_X - 45, perpIn_Y + planeSpacing/2 - 5);
+            ctx.fillText('d sin θ', perpOut_X + 5, perpOut_Y + planeSpacing/2 - 5);
+
+            // Total path difference label
+            ctx.font = '13px sans-serif';
+            ctx.fillText('Δx = 2d sin θ', impact2X - 30, impact2Y + planeSpacing * 0.7);
+        }
+
+        // Show maxima angles - draw rays at each maxima angle
+        if (params.showMaxima) {
+            const observerX = w - 50;
+            const originY = centerY;
+
+            // Draw rays emanating from crystal showing where maxima occur
+            for (let m = 1; m <= 5; m++) {
+                const sinTheta_m = m * params.lambda / (2 * params.d);
+                if (sinTheta_m <= 1) {
+                    const theta_m = Math.asin(sinTheta_m);
+                    const cosTheta_m = Math.cos(theta_m);
+                    const sinTheta_m_val = Math.sin(theta_m);
+
+                    // Draw ray from center going at angle theta_m
+                    const rayStartX = centerX + 30;
+                    const rayEndX = observerX;
+                    const rayLength_m = rayEndX - rayStartX;
+                    const rayEndY = originY - rayLength_m * Math.tan(theta_m);
+
+                    // Color based on whether current angle matches this maximum
+                    const isCurrentMax = Math.abs(params.thetaDeg - theta_m * 180 / Math.PI) < 2;
+                    ctx.strokeStyle = isCurrentMax ? '#4ecdc4' : 'rgba(78, 205, 196, 0.4)';
+                    ctx.lineWidth = isCurrentMax ? 2.5 : 1.5;
+                    ctx.setLineDash(isCurrentMax ? [] : [6, 4]);
+
+                    ctx.beginPath();
+                    ctx.moveTo(rayStartX, originY);
+                    ctx.lineTo(rayEndX, rayEndY);
+                    ctx.stroke();
+
+                    // Label
+                    ctx.fillStyle = isCurrentMax ? '#4ecdc4' : 'rgba(78, 205, 196, 0.6)';
+                    ctx.font = isCurrentMax ? 'bold 12px sans-serif' : '11px sans-serif';
+                    ctx.fillText(`m=${m}`, rayEndX - 30, rayEndY - 8);
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`${(theta_m * 180 / Math.PI).toFixed(1)}°`, rayEndX - 30, rayEndY + 8);
+                }
+            }
+            ctx.setLineDash([]);
+
+            // Check if at a maximum
+            const pathDiff = 2 * params.d * Math.sin(params.theta);
+            const ratio = pathDiff / params.lambda;
+            const nearestM = Math.round(ratio);
+
+            if (nearestM > 0 && Math.abs(ratio - nearestM) < 0.05) {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText(`✓ m = ${nearestM} MAXIMUM`, w / 2 - 50, h - 20);
+            }
+        }
+
+        // Draw labels
+        ctx.fillStyle = '#4ecdc4';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Incident X-rays', in1StartX - 30, in1StartY - 25);
+
+        ctx.fillStyle = '#ff6b6b';
+        ctx.fillText('Reflected X-rays', out1EndX - 40, out1EndY - 25);
+
+        ctx.fillStyle = '#6ab0d4';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('Atomic planes', 60, centerY - 15);
+    }
+
+    function drawArrow(ctx, x, y, dir, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        const size = 8;
+        ctx.moveTo(x + dir.x * size, y + dir.y * size);
+        ctx.lineTo(x - dir.x * size/2 - dir.y * size/2, y - dir.y * size/2 + dir.x * size/2);
+        ctx.lineTo(x - dir.x * size/2 + dir.y * size/2, y - dir.y * size/2 - dir.x * size/2);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function updateBraggStatus(params) {
+        const pathDiff = 2 * params.d * Math.sin(params.theta);
+        const ratio = pathDiff / params.lambda;
+
+        document.getElementById('pathDiffValue').textContent = pathDiff.toFixed(3);
+        document.getElementById('pathDiffRatio').textContent = ratio.toFixed(2);
+
+        // Check if at a maximum
+        const nearestM = Math.round(ratio);
+        const statusEl = document.getElementById('braggStatus');
+
+        if (nearestM > 0 && Math.abs(ratio - nearestM) < 0.05) {
+            statusEl.innerHTML = `<span style="color:#4ecdc4;">✓ m=${nearestM} MAXIMUM</span>`;
+        } else if (nearestM > 0 && Math.abs(ratio - nearestM) < 0.2) {
+            statusEl.innerHTML = `<span style="color:#ffe66d;">Near m=${nearestM}</span>`;
+        } else {
+            statusEl.innerHTML = `<span style="color:#ff6b6b;">No maximum</span>`;
+        }
+
+        // Update maxima list
+        const maximaList = document.getElementById('maximaList');
+        let html = '';
+        for (let m = 1; m <= 5; m++) {
+            const sinTheta = m * params.lambda / (2 * params.d);
+            if (sinTheta <= 1) {
+                const thetaM = Math.asin(sinTheta) * 180 / Math.PI;
+                const isActive = Math.abs(params.thetaDeg - thetaM) < 2;
+                const style = isActive ? 'color:#4ecdc4; font-weight:bold;' : 'color:#888;';
+                html += `<div style="${style}">m=${m}: θ = ${thetaM.toFixed(1)}°</div>`;
+            }
+        }
+        if (html === '') {
+            html = '<div style="color:#666;">No maxima possible</div>';
+        }
+        maximaList.innerHTML = html;
+    }
+
+    function updateBragg() {
+        const params = getBraggParams();
+        drawBraggDiffraction(braggCanvas, params);
+        updateBraggStatus(params);
+    }
+
+    // X-ray diffraction event listeners
+    ['braggAngleSlider', 'xrayLambdaSlider', 'latticeSpacingSlider'].forEach(id => {
+        document.getElementById(id).addEventListener('input', (e) => {
+            const valId = id.replace('Slider', 'Val');
+            document.getElementById(valId).textContent = e.target.value;
+            updateBragg();
+        });
+    });
+
+    ['showPathDiff', 'showMaxima'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateBragg);
+    });
+
+    // Initialize X-ray tab
+    updateBragg();
+
+    // ============== Main App ==============
+    let currentShape = 'circle';
+    let currentSize = 256;
+    let customVertices = [];
+
+    const apertureCanvas = document.getElementById('apertureCanvas');
+    const diffractionCanvas = document.getElementById('diffractionCanvas');
+    const crossSectionCanvas = document.getElementById('crossSectionCanvas');
+
+    // Modal elements
+    const modal = document.getElementById('modal');
+    const modalCanvas1 = document.getElementById('modalCanvas1');
+    const modalCanvas2 = document.getElementById('modalCanvas2');
+    const dnaModal = document.getElementById('dnaModal');
+    const dnaModalCanvas = document.getElementById('dnaModalCanvas');
+
+    function getParams() {
+        return {
+            size: parseInt(document.getElementById('sizeSlider').value),
+            aspect: parseFloat(document.getElementById('aspectSlider').value),
+            latticeN: parseInt(document.getElementById('latticeSlider').value),
+            gratingN: parseInt(document.getElementById('gratingSlider').value),
+            telescopeAperture: parseFloat(document.getElementById('telescopeSlider').value),
+            logScale: document.getElementById('logScale').checked,
+            brightness: parseFloat(document.getElementById('brightnessSlider').value),
+            zoom: parseFloat(document.getElementById('zoomSlider').value),
+            customVertices: customVertices
+        };
+    }
+
+    // ============== New DNA Tab Functions ==============
+    function drawDNAStructure() {
+        const canvas = document.getElementById('dnaStructureCanvas');
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        ctx.fillStyle = '#0a0a15';
+        ctx.fillRect(0, 0, size, size);
+
+        const cx = size / 2;
+
+        if (dnaState.mode === 'zigzag') {
+            // Draw zigzag
+            const angle = dnaState.helixAngle * Math.PI / 180;
+            const pitchPx = size / dnaState.zigzagPitch;
+            const amplitude = pitchPx * Math.tan(angle) / 2;
+
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            for (let y = 0; y < size; y++) {
+                const phase = (y / pitchPx) * 2 * Math.PI;
+                const triangleWave = Math.asin(Math.sin(phase)) * 2 / Math.PI;
+                const x = cx + amplitude * triangleWave;
+                if (y === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        } else {
+            // Draw helix visualization
+            const radius = size * 0.2;
+            const pitchPx = size / 4;
+
+            // Strand 1
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let y = 0; y < size; y++) {
+                const phase = (y / pitchPx) * 2 * Math.PI;
+                const x = cx + radius * Math.sin(phase);
+                if (y === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Draw bases on strand 1
+            ctx.fillStyle = '#ff6b6b';
+            const baseSpacing = pitchPx / dnaState.basesPerTurn;
+            for (let y = baseSpacing/2; y < size; y += baseSpacing) {
+                const phase = (y / pitchPx) * 2 * Math.PI;
+                const x = cx + radius * Math.sin(phase);
+                const z = Math.cos(phase);
+                const dotSize = 4 + z * 2;
+                ctx.globalAlpha = 0.5 + z * 0.5;
+                ctx.beginPath();
+                ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            // Strand 2 - shifted vertically by offset
+            if (dnaState.showStrand2) {
+                const offset = dnaState.strandOffset * pitchPx;
+                ctx.strokeStyle = '#4ecdc4';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                // Draw strand 2 backbone shifted vertically by offset
+                for (let y = 0; y < size; y++) {
+                    // Phase calculated from shifted y position (y - offset)
+                    // so the helix pattern is shifted down by offset
+                    const phase = ((y - offset) / pitchPx) * 2 * Math.PI + Math.PI;
+                    const x = cx + radius * Math.sin(phase);
+                    if (y === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Bases on strand 2 - also shifted vertically
+                ctx.fillStyle = '#4ecdc4';
+                for (let y = baseSpacing/2 + offset; y < size; y += baseSpacing) {
+                    // Use same phase calculation as backbone
+                    const phase = ((y - offset) / pitchPx) * 2 * Math.PI + Math.PI;
+                    const x = cx + radius * Math.sin(phase);
+                    const z = Math.cos(phase);
+                    const dotSize = 4 + z * 2;
+                    ctx.globalAlpha = 0.5 + z * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+    }
+
+    function computeDNAZigzagFFT(displaySize) {
+        const fftSize = 256;
+        const aperture = new Float64Array(fftSize * fftSize);
+        const cx = fftSize / 2;
+        const pitchPx = fftSize / dnaState.zigzagPitch;
+        const angle = dnaState.helixAngle * Math.PI / 180;
+        const amplitude = pitchPx * Math.tan(angle) / 2;
+        const lineWidth = 2;
+
+        for (let y = 0; y < fftSize; y++) {
+            const phase = (y / pitchPx) * 2 * Math.PI;
+            const triangleWave = Math.asin(Math.sin(phase)) * 2 / Math.PI;
+            const strandX = cx + amplitude * triangleWave;
+
+            for (let x = 0; x < fftSize; x++) {
+                if (Math.abs(x - strandX) <= lineWidth) {
+                    aperture[y * fftSize + x] = 1;
+                }
+            }
+        }
+
+        let intensity;
+        if (dnaState.fiberMode) {
+            intensity = computeDNAFiberFFT(aperture, fftSize, 12);
+        } else {
+            const real = new Float64Array(aperture);
+            const imag = new Float64Array(fftSize * fftSize);
+            fft2d(real, imag, fftSize);
+            intensity = new Float64Array(fftSize * fftSize);
+            for (let i = 0; i < fftSize * fftSize; i++) {
+                intensity[i] = real[i] * real[i] + imag[i] * imag[i];
+            }
+            fftShift(intensity, fftSize);
+        }
+
+        return { intensity, srcSize: fftSize };
+    }
+
+    function computeDNAFiberFFT(aperture, size, numRotations) {
+        const avgIntensity = new Float64Array(size * size);
+        const cx = size / 2;
+
+        for (let r = 0; r < numRotations; r++) {
+            const angle = (r / numRotations) * Math.PI / 2;
+            const scaleX = Math.cos(angle);
+            if (Math.abs(scaleX) < 0.01) continue;
+
+            const scaled = new Float64Array(size * size);
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const srcX = cx + (x - cx) / scaleX;
+                    const x0 = Math.floor(srcX);
+                    if (x0 >= 0 && x0 < size - 1) {
+                        const fx = srcX - x0;
+                        scaled[y * size + x] = aperture[y * size + x0] * (1 - fx) +
+                                               aperture[y * size + x0 + 1] * fx;
+                    }
+                }
+            }
+
+            const real = new Float64Array(scaled);
+            const imag = new Float64Array(size * size);
+            fft2d(real, imag, size);
+
+            for (let i = 0; i < size * size; i++) {
+                avgIntensity[i] += (real[i] * real[i] + imag[i] * imag[i]) / numRotations;
+            }
+        }
+
+        fftShift(avgIntensity, size);
+        return avgIntensity;
+    }
+
+    function computeDNAAnalyticalHelix(displaySize) {
+        const compSize = 256;
+        const intensity = new Float64Array(compSize * compSize);
+        const cx = compSize / 2;
+        const cy = compSize / 2;
+
+        const maxLayer = 8;
+        const layerSpacingPx = compSize / (2 * maxLayer);
+        const layerWidth = 0.15;
+        const falloff = 2.0;
+
+        let maxI = 0;
+
+        for (let py = 0; py < compSize; py++) {
+            for (let px = 0; px < compSize; px++) {
+                const qx = (px - cx) / layerSpacingPx;
+                const qy = (py - cy) / layerSpacingPx;
+                const qRadial = Math.abs(qx);
+
+                let totalIntensity = 0;
+
+                for (let l = -maxLayer; l <= maxLayer; l++) {
+                    const layerDist = qy - l;
+                    const envelope = Math.exp(-layerDist * layerDist / (2 * layerWidth * layerWidth));
+                    if (envelope < 0.001) continue;
+
+                    // Scale so J_n first max appears at qRadial ≈ n
+                    // This creates the X pattern where higher layer lines peak further out
+                    const besselArg = qRadial * 1.2;
+                    const J = besselJ(Math.abs(l), besselArg);
+
+                    // Structure factor for double helix
+                    let F = 1;
+                    if (dnaState.showStrand2) {
+                        const phase = 2 * Math.PI * l * dnaState.strandOffset;
+                        F = 2 * (1 + Math.cos(phase));
+                    }
+
+                    // Bases per turn modulation: layer lines at multiples of n are enhanced
+                    // This models the discrete sampling by nucleotides along the helix
+                    const n = dnaState.basesPerTurn;
+                    const baseCos = Math.cos(Math.PI * l / n);
+                    const baseModulation = 0.3 + 0.7 * baseCos * baseCos;
+
+                    totalIntensity += envelope * F * baseModulation * J * J;
+                }
+
+                const distFromCenter = Math.sqrt(qx * qx + qy * qy);
+                const radialFalloff = 1 / Math.pow(1 + distFromCenter * 0.2, falloff);
+
+                intensity[py * compSize + px] = totalIntensity * radialFalloff;
+                if (intensity[py * compSize + px] > maxI) maxI = intensity[py * compSize + px];
+            }
+        }
+
+        for (let i = 0; i < compSize * compSize; i++) {
+            intensity[i] /= maxI;
+        }
+
+        return { intensity, srcSize: compSize };
+    }
+
+    function renderDNAIntensity(ctx, intensity, srcSize, displaySize) {
+        const imgData = ctx.createImageData(displaySize, displaySize);
+
+        const threshold = dnaState.dynamicRange * 0.1;
+        const brightness = 1 + dnaState.dynamicRange;
+
+        let maxI = 0;
+        for (let i = 0; i < srcSize * srcSize; i++) {
+            if (intensity[i] > maxI) maxI = intensity[i];
+        }
+
+        for (let py = 0; py < displaySize; py++) {
+            for (let px = 0; px < displaySize; px++) {
+                const sx = (px / displaySize) * srcSize;
+                const sy = (py / displaySize) * srcSize;
+                const x0 = Math.floor(sx);
+                const y0 = Math.floor(sy);
+                const x1 = Math.min(x0 + 1, srcSize - 1);
+                const y1 = Math.min(y0 + 1, srcSize - 1);
+                const fx = sx - x0;
+                const fy = sy - y0;
+
+                const i00 = intensity[y0 * srcSize + x0];
+                const i10 = intensity[y0 * srcSize + x1];
+                const i01 = intensity[y1 * srcSize + x0];
+                const i11 = intensity[y1 * srcSize + x1];
+                let val = i00 * (1-fx) * (1-fy) + i10 * fx * (1-fy) + i01 * (1-fx) * fy + i11 * fx * fy;
+
+                val = val / maxI;
+                if (val < threshold) val = 0;
+
+                val = Math.log(1 + val * 100 * brightness) / Math.log(1 + 100 * brightness);
+                val = Math.min(1, Math.max(0, val));
+
+                let r, g, b;
+                if (dnaState.bwMode) {
+                    const gray = Math.round((1 - val) * 255);
+                    r = g = b = gray;
+                } else {
+                    r = Math.min(255, val * 3 * 255);
+                    g = Math.min(255, Math.max(0, (val - 0.33) * 3 * 255));
+                    b = Math.min(255, Math.max(0, (val - 0.67) * 3 * 255));
+                }
+
+                const idx = (py * displaySize + px) * 4;
+                imgData.data[idx] = r;
+                imgData.data[idx + 1] = g;
+                imgData.data[idx + 2] = b;
+                imgData.data[idx + 3] = 255;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        // Beamstop
+        const cxd = displaySize / 2, cyd = displaySize / 2;
+        ctx.beginPath();
+        ctx.arc(cxd, cyd, displaySize * 0.04, 0, Math.PI * 2);
+        ctx.fillStyle = dnaState.bwMode ? '#fff' : '#000';
+        ctx.fill();
+
+        // Layer lines (only for helix mode)
+        if (dnaState.showLayerLines && dnaState.mode === 'helix') {
+            const maxLayer = 8;
+            const layerSpacingPx = displaySize / (2 * maxLayer);
+            ctx.font = '11px monospace';
+            ctx.fillStyle = dnaState.bwMode ? '#000' : '#fff';
+            for (let l = -maxLayer; l <= maxLayer; l++) {
+                const y = cyd - l * layerSpacingPx;
+                if (y > 12 && y < displaySize - 4) {
+                    ctx.fillText(l.toString(), 4, y + 4);
+                }
+            }
+        }
+    }
+
+    function updateDNA() {
+        const structureCanvas = document.getElementById('dnaStructureCanvas');
+        const diffractionCanvas = document.getElementById('dnaDiffractionCanvas');
+
+        if (!structureCanvas || !diffractionCanvas) return;
+
+        const displaySize = 300;
+        structureCanvas.width = displaySize;
+        structureCanvas.height = displaySize;
+        diffractionCanvas.width = displaySize;
+        diffractionCanvas.height = displaySize;
+
+        drawDNAStructure();
+
+        const ctx = diffractionCanvas.getContext('2d');
+        let result;
+
+        if (dnaState.mode === 'zigzag') {
+            result = computeDNAZigzagFFT(displaySize);
+        } else {
+            result = computeDNAAnalyticalHelix(displaySize);
+        }
+
+        renderDNAIntensity(ctx, result.intensity, result.srcSize, displaySize);
+    }
+
+    function updateApertures() {
+        const params = getParams();
+        currentSize = 256;
+
+        apertureCanvas.width = currentSize;
+        apertureCanvas.height = currentSize;
+        diffractionCanvas.width = currentSize;
+        diffractionCanvas.height = currentSize;
+
+        const aperture = createAperture(currentShape, currentSize, params);
+        renderAperture(aperture, currentSize, apertureCanvas);
+
+        const { intensity, maxI } = computeAndRender(aperture, currentSize, diffractionCanvas, params);
+        renderCrossSection(intensity, currentSize, crossSectionCanvas, params, true);
+    }
+
+    // Open modal with 512x512 high-res view
+    function openApertureModal() {
+        const params = getParams();
+        const size = 512;
+
+        modalCanvas1.width = size;
+        modalCanvas1.height = size;
+        modalCanvas2.width = size;
+        modalCanvas2.height = size;
+
+        const aperture = createAperture(currentShape, size, params);
+        renderAperture(aperture, size, modalCanvas1);
+
+        // For Orion, need to recalculate star positions for larger canvas
+        if (aperture.isOrion) {
+            // Recompute star pixel positions for 512x512
+            const stars = aperture.orionData.stars;
+            const raMin = Math.min(...stars.map(s => s.ra));
+            const raMax = Math.max(...stars.map(s => s.ra));
+            const decMin = Math.min(...stars.map(s => s.dec));
+            const decMax = Math.max(...stars.map(s => s.dec));
+            const baseRadius = size * params.size / 100;
+            const orionScale = baseRadius * 1.6;
+            const cx = size / 2;
+            const cy = size / 2;
+            const raCen = (raMin + raMax) / 2;
+            const decCen = (decMin + decMax) / 2;
+            const maxRange = Math.max((raMax - raMin) * 15, decMax - decMin);
+
+            for (const star of stars) {
+                star.px = cx - ((star.ra - raCen) * 15 / maxRange) * orionScale;
+                star.py = cy - ((star.dec - decCen) / maxRange) * orionScale;
+            }
+            aperture.orionData.size = size;
+            aperture.orionData.baseRadius = baseRadius;
+        }
+
+        computeAndRender(aperture, size, modalCanvas2, params);
+
+        modal.classList.add('active');
+    }
+
+    // Open DNA modal with Photo 51 comparison
+    function openDNAModal() {
+        const size = 400;
+
+        dnaModalCanvas.width = size;
+        dnaModalCanvas.height = size;
+
+        const ctx = dnaModalCanvas.getContext('2d');
+        let result;
+
+        if (dnaState.mode === 'zigzag') {
+            result = computeDNAZigzagFFT(size);
+        } else {
+            result = computeDNAAnalyticalHelix(size);
+        }
+
+        renderDNAIntensity(ctx, result.intensity, result.srcSize, size);
+
+        dnaModal.classList.add('active');
+    }
+
+    // Event listeners
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    document.querySelectorAll('#shapeButtons button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#shapeButtons button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentShape = btn.dataset.shape;
+
+            // Show/hide relevant controls
+            document.getElementById('latticeGroup').style.display =
+                ['squareLattice', 'hexLattice'].includes(currentShape) ? 'block' : 'none';
+            document.getElementById('gratingGroup').style.display =
+                currentShape === 'grating' ? 'block' : 'none';
+            document.getElementById('aspectGroup').style.display =
+                currentShape === 'rectangle' ? 'block' : 'none';
+            document.getElementById('telescopeGroup').style.display =
+                currentShape === 'orion' ? 'block' : 'none';
+            document.getElementById('customPanel').style.display =
+                currentShape === 'custom' ? 'block' : 'none';
+
+            if (currentShape === 'custom') {
+                customVertices = [];
+            }
+
+            updateApertures();
+        });
+    });
+
+    // Sliders
+    ['sizeSlider', 'aspectSlider', 'latticeSlider', 'gratingSlider', 'telescopeSlider', 'brightnessSlider', 'zoomSlider'].forEach(id => {
+        document.getElementById(id).addEventListener('input', (e) => {
+            const valId = id.replace('Slider', 'Val');
+            document.getElementById(valId).textContent = e.target.value;
+            updateApertures();
+        });
+    });
+
+    document.getElementById('logScale').addEventListener('change', updateApertures);
+
+    // Modal handlers
+    diffractionCanvas.addEventListener('click', openApertureModal);
+    document.getElementById('modalClose').addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+    // DNA Tab Event Listeners
+    const dnaDiffractionEl = document.getElementById('dnaDiffractionCanvas');
+    if (dnaDiffractionEl) {
+        dnaDiffractionEl.addEventListener('click', openDNAModal);
+    }
+    document.getElementById('dnaModalClose').addEventListener('click', () => dnaModal.classList.remove('active'));
+    dnaModal.addEventListener('click', (e) => { if (e.target === dnaModal) dnaModal.classList.remove('active'); });
+
+    // Escape key closes modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            modal.classList.remove('active');
+            modal1d.classList.remove('active');
+            resolutionModal.classList.remove('active');
+            dnaModal.classList.remove('active');
+        }
+    });
+
+    // DNA Mode buttons
+    document.querySelectorAll('[data-dna-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-dna-mode]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            dnaState.mode = btn.dataset.dnaMode;
+
+            // Toggle visibility of mode-specific controls
+            document.querySelectorAll('.dna-zigzag-controls, .dna-zigzag-info').forEach(el => {
+                el.style.display = dnaState.mode === 'zigzag' ? 'block' : 'none';
+            });
+            document.querySelectorAll('.dna-helix-controls, .dna-helix-info').forEach(el => {
+                el.style.display = dnaState.mode === 'helix' ? 'block' : 'none';
+            });
+
+            updateDNA();
+        });
+    });
+
+    // DNA Sliders
+    const dnaHelixAngleEl = document.getElementById('dnaHelixAngle');
+    if (dnaHelixAngleEl) {
+        dnaHelixAngleEl.addEventListener('input', (e) => {
+            dnaState.helixAngle = parseInt(e.target.value);
+            document.getElementById('dnaHelixAngleVal').textContent = dnaState.helixAngle + '°';
+            updateDNA();
+        });
+    }
+
+    const dnaZigzagPitchEl = document.getElementById('dnaZigzagPitch');
+    if (dnaZigzagPitchEl) {
+        dnaZigzagPitchEl.addEventListener('input', (e) => {
+            dnaState.zigzagPitch = parseInt(e.target.value);
+            document.getElementById('dnaZigzagPitchVal').textContent = dnaState.zigzagPitch;
+            updateDNA();
+        });
+    }
+
+    const dnaBasesPerTurnEl = document.getElementById('dnaBasesPerTurn');
+    if (dnaBasesPerTurnEl) {
+        dnaBasesPerTurnEl.addEventListener('input', (e) => {
+            dnaState.basesPerTurn = parseInt(e.target.value);
+            document.getElementById('dnaBasesPerTurnVal').textContent = dnaState.basesPerTurn;
+            updateDNA();
+        });
+    }
+
+    const dnaStrandOffsetEl = document.getElementById('dnaStrandOffset');
+    if (dnaStrandOffsetEl) {
+        dnaStrandOffsetEl.addEventListener('input', (e) => {
+            dnaState.strandOffset = parseFloat(e.target.value);
+            let display = dnaState.strandOffset.toFixed(3) + ' P';
+            if (Math.abs(dnaState.strandOffset - 0.375) < 0.01) display = '3/8 P';
+            else if (Math.abs(dnaState.strandOffset - 0.5) < 0.01) display = '1/2 P';
+            else if (Math.abs(dnaState.strandOffset - 0.25) < 0.01) display = '1/4 P';
+            document.getElementById('dnaStrandOffsetVal').textContent = display;
+            updateDNA();
+        });
+    }
+
+    const dnaDynamicRangeEl = document.getElementById('dnaDynamicRange');
+    if (dnaDynamicRangeEl) {
+        dnaDynamicRangeEl.addEventListener('input', (e) => {
+            dnaState.dynamicRange = parseFloat(e.target.value);
+            document.getElementById('dnaDynamicRangeVal').textContent = dnaState.dynamicRange.toFixed(2);
+            updateDNA();
+        });
+    }
+
+    // DNA Checkboxes
+    const dnaShowStrand2El = document.getElementById('dnaShowStrand2');
+    if (dnaShowStrand2El) {
+        dnaShowStrand2El.addEventListener('change', (e) => {
+            dnaState.showStrand2 = e.target.checked;
+            document.querySelectorAll('.dna-strand2-controls').forEach(el => {
+                el.style.display = dnaState.showStrand2 ? 'block' : 'none';
+            });
+            updateDNA();
+        });
+    }
+
+    const dnaFiberModeEl = document.getElementById('dnaFiberMode');
+    if (dnaFiberModeEl) {
+        dnaFiberModeEl.addEventListener('change', (e) => {
+            dnaState.fiberMode = e.target.checked;
+            updateDNA();
+        });
+    }
+
+    const dnaBWModeEl = document.getElementById('dnaBWMode');
+    if (dnaBWModeEl) {
+        dnaBWModeEl.addEventListener('change', (e) => {
+            dnaState.bwMode = e.target.checked;
+            updateDNA();
+        });
+    }
+
+    const dnaShowLayerLinesEl = document.getElementById('dnaShowLayerLines');
+    if (dnaShowLayerLinesEl) {
+        dnaShowLayerLinesEl.addEventListener('change', (e) => {
+            dnaState.showLayerLines = e.target.checked;
+            updateDNA();
+        });
+    }
+
+    // DNA Compare button
+    const dnaCompareBtnEl = document.getElementById('dnaCompareBtn');
+    if (dnaCompareBtnEl) {
+        dnaCompareBtnEl.addEventListener('click', openDNAModal);
+    }
+
+    // Custom polygon drawing
+    apertureCanvas.addEventListener('click', (e) => {
+        if (currentShape !== 'custom') return;
+
+        const rect = apertureCanvas.getBoundingClientRect();
+        const scaleX = currentSize / rect.width;
+        const scaleY = currentSize / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+
+        customVertices.push({ x, y });
+        updateApertures();
+
+        // Draw vertices
+        const ctx = apertureCanvas.getContext('2d');
+        ctx.fillStyle = '#7eb8da';
+        customVertices.forEach(v => {
+            ctx.beginPath();
+            ctx.arc(v.x, v.y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    });
+
+    apertureCanvas.addEventListener('dblclick', () => {
+        if (currentShape === 'custom' && customVertices.length >= 3) {
+            updateApertures();
+        }
+    });
+
+    document.getElementById('clearCustom').addEventListener('click', () => {
+        customVertices = [];
+        updateApertures();
+    });
+
+    // Initialize with correct display values
+    document.getElementById('sizeVal').textContent = document.getElementById('sizeSlider').value;
+    document.getElementById('zoomVal').textContent = document.getElementById('zoomSlider').value;
+
+    // Initialize 1D apertures
+    update1dFormula(current1dShape);
+    update1dApertures();
+
+    // Initialize Resolution tab
+    updateResolution();
+
+    // Initialize 2D
+    updateApertures();
+    updateDNA();
+
+    // Render KaTeX
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof renderMathInElement !== 'undefined') {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    { left: '$$', right: '$$', display: true },
+                    { left: '$', right: '$', display: false }
+                ]
+            });
+        }
+    });
+    </script>
+</body>
+</html>
