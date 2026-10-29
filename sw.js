@@ -22,11 +22,13 @@
    is no stale-copy problem to detect and no hash bookkeeping in here.  Old
    versions are swept when a new hash for the same path is cached.
 */
-const CACHE_VERSION = '75c478c51d5d';
+const CACHE_VERSION = '206d74dc7f71';
 const SHELL = `advphys-shell-${CACHE_VERSION}`;
 const DOCS = 'advphys-docs-v1';          // survives shell upgrades — documents are content-addressed
 const SHELL_FILES = ['./', 'index.html', 'style.css', 'app.js', 'index.json',
-                     'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+                     'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png',
+                     // PDF.js draws PDFs on iPhone/iPad, where an iframe cannot (app.js).
+                     'lib/pdf.min.js', 'lib/pdf.worker.min.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL)

@@ -6,9 +6,14 @@
      Reference  the calculus primer
    Every document opens inside the app, in a framed viewer with a back bar, a
    switcher across that day's documents, Present (full screen) and an "open in a
-   new tab" escape hatch -- as calc's app does.  One exception: on iPhone and
-   iPad a PDF in an iframe renders only its first page, unscrollable, so there
-   PDFs open in the system PDF viewer (a sheet with Done, in the installed app).
+   new tab" escape hatch -- as calc's app does.
+
+   PDFs on iPhone and iPad: an iframe shows only page 1 there, and handing the
+   PDF to the system (target=_blank) strands the installed home-screen app on a
+   bare PDF with no way back (Ryan, 2026-10-29: "no return path if i open
+   pdfs").  So there the viewer draws every page itself with the bundled
+   PDF.js (lib/, precached by sw.js, works offline).  Add ?pdfjs=1 to the URL
+   to force that path on any browser for testing.
 
    Documents are requested as  q/foo.html?h=<hash>  so a changed document is a
    different URL and the service worker can cache-first without going stale. */
@@ -65,7 +70,10 @@ const nextDate = () => (allRows().find(r => r.date && r.date >= todayISO()) || {
 // iPadOS reports itself as a Mac; touch points give it away.
 const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const framed = it => !(IOS && it.file.endsWith('.pdf'));
+const PDFJS = IOS || /[?&]pdfjs=1\b/.test(location.search);
+const STANDALONE = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+const framed = () => true;                       // every document opens in the viewer
+const isPDF = it => it.file.endsWith('.pdf');
 
 function itemLink(it) {
   const cls = it.kind === 'lab' ? 'item lab' : 'item';
@@ -198,18 +206,26 @@ function openDoc(file, at) {
 
   const url = docURL(it) + (at ? `#${at}` : '');
   let f = [...box.children].find(x => x.dataset.file === file);
-  if (!f) {
+  if (!f && PDFJS && isPDF(it)) {
+    f = document.createElement('div');
+    f.className = 'pdfview';
+    f.dataset.file = file;
+    f.setAttribute('aria-label', it.label);
+    box.appendChild(f);
+    drawPDF(f, docURL(it));
+  } else if (!f) {
     f = document.createElement('iframe');
     f.dataset.file = file;
     f.setAttribute('allowfullscreen', '');
     f.setAttribute('aria-label', it.label);
     box.appendChild(f);
   }
-  if (!f.src || at) f.src = url;
+  if (f.tagName === 'IFRAME' && (!f.src || at)) f.src = url;
   [...box.children].forEach(x => { x.hidden = x !== f; });
 
   $('#vtitle').textContent = it.row ? rowTitle(it.row) : it.label;
   $('#vopen').href = url;
+  $('#vopen').hidden = IOS && STANDALONE;        // a new tab there is the same dead end
   const seg = $('#vseg');
   seg.hidden = docs.length < 2;
   seg.innerHTML = docs.map(d => `<button data-file="${esc(d.file)}" class="${d.file === file ? 'on' : ''}">${esc(d.label)}</button>`).join('');
@@ -225,6 +241,30 @@ function closeDoc() {
   refreshCached().then(render);
 }
 
+/** Draw every page of a PDF into `box`, page by page, at the box's width. */
+async function drawPDF(box, url) {
+  box.innerHTML = '<p class="pdfmsg">Opening&hellip;</p>';
+  try {
+    const lib = await import('./lib/pdf.min.js');
+    lib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
+    const pdf = await lib.getDocument({ url, disableRange: true, disableStream: true }).promise;
+    box.innerHTML = '';
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const width = Math.max(box.clientWidth - 16, 280);
+    for (let n = 1; n <= pdf.numPages; n++) {
+      const page = await pdf.getPage(n);
+      const vp = page.getViewport({ scale: (width * dpr) / page.getViewport({ scale: 1 }).width });
+      const c = document.createElement('canvas');
+      c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+      c.setAttribute('aria-label', `Page ${n} of ${pdf.numPages}`);
+      box.appendChild(c);
+      await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    }
+  } catch (e) {
+    box.innerHTML = '<p class="pdfmsg">This PDF could not be shown. Connect to the internet once, then try again.</p>';
+  }
+}
+
 function present() {
   const v = $('#viewer');
   if (!v.hidden && v.requestFullscreen) v.requestFullscreen().catch(() => {});
@@ -237,8 +277,12 @@ function route() {
   if (h.startsWith('doc=')) {
     const [file, at] = h.slice(4).split('&at=');
     if (!S.idx) return;
+    // Back may use history only if this app pushed the document entry itself;
+    // a document opened straight from a link has nothing in-app to go back to.
+    if ($('#viewer').hidden) S.backInApp = S.seenTab;
     openDoc(file, at); return;
   }
+  S.seenTab = true;
   if (!$('#viewer').hidden) closeDoc();
   S.tab = ['schedule', 'labs', 'ref'].includes(h) ? h : 'schedule';
   render();
@@ -264,7 +308,7 @@ document.addEventListener('click', e => {
   if (t) { S.q = ''; $('#search').value = ''; location.hash = t.dataset.tab; if (location.hash.slice(1) === t.dataset.tab) route(); return; }
   if (e.target.id === 'saveall') saveAll(e.target);
 });
-$('#vback').addEventListener('click', () => history.length > 1 ? history.back() : (location.hash = S.tab));
+$('#vback').addEventListener('click', () => S.backInApp ? history.back() : location.replace('#' + S.tab));
 $('#vpresent').addEventListener('click', present);
 // Switching documents within a day replaces the hash, so Back still leaves the viewer.
 $('#vseg').addEventListener('click', e => {
