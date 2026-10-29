@@ -41,9 +41,11 @@
   <div id="vbar">
     <button class="iconbtn" id="vback" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
     <span id="vtitle"></span>
+    <button class="iconbtn" id="vpresent" aria-label="Present (full screen)" title="Present (full screen)  F" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     <a class="iconbtn" id="vopen" target="_blank" rel="noopener" aria-label="Open in a new tab" title="Open in a new tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
   </div>
-  <iframe id="vframe" title="Document"></iframe>
+  <div id="vseg" hidden></div>
+  <div id="vframes"></div>
 </div>
 
 <div id="toast"><span id="toastmsg"></span><button id="toastbtn">Reload</button></div>

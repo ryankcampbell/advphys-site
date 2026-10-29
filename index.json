@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-10-29T21:33:53+00:00",
+ "published": "2026-10-29T21:36:19+00:00",
  "units": [
   {
    "n": 1,
@@ -864,7 +864,8 @@
      "date": "2027-02-10",
      "label": "Wed 2/10",
      "code": "Lab 9",
-     "items": []
+     "items": [],
+     "handout": false
     },
     {
      "kind": "break",
@@ -1497,6 +1498,7 @@
    "label": "Wed 2/10",
    "code": "Lab 9",
    "items": [],
+   "handout": false,
    "unit": 2
   }
  ],

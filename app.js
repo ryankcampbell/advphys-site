@@ -4,8 +4,11 @@
      Schedule   every class day in Units 1-3, built or not; opens at the next class
      Labs       each lab with its handout and date
      Reference  the calculus primer
-   Lessons and sims open in a full-screen viewer; PDFs open in the browser's own
-   viewer (an iframe shows only the first page of a PDF on iOS).
+   Every document opens inside the app, in a framed viewer with a back bar, a
+   switcher across that day's documents, Present (full screen) and an "open in a
+   new tab" escape hatch -- as calc's app does.  One exception: on iPhone and
+   iPad a PDF in an iframe renders only its first page, unscrollable, so there
+   PDFs open in the system PDF viewer (a sheet with Done, in the installed app).
 
    Documents are requested as  q/foo.html?h=<hash>  so a changed document is a
    different URL and the service worker can cache-first without going stale. */
@@ -59,10 +62,15 @@ const nextDate = () => (allRows().find(r => r.date && r.date >= todayISO()) || {
 
 // ───────────────────────────────────────────────────────────── drawing ──
 
+// iPadOS reports itself as a Mac; touch points give it away.
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const framed = it => !(IOS && it.file.endsWith('.pdf'));
+
 function itemLink(it) {
   const cls = it.kind === 'lab' ? 'item lab' : 'item';
   const dot = isCached(it) ? '<span class="ok" title="Saved for offline"></span>' : '';
-  if (it.file.endsWith('.html'))
+  if (framed(it))
     return `<a class="${cls}" href="#doc=${encodeURIComponent(it.file)}" data-file="${esc(it.file)}">${dot}${esc(it.label)}</a>`;
   return `<a class="${cls}" href="${esc(docURL(it))}" target="_blank" rel="noopener">${dot}${esc(it.label)}</a>`;
 }
@@ -83,6 +91,7 @@ function rowHTML(r, next) {
   const items = r.items || [];
   let body = r.topics ? `<div class="topics">${esc(r.topics)}</div>` : '';
   if (items.length) body += `<div class="items">${items.map(itemLink).join('')}</div>`;
+  else if (r.kind === 'lab' && r.handout === false) body += '<div class="coming">Handout in class</div>';
   else if (r.kind === 'lesson' || r.kind === 'lab' || r.kind === 'hwday') body += '<div class="coming">Materials coming</div>';
   const cls = ['row', r.date && r.date === next ? 'next' : '', past ? 'past' : ''].join(' ');
   return `<div class="${cls}" ${r.date === next ? 'id="next"' : ''}>
@@ -172,21 +181,53 @@ function findItem(file) {
     .find(it => it.file === file);
 }
 
+const rowTitle = r => r.kind === 'lab' ? `${r.code}: ${r.name}`
+  : r.kind === 'hwday' ? `${r.code} ${r.title} · HW day`
+  : r.code ? `${r.code} ${r.name}${r.part > 1 ? ` · day ${r.part}` : ''}` : r.name;
+
+/** Mount each document of the open day once and toggle by [hidden].  Never
+ *  destroy while the day is open -- a reloaded iframe loses its widget state
+ *  (calc's mountFrames rule). */
 function openDoc(file, at) {
   const it = findItem(file);
   if (!it) { location.hash = S.tab; return; }
+  const docs = (it.row ? it.row.items : [it]).filter(framed);
+  const box = $('#vframes');
+  const key = it.row ? `${it.row.date || ''}|${it.row.code || it.row.name}` : it.file;
+  if (box.dataset.key !== key) { box.innerHTML = ''; box.dataset.key = key; }
+
   const url = docURL(it) + (at ? `#${at}` : '');
-  $('#vtitle').textContent = it.row ? `${it.row.code || ''} ${it.row.name} · ${it.label}`.trim() : it.label;
+  let f = [...box.children].find(x => x.dataset.file === file);
+  if (!f) {
+    f = document.createElement('iframe');
+    f.dataset.file = file;
+    f.setAttribute('allowfullscreen', '');
+    f.setAttribute('aria-label', it.label);
+    box.appendChild(f);
+  }
+  if (!f.src || at) f.src = url;
+  [...box.children].forEach(x => { x.hidden = x !== f; });
+
+  $('#vtitle').textContent = it.row ? rowTitle(it.row) : it.label;
   $('#vopen').href = url;
-  if ($('#vframe').dataset.src !== url) { $('#vframe').src = url; $('#vframe').dataset.src = url; }
+  const seg = $('#vseg');
+  seg.hidden = docs.length < 2;
+  seg.innerHTML = docs.map(d => `<button data-file="${esc(d.file)}" class="${d.file === file ? 'on' : ''}">${esc(d.label)}</button>`).join('');
+  $('#vpresent').hidden = !document.fullscreenEnabled;
   $('#viewer').hidden = false;
   document.body.style.overflow = 'hidden';
 }
 
 function closeDoc() {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   $('#viewer').hidden = true;
   document.body.style.overflow = '';
   refreshCached().then(render);
+}
+
+function present() {
+  const v = $('#viewer');
+  if (!v.hidden && v.requestFullscreen) v.requestFullscreen().catch(() => {});
 }
 
 // ─────────────────────────────────────────────────────────────── routing ──
@@ -224,6 +265,12 @@ document.addEventListener('click', e => {
   if (e.target.id === 'saveall') saveAll(e.target);
 });
 $('#vback').addEventListener('click', () => history.length > 1 ? history.back() : (location.hash = S.tab));
+$('#vpresent').addEventListener('click', present);
+// Switching documents within a day replaces the hash, so Back still leaves the viewer.
+$('#vseg').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b) location.replace('#doc=' + encodeURIComponent(b.dataset.file));
+});
 $('#search').addEventListener('input', e => { S.q = e.target.value; render(); });
 $('#themebtn').addEventListener('click', () => {
   const dark = getComputedStyle(document.documentElement).colorScheme === 'dark';
@@ -234,7 +281,11 @@ $('#themebtn').addEventListener('click', () => {
 window.addEventListener('hashchange', route);
 window.addEventListener('online', renderNet);
 window.addEventListener('offline', renderNet);
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#viewer').hidden) $('#vback').click(); });
+document.addEventListener('keydown', e => {
+  if ($('#viewer').hidden || e.target.matches('input')) return;
+  if (e.key === 'Escape' && !document.fullscreenElement) $('#vback').click();
+  if (e.key === 'f' || e.key === 'F') present();
+});
 
 function toast(msg) { $('#toastmsg').textContent = msg; $('#toast').classList.add('open'); }
 $('#toastbtn').addEventListener('click', () => location.reload());
