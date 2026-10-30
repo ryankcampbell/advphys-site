@@ -95,6 +95,15 @@ a{color:var(--accent);text-decoration:none}
 .coming{font-size:12px;color:var(--ink-4);font-style:italic;margin-top:8px;padding-left:74px}
 .brk{font-size:12px;color:var(--ink-3);text-align:center;padding:8px;margin:8px 0;border-radius:10px;
   background:var(--line-soft);border:1px dashed var(--line)}
+.unitfold{margin:0;border-bottom:1px solid var(--line)}
+summary.unit{display:flex;align-items:center;gap:8px;min-height:44px;margin:0;padding:8px 2px;cursor:pointer;list-style:none;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
+summary.unit::-webkit-details-marker{display:none}
+summary.unit::before{content:'\25B8';font-size:13px;transition:transform .15s}
+.unitfold[open]>summary.unit::before{transform:rotate(90deg)}
+summary.unit:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+summary.unit .n{margin-left:auto;font-weight:500;color:var(--ink-4)}
+.unitfold[open]{padding-bottom:12px}
 details.earlier{margin:8px 0}
 details.earlier summary{cursor:pointer;font-size:13px;color:var(--ink-2);padding:8px 2px}
 @media (max-width:420px){.topics,.items,.coming{padding-left:0}.rhead{flex-direction:column;gap:0}}

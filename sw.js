@@ -22,7 +22,7 @@
    is no stale-copy problem to detect and no hash bookkeeping in here.  Old
    versions are swept when a new hash for the same path is cached.
 */
-const CACHE_VERSION = '206d74dc7f71';
+const CACHE_VERSION = 'c3afa4a8ea6d';
 const SHELL = `advphys-shell-${CACHE_VERSION}`;
 const DOCS = 'advphys-docs-v1';          // survives shell upgrades — documents are content-addressed
 const SHELL_FILES = ['./', 'index.html', 'style.css', 'app.js', 'index.json',

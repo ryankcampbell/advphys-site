@@ -108,19 +108,33 @@ function rowHTML(r, next) {
 
 const sectionHasHW = code => allRows().some(r => r.kind === 'hwday' && r.code === code);
 
+// Units the student has opened or closed on this device. A unit never touched follows
+// the default (the current unit open), so the default moves with the year.
+let unitState = {};
+try { unitState = JSON.parse(localStorage.getItem('advphys-units')) || {}; } catch (e) { /* defaults */ }
+function currentUnit() {
+  const next = nextDate();
+  const u = next && S.idx.units.find(u => u.rows.some(r => r.date === next));
+  return (u || S.idx.units[S.idx.units.length - 1]).n;
+}
+
 function renderSchedule() {
   const next = nextDate();
+  const cur = currentUnit();
   let h = saveBar();
   for (const u of S.idx.units) {
-    h += `<div class="unit">Unit ${u.n} · ${esc(u.title)}</div>`;
+    const classes = u.rows.filter(r => r.kind !== 'break').length;
+    h += `<details class="unitfold" data-unit="${u.n}"${(u.n in unitState ? unitState[u.n] : u.n === cur) ? ' open' : ''}>` +
+         `<summary class="unit"><span>Unit ${u.n} · ${esc(u.title)}</span><span class="n">${classes}</span></summary>`;
     const earlier = u.rows.filter(r => r.kind !== 'break' && !r.date);
     if (earlier.length)
       h += `<details class="earlier"><summary>Earlier in Unit ${u.n} (${earlier.length})</summary>${earlier.map(r => rowHTML(r, next)).join('')}</details>`;
     h += u.rows.filter(r => r.kind === 'break' || r.date).map(r => rowHTML(r, next)).join('');
+    h += '</details>';
   }
   $('#view').innerHTML = h;
   const n = $('#next');
-  if (n) n.scrollIntoView({ block: 'start' });
+  if (n && n.closest('.unitfold').open) n.scrollIntoView({ block: 'start' });
 }
 
 function renderLabs() {
@@ -306,6 +320,13 @@ function renderNet() {
 document.addEventListener('click', e => {
   const t = e.target.closest('#tabs button');
   if (t) { S.q = ''; $('#search').value = ''; location.hash = t.dataset.tab; if (location.hash.slice(1) === t.dataset.tab) route(); return; }
+  const fold = e.target.closest('summary.unit');
+  if (fold) {
+    const d = fold.parentElement;
+    unitState[d.dataset.unit] = !d.open;
+    try { localStorage.setItem('advphys-units', JSON.stringify(unitState)); } catch (err) { /* not remembered; fine */ }
+    return;
+  }
   if (e.target.id === 'saveall') saveAll(e.target);
 });
 $('#vback').addEventListener('click', () => S.backInApp ? history.back() : location.replace('#' + S.tab));
