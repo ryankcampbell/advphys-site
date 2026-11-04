@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-10-30T18:09:51+00:00",
+ "published": "2026-11-04T17:06:53+00:00",
  "units": [
   {
    "n": 1,
@@ -419,12 +419,19 @@
     {
      "kind": "lesson",
      "name": "Optical Systems",
-     "topics": "telescope; microscope; eye",
+     "topics": "two-lens systems; magnifier; telescope; camera; eye",
      "date": "2026-11-16",
      "label": "Mon 11/16",
      "code": "1.7",
      "part": 1,
      "items": [
+      {
+       "kind": "quarto",
+       "label": "Lesson L1.7a",
+       "file": "q/1-7-quarto-l1-7a.html",
+       "hash": "a3b3664d6cc441ee11941f9b9c483e09706d85cbe77141cd93f4bc6857e09e65",
+       "bytes": 3739323
+      },
       {
        "kind": "notes",
        "label": "Class notes",
@@ -447,8 +454,16 @@
        "kind": "hw",
        "label": "Homework",
        "file": "p/1-7-hw-hw1-7.pdf",
-       "hash": "522e27e156f17258249a7cd2bc5a56521ead8d8e2654897a30239ea04e656760",
-       "bytes": 74783
+       "hash": "b66d3855d62cbedbb64ce119d87da5e1e05149b132698725005f38bdc03a499b",
+       "bytes": 68987
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/1-7-ticket-day-2-warmup1-7.pdf",
+       "hash": "e27968bcf3097f7bf019f66ffde9329a73646b938588b6ba562873ccee9b6deb",
+       "bytes": 72654,
+       "day": 2
       }
      ]
     },
@@ -1779,6 +1794,34 @@
     }
    ],
    "title": "1.6 Lenses"
+  },
+  {
+   "code": "1.7",
+   "file": "q/1-7-quarto-l1-7a.html",
+   "hash": "a3b3664d6cc441ee11941f9b9c483e09706d85cbe77141cd93f4bc6857e09e65",
+   "sections": [
+    {
+     "id": "what-happens-when-you-have-multiple-lenses",
+     "text": "What happens when you have multiple lenses?"
+    },
+    {
+     "id": "the-near-point-and-the-magnifying-glass",
+     "text": "The near point and the magnifying glass"
+    },
+    {
+     "id": "telescopes",
+     "text": "Telescopes"
+    },
+    {
+     "id": "cameras",
+     "text": "Cameras"
+    },
+    {
+     "id": "eyes",
+     "text": "Eyes"
+    }
+   ],
+   "title": "1.7 Optical Systems"
   },
   {
    "code": "3.4",
