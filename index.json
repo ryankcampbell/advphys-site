@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-11-04T17:06:53+00:00",
+ "published": "2026-11-04T19:21:18+00:00",
  "units": [
   {
    "n": 1,
@@ -301,8 +301,8 @@
      "kind": "lesson",
      "name": "Lenses",
      "topics": "Ray tracing; lens makers; optics worksheet",
-     "date": "2026-11-02",
-     "label": "Mon 11/2",
+     "date": null,
+     "label": null,
      "code": "1.6",
      "part": 1,
      "items": [
@@ -326,8 +326,8 @@
      "kind": "lesson",
      "name": "Lenses",
      "topics": "continued",
-     "date": "2026-11-04",
-     "label": "Wed 11/4",
+     "date": "2026-11-02",
+     "label": "Mon 11/2",
      "code": "1.6",
      "part": 2,
      "items": [
@@ -352,6 +352,23 @@
        "hash": "3a5c1198238bc6aaccdeef1654a7db5328d29e4d8ff918931e6c9ea436bf40b5",
        "bytes": 97659,
        "day": 2
+      }
+     ]
+    },
+    {
+     "kind": "lab",
+     "name": "Thin Lenses",
+     "topics": "Create images with lenses; parallax",
+     "date": "2026-11-04",
+     "label": "Wed 11/4",
+     "code": "Lab 5",
+     "items": [
+      {
+       "kind": "lab",
+       "label": "Lab handout",
+       "file": "p/lab-5-lab-thin-lens-students.pdf",
+       "hash": "0f36236bc35470ffc5f92b2b65aee575df5c23eccc2db8b38ccae2bb2e34963d",
+       "bytes": 733295
       }
      ]
     },
@@ -389,39 +406,11 @@
      ]
     },
     {
-     "kind": "lab",
-     "name": "Thin Lenses",
-     "topics": "Create images with lenses; parallax",
-     "date": "2026-11-09",
-     "label": "Mon 11/9",
-     "code": "Lab 5",
-     "items": [
-      {
-       "kind": "lab",
-       "label": "Lab handout",
-       "file": "p/lab-5-lab-thin-lens-students.pdf",
-       "hash": "0f36236bc35470ffc5f92b2b65aee575df5c23eccc2db8b38ccae2bb2e34963d",
-       "bytes": 733295
-      }
-     ]
-    },
-    {
-     "kind": "break",
-     "text": "Wed 11/11 — Veterans Day, no school"
-    },
-    {
-     "kind": "quiz",
-     "name": "Quiz 2",
-     "topics": "",
-     "date": "2026-11-13",
-     "label": "Fri 11/13"
-    },
-    {
      "kind": "lesson",
      "name": "Optical Systems",
      "topics": "two-lens systems; magnifier; telescope; camera; eye",
-     "date": "2026-11-16",
-     "label": "Mon 11/16",
+     "date": "2026-11-09",
+     "label": "Mon 11/9",
      "code": "1.7",
      "part": 1,
      "items": [
@@ -442,11 +431,15 @@
      ]
     },
     {
+     "kind": "break",
+     "text": "Wed 11/11 — Veterans Day, no school"
+    },
+    {
      "kind": "hwday",
      "name": "HW day",
      "topics": "Work on the §1.7 homework in class",
-     "date": "2026-11-18",
-     "label": "Wed 11/18",
+     "date": "2026-11-13",
+     "label": "Fri 11/13",
      "code": "1.7",
      "title": "Optical Systems",
      "items": [
@@ -468,15 +461,11 @@
      ]
     },
     {
-     "kind": "break",
-     "text": "11/19–11/24 Conferences · 11/25–11/27 Fall Break — no class"
-    },
-    {
      "kind": "lab",
      "name": "Telescopes",
      "topics": "",
-     "date": "2026-11-30",
-     "label": "Mon 11/30",
+     "date": "2026-11-16",
+     "label": "Mon 11/16",
      "code": "Lab 6",
      "items": [
       {
@@ -489,8 +478,26 @@
      ]
     },
     {
+     "kind": "other",
+     "name": "Catch-up day",
+     "topics": "Finish Lab 6; catch up on Unit 1 homework",
+     "date": "2026-11-18",
+     "label": "Wed 11/18"
+    },
+    {
+     "kind": "break",
+     "text": "11/19–11/24 Conferences · 11/25–11/27 Fall Break — no class"
+    },
+    {
      "kind": "review",
-     "name": "Review for Test 1",
+     "name": "Review for Test 1 (day 1)",
+     "topics": "",
+     "date": "2026-11-30",
+     "label": "Mon 11/30"
+    },
+    {
+     "kind": "review",
+     "name": "Review for Test 1 (day 2)",
      "topics": "",
      "date": "2026-12-02",
      "label": "Wed 12/2"
@@ -1437,8 +1444,8 @@
    "kind": "lab",
    "name": "Thin Lenses",
    "topics": "Create images with lenses; parallax",
-   "date": "2026-11-09",
-   "label": "Mon 11/9",
+   "date": "2026-11-04",
+   "label": "Wed 11/4",
    "code": "Lab 5",
    "items": [
     {
@@ -1455,8 +1462,8 @@
    "kind": "lab",
    "name": "Telescopes",
    "topics": "",
-   "date": "2026-11-30",
-   "label": "Mon 11/30",
+   "date": "2026-11-16",
+   "label": "Mon 11/16",
    "code": "Lab 6",
    "items": [
     {
