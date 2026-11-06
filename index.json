@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-11-04T19:21:18+00:00",
+ "published": "2026-11-06T21:20:23+00:00",
  "units": [
   {
    "n": 1,
@@ -418,8 +418,8 @@
        "kind": "quarto",
        "label": "Lesson L1.7a",
        "file": "q/1-7-quarto-l1-7a.html",
-       "hash": "a3b3664d6cc441ee11941f9b9c483e09706d85cbe77141cd93f4bc6857e09e65",
-       "bytes": 3739323
+       "hash": "3f9c1c7f5cd57123b3a8e4244dd57d385bb9b2eb1cde5c8f5586069b7666d49d",
+       "bytes": 3774598
       },
       {
        "kind": "notes",
@@ -1805,11 +1805,15 @@
   {
    "code": "1.7",
    "file": "q/1-7-quarto-l1-7a.html",
-   "hash": "a3b3664d6cc441ee11941f9b9c483e09706d85cbe77141cd93f4bc6857e09e65",
+   "hash": "3f9c1c7f5cd57123b3a8e4244dd57d385bb9b2eb1cde5c8f5586069b7666d49d",
    "sections": [
     {
      "id": "what-happens-when-you-have-multiple-lenses",
      "text": "What happens when you have multiple lenses?"
+    },
+    {
+     "id": "angular-magnification",
+     "text": "Angular magnification"
     },
     {
      "id": "the-near-point-and-the-magnifying-glass",
