@@ -2714,6 +2714,15 @@ details.soln.opt { border-color:var(--key-bd); }
     ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=lw||1.6; ctx.beginPath(); ctx.arc(cx,cy,r,a1,a1+d,d<0); ctx.stroke(); ctx.restore();
     return a1+d/2;
   };
+  /* the same arc with an arrowhead at the a2 end, showing the sense of rotation */
+  RC.arcArrow = function(ctx,cx,cy,r,a1,a2,color,lw){
+    const mid=RC.arcBetween(ctx,cx,cy,r,a1,a2,color,lw);
+    let d=a2-a1; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
+    if(Math.abs(d)*r<4) return mid;
+    const s=Math.sign(d), ex=cx+r*Math.cos(a2), ey=cy+r*Math.sin(a2), tx=-Math.sin(a2)*s, ty=Math.cos(a2)*s, nx=Math.cos(a2), ny=Math.sin(a2), L=Math.min(7,Math.abs(d)*r*1.2+2), w=3.4;
+    ctx.save(); ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-tx*L+nx*w,ey-ty*L+ny*w); ctx.lineTo(ex-tx*L-nx*w,ey-ty*L-ny*w); ctx.closePath(); ctx.fill(); ctx.restore();
+    return mid;
+  };
   RC.bracket = function(ctx,x1,x2,y,col,segs){
     ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1.3;
     ctx.beginPath(); ctx.moveTo(x1,y+6); ctx.lineTo(x1,y); ctx.lineTo(x2,y); ctx.lineTo(x2,y+6); ctx.stroke(); ctx.restore();
@@ -2949,7 +2958,7 @@ window.TL=(function(){
   }
   function build(id,S){
     const root=document.getElementById(id); if(!root) return;
-    const W=RC.logicalW(), H=S.H||(W<600?380:430), free=!!S.free;
+    const W=RC.logicalW(), H0=S.H||(W<600?380:430), EXTRA=78, H=H0+EXTRA, free=!!S.free;   /* EXTRA: room for the d_o / d_i brackets */
     const st={f1:S.f1,f2:S.f2,sep:S.sep,dO:S.dO,hO:S.hO}; let view=(S.view||S.presets[0].view).slice();
     let html='<div class="panel-head"><div class="sec-label">'+(S.title||'Two lenses')+'</div><button class="popout-btn" onclick="popOut(this)">⛶ Present</button></div>';
     if(free){
@@ -2966,11 +2975,11 @@ window.TL=(function(){
     html+='<div class="mr-coach"></div><div class="bigreadout tl-out"></div>'+(S.hint?'<div class="hint">'+S.hint+'</div>':'');
     root.innerHTML=html; RC.labelTex(root);
     const cv=root.querySelector('canvas'), ctx=RC.setup(cv,W,H), Q=function(s){ return root.querySelector(s); }, coachEl=Q('.mr-coach'), out=Q('.tl-out');
-    let sc, OX; const OY=H/2+(S.yc||0);
+    let sc, OX; const OY=H0/2+(S.yc||0);
     const setView=function(){ sc=(W-56)/(view[1]-view[0]); OX=28-view[0]*sc; };
     setView();
     const P=function(w){ return [OX+w[0]*sc, OY-w[1]*sc]; };
-    const LH=Math.min(OY,H-OY)-44;
+    const LH=Math.min(OY,H0-OY)-44;
     let prog=[undefined,undefined], anim=null, want2=false, numbers=free;
 
     function sys(){
@@ -2989,7 +2998,7 @@ window.TL=(function(){
     function stageLen(set){ let L=0; set.forEach(function(r){ const seg=path(r); L=Math.max(L,seg.len); }); return L||600; }
     function path(r){
       const hit=P(r.hit), s0=P(r.src), dp=[r.d[0],-r.d[1]];
-      const E=RC.clip(hit,[hit[0]+dp[0]*4000,hit[1]+dp[1]*4000],-5,-5,W+5,H+5);
+      const E=RC.clip(hit,[hit[0]+dp[0]*4000,hit[1]+dp[1]*4000],-5,-5,W+5,H0);   /* rays stop above the bracket band */
       const end=E?E[1]:hit;
       /* a virtual first image: from image 1 to lens 1 the ray only seems to run, so that piece is dashed */
       let pre=null, a=s0;
@@ -3015,12 +3024,12 @@ window.TL=(function(){
       RC.glowDot(ctx,X,OY,4.5,col,10); RC.glowDot(ctx,X,OY,1.8,'#fff',0); return [X,name,hi,col]; }
     function draw(){
       const C=RC.C, G=sys(); RC.clear(ctx,cv); RC.halo(ctx,OX+st.sep*sc/2,OY,W*.55,W,H);
-      /* OA + ruler, measured from lens 1 */
+      /* OA + bench ruler: 0 at the left edge, every reading positive, so no ruler number looks like a signed d_o or d_i */
       ctx.save(); ctx.strokeStyle=C.axis; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(0,OY); ctx.lineTo(W,OY); ctx.stroke(); ctx.restore();
       const tk=S.tick||1, labs=[], every=S.lab||5;
-      for(let x=Math.ceil(view[0]/tk)*tk; x<=view[1]+1e-9; x+=tk){ const X=OX+x*sc;
+      for(let b=0; view[0]+b<=view[1]+1e-9; b+=tk){ const X=OX+(view[0]+b)*sc;
         ctx.save(); ctx.strokeStyle=C.dim; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(X,OY-3); ctx.lineTo(X,OY+3); ctx.stroke(); ctx.restore();
-        if(Math.round(x/tk)%every===0 && Math.abs(x)>1e-9) labs.push([X,String(+x.toFixed(2))]); }
+        if(Math.round(b/tk)%every===0) labs.push([X,b===0?'0 cm':String(+b.toFixed(2))]); }
       /* lenses */
       const X1=OX, X2=OX+st.sep*sc;
       RC.dline(ctx,X1,6,X1,H-6,C.grid,1,[3,6]); RC.dline(ctx,X2,6,X2,H-6,C.grid,1,[3,6]);
@@ -3047,6 +3056,8 @@ window.TL=(function(){
       const busyUp=[T[0]]; if(I1p&&G.I1[1]>0) busyUp.push(I1p[0]); if(I2p&&G.I2[1]>0) busyUp.push(I2p[0]);
       mk.forEach(function(m){ const hi=m[2]; const blocked=busyUp.some(function(x){ return Math.abs(x-m[0])<24; });
         RC.txt(ctx,m[0],hi&&!blocked?OY-10:OY+(hi?44:31),m[1],m[3],12,'center','700'); });
+      RC.dline(ctx,8,H0,W-8,H0,C.grid,1,[2,4]);
+      brackets(G,X1,X2);
       RC.txt(ctx,X1,OY+LH+18,'L1',C.ink,13,'center','700'); RC.txt(ctx,X2,OY+LH+18,'L2',C.ink,13,'center','700');
       RC.txt(ctx,T[0],Math.min(T[1],Ob[1])-9,'object',C.obj,13,'center','700');
       if(I1p && I1p[0]>20 && I1p[0]<W-20){ const lab=G.virt1?'image 1 (virtual)':'image 1'; const up=G.I1[1]>=0, y=up?I1p[1]-(G.virtObj?12:27):I1p[1]+20;
@@ -3061,6 +3072,21 @@ window.TL=(function(){
         Q('.tl-f1v').textContent=Math.abs(st.f1).toFixed(1)+' cm'; Q('.tl-f2v').textContent=Math.abs(st.f2).toFixed(1)+' cm'; Q('.tl-sepv').textContent=st.sep.toFixed(1)+' cm';
       }
       Q('.tl-s1').classList.toggle('active',prog[0]!==undefined); Q('.tl-s2').classList.toggle('active',prog[1]!==undefined);
+    }
+    /* d_o and d_i for each lens, with the lens-equation sign (negative = virtual), packed into rows under the drawing */
+    function brackets(G,X1,X2){
+      const C=RC.C, LX=function(x){ return OX+x*sc; }, val=function(v){ return numbers? ' = '+r2(v).replace('-','−')+' cm' : ''; };
+      const lab=function(o,n,v){ return [{s:'d',it:true},{s:o+n,sub:true},{s:val(v)}]; }, list=[];
+      list.push({a:LX(-st.dO),b:X1,segs:lab('o','1',st.dO),col:C.accent});
+      if(prog[0]>=1 && !G.inf1) list.push({a:X1,b:LX(G.I1[0]),segs:lab('i','1',G.a.di),col:C.accent});
+      if(prog[1]>=1 && !G.inf1 && !G.virtObj){ list.push({a:LX(G.I1[0]),b:X2,segs:lab('o','2',G.d2),col:C.s2});
+        if(G.I2) list.push({a:X2,b:LX(G.I2[0]),segs:lab('i','2',G.b.di),col:C.s2}); }
+      const rows=[];
+      list.forEach(function(br){ let lo=Math.max(4,Math.min(br.a,br.b)), hi=Math.min(W-4,Math.max(br.a,br.b)); if(hi-lo<2) return;
+        const tw=(numbers?92:30), mid=(lo+hi)/2, L=Math.min(lo,mid-tw/2), R=Math.max(hi,mid+tw/2);
+        let r=0; while(rows[r] && rows[r].some(function(q){ return L<q[1]+8 && R>q[0]-8; })) r++;
+        (rows[r]=rows[r]||[]).push([L,R]);
+        RC.bracket(ctx,lo,hi,H0+20+r*24,br.col,br.segs); });
     }
     function readout(G){
       if(!numbers){ out.innerHTML=''; return; }
@@ -3124,86 +3150,127 @@ window.TL=(function(){
 
 /* ============ AG: subtended angle, near point, magnifying glass ============ */
 window.AG=(function(){
+  /* §3 magnifier. Top strip: no glass, bug at 25 cm (θo). Bottom strip: f = 5 cm glass, bug inside F (θe).
+     Both strips share one scale (cm, u up, x right of the glass plane) and the eyes line up, so θo and θe compare directly.
+     Every ray is traced paraxially; the eye focuses nothing closer than 25 cm from the glass plane. */
   function build(id,S){
     const root=document.getElementById(id); if(!root) return;
-    const W=RC.logicalW(), H=W<600?330:350;
-    const st={glass:false,d:40,h:3,f:10};
-    root.innerHTML='<div class="panel-head"><div class="sec-label">'+(S.title||'Subtended angle')+'</div><button class="popout-btn" onclick="popOut(this)">⛶ Present</button></div>'
-      +'<div class="btn-row"><button class="type-btn" data-g="0">bare eye</button><button class="type-btn" data-g="1">with a magnifying glass</button></div>'
-      +'<div class="ctrl ag-d"><label>distance</label><input type="range" min="10" max="50" step="1" value="40"><span class="val"></span></div>'
-      +'<div class="ctrl ag-f"><label data-tex="f"></label><input type="range" min="2.5" max="25" step="2.5" value="10"><span class="val"></span></div>'
-      +'<div class="ctrl ag-h"><label data-tex="h"></label><input type="range" min="1" max="5" step="0.5" value="3"><span class="val"></span></div>'
-      +'<canvas></canvas><div class="mr-coach"></div><div class="bigreadout ag-out"></div><div class="hint">With the bare eye you can drag the object too. Heights and distances here share one scale, so the angles are true.</div>';
+    const W=RC.logicalW(), nar=W<600, h=1, f=S.f||5, NP=25, G=1.8, R=3.0, RIGHT=5.6, LEFT=25.6, NPe=NP+G, dSharp=NP*f/(NP+f);
+    const sc=(W-28)/(LEFT+RIGHT), xL=12+LEFT*sc;
+    const X=function(x){ return xL+x*sc; };
+    const xe=X(G), erx=nar?26:40, ery=erx*.86, ex=xe+erx;
+    const OT=nar?62:80, T1=OT+ery+14, OY=T1+(nar?128:212), H=OY+(nar?70:74);
+    const st={glass:true,d:5};
+    root.innerHTML='<div class="panel-head"><div class="sec-label">'+(S.title||'Magnifying glass')+'</div><button class="popout-btn" onclick="popOut(this)">⛶ Present</button></div>'
+      +'<div class="btn-row"><button class="type-btn" data-c="B">B · 5 cm, no glass</button><button class="type-btn" data-c="C">C · 5 cm, glass in</button><button class="type-btn" data-c="D">closest sharp spot</button></div>'
+      +'<div class="ctrl ag-d"><label data-tex="d_o"></label><input type="range" min="3" max="'+f+'" step="0.01" value="'+f+'"><span class="val"></span></div>'
+      +'<div class="btn-row"><button class="type-btn ag-glass"></button></div>'
+      +'<canvas></canvas><div class="mr-coach"></div><div class="bigreadout ag-out"></div>'
+      +'<div class="hint">Drawn to scale. Both strips use the same scale, so the angles are true. Drag the bug. Both angles are clockwise, so both are negative; M is positive.</div>';
     RC.labelTex(root);
     const Q=function(s){ return root.querySelector(s); }, cv=Q('canvas'), ctx=RC.setup(cv,W,H), out=Q('.ag-out'), coach=Q('.mr-coach');
-    const sc=(W-190)/50, OY=H*.68;
-    const geom=function(){ return st.glass ? {lx:W*.62, ex:W-46} : {lx:null, ex:W-70}; };
-    function wedge(ctx,x,y,len,th,col,alpha){ ctx.save(); ctx.fillStyle=col; ctx.globalAlpha=alpha; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-len,y); ctx.lineTo(x-len,y-len*th); ctx.closePath(); ctx.fill(); ctx.restore(); }
-    function inset(th0,th,labelNow){ const C=RC.C, bx=10, by=10, bw=W<600?150:178, bh=92;
-      ctx.save(); ctx.fillStyle=C.face; ctx.strokeStyle=C.grid; ctx.lineWidth=1; ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,8); ctx.fill(); ctx.stroke(); ctx.restore();
-      RC.txt(ctx,bx+bw/2,by+15,'how big it looks',C.dim,11,'center','600');
-      const k=Math.min(58/Math.max(th0,th),60/th0*0.7), base=by+bh-16;
-      const A=bx+bw*.28, B=bx+bw*.72;
-      RC.bigArrow(ctx,A,base,base-th0*k,C.dim,false); RC.bigArrow(ctx,B,base,base-th*k,C.obj,false);
-      RC.txt(ctx,A,base+12,'at NP',C.dim,10.5,'center'); RC.txt(ctx,B,base+12,labelNow,C.obj,10.5,'center'); }
+    const f2=function(v){ return (v<0?'-':'')+Math.abs(v).toFixed(2); }, near=function(a,b){ return Math.abs(a-b)<1e-6; };
+    function whichCase(){ if(!st.glass&&near(st.d,5)) return 'B'; if(st.glass&&near(st.d,5)) return 'C'; if(st.glass&&near(st.d,+dSharp.toFixed(2))) return 'D'; return ''; }
+    /* rays stop at the front of the eye: no optics inside the eye (Ryan) */
+    function trace(d,a,glass){ const s0=(a-h)/d, s1=glass? s0-a/f : s0, ue=a+s1*G; return {s1:s1, pts:[[-d,h],[0,a],[G,ue]]}; }
+    function eye(oy){ const C=RC.C;
+      ctx.save(); ctx.fillStyle=C.face; ctx.strokeStyle=C.ink; ctx.lineWidth=1.6; ctx.beginPath(); ctx.ellipse(ex,oy,erx,ery,0,0,7); ctx.fill(); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.fillStyle=C.accent; ctx.globalAlpha=.85; ctx.beginPath(); ctx.ellipse(xe+3,oy,3,ery*.42,0,0,7); ctx.fill(); ctx.restore(); }
+    function axis(oy){ const C=RC.C; ctx.save(); ctx.strokeStyle=C.axis; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(W,oy); ctx.stroke(); ctx.restore(); }
+    function drawRays(rays,oy){ rays.forEach(function(t){ for(let i=0;i<2;i++){ const p=t.pts[i], q=t.pts[i+1]; RC.ray(ctx,X(p[0]),oy-p[1]*sc,X(q[0]),oy-q[1]*sc,t.col,1,2.1); if(i===1) RC.head(ctx,X(p[0]),oy-p[1]*sc,X(q[0]),oy-q[1]*sc,t.col,1,1,10); } }); }
+    const RAYS=function(){ const C=RC.C; return [[h,C.r3],[h/2,C.r2],[0,C.r1]]; };
     function draw(){
-      const C=RC.C; RC.clear(ctx,cv); const g=geom(), th0=st.h/25;
-      if(!st.glass){
-        const ex=g.ex, ox=ex-st.d*sc, oT=OY-st.h*sc, th=st.h/st.d, np=ex-25*sc, close=st.d<25;
-        RC.halo(ctx,ex,OY,W*.7,W,H);
-        ctx.save(); ctx.strokeStyle=C.axis; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(0,OY); ctx.lineTo(W,OY); ctx.stroke(); ctx.restore();
-        wedge(ctx,ex,OY,ex-ox,th,close?C.bad:C.warm,.2);
-        RC.ray(ctx,ex,OY,ox,oT,close?'204,64,64':C.ray,1,2.2);
-        /* the near point */
-        RC.dline(ctx,np,OY-Math.min(OY-8,110),np,OY+24,C.good,1.6,[5,5]);
-        if(close){ for(let i=0;i<8;i++){ const a=i/8*6.283; ctx.save(); ctx.globalAlpha=.3; RC.bigArrow(ctx,ox+5*Math.cos(a),OY,oT+4*Math.sin(a),C.obj,false); ctx.restore(); } }
-        else RC.bigArrow(ctx,ox,OY,oT,C.obj,false);
-        RC.eye(ctx,ex,OY,0,OY,20);
-        RC.bracket(ctx,ox,ex,OY+30,C.dim,[{s:st.d+' cm'}]);
-        RC.txt(ctx,np,OY-Math.min(OY-8,110)-4,'near point',C.good,13,'center','700');
-        RC.txt(ctx,ox,oT-10,close?'blurry!':'object',close?C.bad:C.obj,13,'center','700');
-        RC.mlabel(ctx,ex-58-(W<600?6:0),OY-6,[{s:'θ',it:true}],close?C.bad:C.ink,'center',16);
-        inset(th0,th,'now');
-        out.innerHTML=RC.cell('now',kat('\\theta=\\frac{h}{d}='+RC.r2(th)+'\\ \\text{rad}'))+RC.cell('at the near point',kat('\\theta_{NP}=\\frac{h}{25}='+RC.r2(th0)+'\\ \\text{rad}'));
-        coach.innerHTML=close?'Bigger angle, but your eye <b>can’t focus</b> this close. The biggest <b>clear</b> angle is at the near point.':'Slide it closer: the angle it <b>subtends</b> grows. Where does it stop being clear?';
-      } else {
-        const lx=g.lx, F=st.f*sc, ox=lx-0.96*F, oT=OY-st.h*sc, th=st.h/st.f, M=th/th0;
-        RC.halo(ctx,lx,OY,W*.6,W,H);
-        ctx.save(); ctx.strokeStyle=C.axis; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(0,OY); ctx.lineTo(W,OY); ctx.stroke(); ctx.restore();
-        /* the same arrow at the near point, for comparison */
-        const nx=lx-25*sc; if(nx>8&&st.f<25){ ctx.save(); ctx.globalAlpha=.4; RC.bigArrow(ctx,nx,OY,oT,C.dim,false); ctx.restore(); RC.dline(ctx,lx,OY,nx,oT,C.dim,1.2,[3,5]); RC.txt(ctx,nx,OY+18,'same arrow at NP',C.dim,11,'center'); }
-        wedge(ctx,lx,OY,lx-ox,th,C.warm,.2);
-        /* rays: through the center, and parallel then through FF */
-        const end=W+4, slope1=(OY-oT)/(lx-ox), y1=OY+slope1*(end-lx);
-        RC.ray(ctx,ox,oT,lx,OY,C.r1,1,2.4); RC.ray(ctx,lx,OY,end,y1,C.r1,1,2.4);
-        const slope2=(st.h*sc)/F, y2=oT+slope2*(end-lx);
-        RC.ray(ctx,ox,oT,lx,oT,C.r3,1,2.4); RC.ray(ctx,lx,oT,end,y2,C.r3,1,2.4);
-        /* traced back: nearly parallel, so the image is far away */
-        RC.ray(ctx,lx,OY,8,OY-slope1*(lx-8),C.r1,.5,1.5,[7,5]); RC.ray(ctx,lx,oT,8,oT-slope2*(lx-8),C.r3,.5,1.5,[7,5]);
-        RC.lensGlyph(ctx,lx,OY,Math.min(OY-14,104),true,'glass');
-        const fx=lx+F; if(fx<W-8){ RC.glowDot(ctx,fx,OY,4.5,C.accent,10); RC.txt(ctx,fx,OY+18,'FF',C.accent,12,'center','700'); }
-        RC.glowDot(ctx,lx-F,OY,4.5,C.accent,10); RC.txt(ctx,lx-F,OY+18,'NF',C.accent,12,'center','700');
-        RC.bigArrow(ctx,ox,OY,oT,C.obj,false);
-        RC.eye(ctx,g.ex,OY+slope1*(g.ex-lx)/2,0,OY,18);
-        RC.bracket(ctx,lx-F,lx,OY+30,C.dim,[{s:'f',it:true}]);
-        RC.txt(ctx,ox,oT-10,'object',C.obj,13,'center','700');
-        RC.mlabel(ctx,lx-Math.min(58,(lx-ox)*.62),OY-5,[{s:'θ',it:true}],C.ink,'center',16);
-        inset(th0,th,'in the glass');
-        out.innerHTML=RC.cell('in the glass',kat('\\theta=\\frac{h}{f}='+RC.r2(th)+'\\ \\text{rad}'))+RC.cell('at the near point',kat('\\theta_{NP}=\\frac{h}{25}='+RC.r2(th0)+'\\ \\text{rad}'))
-          +RC.cell('ratio of the angles',kat('\\theta/\\theta_{NP}='+RC.r2(M)))+RC.cell('formula',kat('M=\\frac{25\\ \\text{cm}}{f}='+RC.r2(25/st.f)));
-        coach.innerHTML='The object sits just inside the focus, and the rays leave almost <b>parallel</b>. To your eye that looks like a far-off image, so you can look at it <b>relaxed</b> at the angle '+kat('h/f')+'.';
+      const C=RC.C; RC.clear(ctx,cv);
+      const d=st.d, th=h/d, th0=h/NP, cs=whichCase(), colE='rgb('+C.r1+')';
+      const atF=st.glass&&near(d,f), di=st.glass&&!atF? d*f/(d-f) : null, hi=di===null?null:h*(-di/d);
+      const sharp=st.glass&&(atF||(-di)>=NP-1e-6);
+      const labels=[];
+      RC.halo(ctx,xL,OY,W*.7,W,H);
+      /* ---------- top strip: no glass, bug at 25 cm ---------- */
+      axis(OT); eye(OT);
+      const top=RAYS().map(function(q){ const t=trace(NP,q[0],false); t.col=q[1]; return t; });
+      drawRays(top,OT);
+      RC.bigArrow(ctx,X(-NP),OT,OT-h*sc,C.obj,false);
+      const r0=nar?44:70; RC.arcArrow(ctx,xL,OT,r0,Math.PI,Math.PI+Math.atan(th0),colE,1.6);
+      labels.push(function(){
+        RC.txt(ctx,8,16,nar?'A · No glass: bug at 25 cm':'A · No glass: bug at 25 cm, the closest sharp view',C.ink,nar?11:12.5,'left','700');
+        RC.txt(ctx,X(-NP),OT+16,'bug',C.obj,12,'center','700');
+        RC.mlabel(ctx,xL-r0-8,OT+16,[{s:'θ',it:true},{s:'o',sub:true}],colE,'center',15);
+        RC.txt(ctx,W-8,OT-ery-8,'sharp',C.good,12,'right','700');
+      });
+      ctx.save(); ctx.strokeStyle=C.grid; ctx.lineWidth=1; ctx.setLineDash([2,4]); ctx.beginPath(); ctx.moveTo(0,T1); ctx.lineTo(W,T1); ctx.stroke(); ctx.restore();
+      /* ---------- bottom strip: the magnifier ---------- */
+      axis(OY);
+      const Y=function(u){ return OY-u*sc; };
+      /* near point and the sharp band */
+      const np=X(-NP); RC.dline(ctx,np,OY-(nar?96:170),np,OY+8,C.good,1.4,[5,5]);
+      const b1=X(-f), b2=X(-dSharp);
+      ctx.save(); ctx.strokeStyle=C.good; ctx.globalAlpha=.45; ctx.lineWidth=7; ctx.lineCap='butt'; ctx.beginPath(); ctx.moveTo(b1,OY); ctx.lineTo(b2,OY); ctx.stroke(); ctx.restore();
+      eye(OY);
+      const rays=RAYS().map(function(q){ const t=trace(d,q[0],st.glass); t.col=q[1]; t.a=q[0]; return t; });
+      if(st.glass){
+        RC.lensGlyph(ctx,xL,OY,nar?46:66,true,'glass');
+        const fL=X(-f), fR=X(f);
+        RC.glowDot(ctx,fL,OY,4.2,C.accent,10); RC.glowDot(ctx,fR,OY,4.2,C.accent,10);
+        labels.push(function(){ RC.txt(ctx,fL-7,OY+16,'NF',C.accent,12,'right','700'); RC.txt(ctx,fR,OY+ery+15,'FF',C.accent,12,'center','700'); RC.glowDot(ctx,fR,OY,4.2,C.accent,10); });
+        const xi=atF?-1e9:X(di), xb=Math.max(6,xi);
+        /* parallel ray traced back (thin) and the sight line: the eye's centre ray, back through the bug to the image (bold) */
+        RC.ray(ctx,xL,Y(h),xb,Y(h-rays[0].s1*(xL-xb)/sc),C.r3,.5,1.4,[6,5]);
+        ctx.save(); ctx.strokeStyle=C.img; ctx.lineWidth=2.6; ctx.setLineDash([9,6]); ctx.beginPath(); ctx.moveTo(X(-d),Y(h)); ctx.lineTo(xb,Y(h*(xL-xb)/(d*sc))); ctx.stroke(); ctx.restore();
+        if(!atF&&xi>=6){ const yi=Y(hi); RC.bigArrow(ctx,xi,OY,yi,C.img,true);
+          labels.push(function(){ const tx=sharp?'eye sees it here':'eye sees it here: blurry'; ctx.save(); ctx.font='700 12px system-ui,sans-serif'; const tw=ctx.measureText(tx).width, lx=(nar&&xi>W*.4)? Math.max(6,xi-12-tw) : Math.min(xi+12,W-tw-14); ctx.fillStyle=C.face; ctx.globalAlpha=.88; ctx.fillRect(lx-4,yi-7,tw+8,16); ctx.restore(); RC.txt(ctx,lx,yi+5,tx,sharp?C.img:C.bad,12,'left','700'); }); }
+        else labels.push(function(){ const yy=Math.max(T1+34,Y(h*(xL-10)/(d*sc))-12); const tx=atF?'← eye sees it infinitely far':'← eye sees it far left ('+(-di).toFixed(0)+' cm)'; ctx.save(); ctx.font='700 12px system-ui,sans-serif'; const tw=ctx.measureText(tx).width; ctx.fillStyle=C.face; ctx.globalAlpha=.88; ctx.fillRect(4,yy-12,tw+8,16); ctx.restore(); RC.txt(ctx,8,yy,tx,C.img,12,'left','700'); });
       }
-      root.querySelectorAll('[data-g]').forEach(function(b){ b.classList.toggle('active',(b.dataset.g==='1')===st.glass); });
-      Q('.ag-d').style.display=st.glass?'none':''; Q('.ag-f').style.display=st.glass?'':'none';
-      Q('.ag-d .val').textContent=st.d+' cm'; Q('.ag-f .val').textContent=st.f.toFixed(1)+' cm'; Q('.ag-h .val').textContent=st.h.toFixed(1)+' cm';
+      drawRays(rays,OY);
+      RC.bigArrow(ctx,X(-d),OY,Y(h),C.obj,false);
+      /* θe: small arc at the glass centre, label below the axis */
+      /* θo from the SAME vertex (faint, dotted), so θe visibly fans wider; both arcs share the top strip's radius */
+      const rA=nar?44:70;
+      ctx.save(); ctx.strokeStyle=C.dim; ctx.globalAlpha=.8; ctx.lineWidth=1.4; ctx.setLineDash([2,4]); ctx.beginPath(); ctx.moveTo(xL,OY); ctx.lineTo(np,Y(h)); ctx.stroke(); ctx.restore();
+      RC.arcArrow(ctx,xL,OY,rA,Math.PI,Math.PI+Math.atan(th0),C.dim,1.4);
+      RC.arcArrow(ctx,xL,OY,rA,Math.PI,Math.PI+Math.atan(th),colE,1.8);
+      labels.push(function(){ RC.mlabel(ctx,np+(nar?40:70),Y(h*(1-(nar?40:70)/(xL-np)))-9,[{s:'θ',it:true},{s:'o',sub:true},{s:' (top angle)'}],C.dim,'left',13); });
+      RC.bracket(ctx,X(-d),xL,OY+(nar?58:56),C.dim,[{s:'d',it:true},{s:'o',sub:true},{s:' = '+d.toFixed(2)+' cm'}]);
+      labels.push(function(){
+        RC.txt(ctx,8,T1+18,st.glass?'Glass (f = 5 cm): bug inside F':'Same bug, no glass',C.ink,nar?11:12.5,'left','700');
+        if(st.glass) RC.mlabel(ctx,xL-rA-8,OY+16,[{s:'θ',it:true},{s:'e',sub:true}],colE,'center',15);
+        else RC.mlabel(ctx,xL-rA-8,OY+16,[{s:'θ',it:true},{s:', no glass (= '},{s:'θ',it:true},{s:'e',sub:true},{s:', but blurry)'}],colE,'right',13);
+        RC.txt(ctx,np+4,OY+18,'near point, 25 cm',C.good,11,'left','600');
+        RC.txt(ctx,(b1+b2)/2,OY+(nar?30:33),'sharp with the glass',C.good,nar?10:11,'center','700');
+        if(st.glass) RC.txt(ctx,X(-d),Y(h)-10,'bug',C.obj,12.5,'center','700');
+        else { const tx='no image: eye sees the bug, blurry'; ctx.save(); ctx.font='700 12px system-ui,sans-serif'; const tw=ctx.measureText(tx).width; ctx.restore(); const rx=X(-d)-14; if(rx-tw>6) RC.txt(ctx,rx,Y(h)+2,tx,C.bad,12,'right','700'); else RC.txt(ctx,6,Y(h)-14,tx,C.bad,12,'left','700'); }
+        RC.txt(ctx,W-8,OY-ery-10,sharp?'sharp':'blurry',sharp?C.good:C.bad,12.5,'right','700');
+      });
+      labels.forEach(function(L){ L(); });
+      /* readout */
+      const sees=!st.glass? 'the bug, '+d.toFixed(1)+' cm: blurry' : atF? 'image, infinitely far: sharp' : 'image, '+(-di).toFixed(1)+' cm: '+(sharp?'sharp':'blurry');
+      out.innerHTML=RC.cell('top: no glass, 25 cm',kat('\\theta_o=-\\tfrac{h}{25}='+f2(-th0)+'\\ \\text{rad}'))
+        +(st.glass? RC.cell('bottom: glass, bug at '+d.toFixed(2)+' cm',kat('\\theta_e=-\\tfrac{h}{d_o}='+f2(-th)+'\\ \\text{rad}'))
+                  : RC.cell('bottom: no glass, bug at '+d.toFixed(2)+' cm',kat('\\theta=-\\tfrac{h}{d_o}='+f2(-th)+'\\ \\text{rad}')))
+        +(st.glass? RC.cell('magnification'+(sharp?'':' (blurry)'),kat('M=\\tfrac{\\theta_e}{\\theta_o}=\\tfrac{25}{d_o}='+RC.r2(25/d)))
+                  : RC.cell('magnification',kat('M=1')+' <span style="font-size:.8em">blurry: you can’t see this angle sharply</span>'))
+        +RC.cell('eye sees',sees);
+      const T={
+        B:'<b>B.</b> No glass. The bug is 5 cm away. The angle is 0.20 rad, 5× bigger. But 5 cm is closer than 25 cm, so it is <b>blurry</b>.',
+        C:'<b>C.</b> Glass in. Same bug, same spot, same angle: 0.20 rad. Now it is <b>sharp</b>. '+kat('M = 0.20/0.04 = 5 = 25/f')+'. The glass doesn’t change the angle. It makes the close-up view sharp.',
+        D:'<b>Closest sharp spot.</b> '+kat('d_o = 4.17')+' cm puts the image at 25 cm. '+kat('M = 1 + 25/f = 6')+'. Closer than this is blurry.'};
+      let msg=T[cs];
+      if(!msg){
+        if(!st.glass) msg='No glass. Your eye sees the bug itself, '+d.toFixed(1)+' cm away. That is closer than 25 cm, so it is <b>blurry</b>.';
+        else if(sharp) msg='The image is '+(atF?'infinitely far':(-di).toFixed(1)+' cm')+' away. That is past 25 cm, so it is <b>sharp</b>. '+kat('M = 25/d_o = '+RC.r2(25/d))+'.';
+        else msg='The image is only '+(-di).toFixed(1)+' cm away. That is closer than 25 cm, so it is <b>blurry</b>, even with the glass.';
+      }
+      coach.innerHTML=msg;
+      root.querySelectorAll('[data-c]').forEach(function(b){ b.classList.toggle('active',b.dataset.c===cs); });
+      Q('.ag-glass').textContent=st.glass?'Remove the glass':'Put the glass back';
+      Q('.ag-d input').value=d; Q('.ag-d .val').textContent=d.toFixed(2)+' cm';
     }
-    root.querySelectorAll('[data-g]').forEach(function(b){ b.onclick=function(){ st.glass=b.dataset.g==='1'; draw(); }; });
+    root.querySelectorAll('[data-c]').forEach(function(b){ b.onclick=function(){ const c=b.dataset.c;
+      if(c==='B'){ st.glass=false; st.d=5; } else if(c==='C'){ st.glass=true; st.d=5; } else { st.glass=true; st.d=+dSharp.toFixed(2); } draw(); }; });
+    Q('.ag-glass').onclick=function(){ st.glass=!st.glass; draw(); };
     Q('.ag-d input').oninput=function(){ st.d=+this.value; draw(); };
-    Q('.ag-f input').oninput=function(){ st.f=+this.value; draw(); };
-    Q('.ag-h input').oninput=function(){ st.h=+this.value; draw(); };
-    RC.drag(cv,function(p){ if(st.glass) return false; const ox=geom().ex-st.d*sc; return Math.abs(p[0]-ox)<26 && p[1]<OY+12; },
-      function(p){ st.d=Math.max(10,Math.min(50,Math.round((geom().ex-p[0])/sc))); Q('.ag-d input').value=st.d; draw(); },
-      function(p){ if(st.glass) return false; const ox=geom().ex-st.d*sc; return Math.abs(p[0]-ox)<26 && p[1]<OY+12; });
+    const hit=function(p){ const xo=X(-st.d); return Math.abs(p[0]-xo)<22 && p[1]<OY+12 && p[1]>OY-h*sc-30; };
+    RC.drag(cv,hit,function(p){ st.d=Math.max(3,Math.min(f,Math.round((xL-p[0])/sc*100)/100)); draw(); },hit);
     RC.register(draw);
   }
   return {build:build};
@@ -3214,15 +3281,16 @@ window.TS=(function(){
   function build(id,S){
     const root=document.getElementById(id); if(!root) return;
     const W=RC.logicalW(), H=W<600?340:390, locked=!!S.locked;
-    const st={fo:S.fo,fe:S.fe,sep:S.sep,th:S.th};
+    const st={fo:S.fo,fe:S.fe,sep:S.sep,th:S.th,tri:S.tri!==false,scr:null}, SCR=!!S.screen&&!locked;
     let html='<div class="panel-head"><div class="sec-label">'+(S.title||'Telescope')+'</div><button class="popout-btn" onclick="popOut(this)">⛶ Present</button></div>';
     if(!locked) html+='<div class="ctrl"><label data-tex="f_o"></label><input type="range" class="ts-fo" min="10" max="50" step="1"><span class="val ts-fov"></span></div>'
       +'<div class="ctrl"><label data-tex="f_e"></label><input type="range" class="ts-fe" min="2" max="15" step="0.5"><span class="val ts-fev"></span></div>'
       +'<div class="ctrl"><label>apart</label><input type="range" class="ts-sep" min="6" max="65" step="0.5"><span class="val ts-sepv"></span></div>'
-      +'<div class="ctrl"><label data-tex="\\theta_o"></label><input type="range" class="ts-th" min="0.02" max="0.12" step="0.01"><span class="val ts-thv"></span></div>';
-    html+='<canvas class="ts-main"></canvas><div class="vw-row"><div class="vw"><canvas class="ts-vw"></canvas></div><div class="side"><div class="bigreadout ts-out"></div></div></div>'+(S.hint?'<div class="hint">'+S.hint+'</div>':'');
+      +'<div class="ctrl"><label data-tex="\\theta_o"></label><input type="range" class="ts-th" min="0.02" max="0.12" step="0.01"><span class="val ts-thv"></span></div>'
+      +(SCR?'<div class="ctrl"><label>screen</label><input type="range" class="ts-scr" min="0" max="65" step="0.5" value="0"><span class="val ts-scrv"></span></div>':'');
+    html+='<div class="btn-row"><button class="type-btn ts-tri'+(S.tri!==false?' active':'')+'">'+(S.tri!==false?'hide the triangles':'show the two triangles')+'</button></div><canvas class="ts-main"></canvas><div class="vw-row"><div class="vw"><canvas class="ts-vw"></canvas></div><div class="side"><div class="bigreadout ts-out"></div></div></div>'+(S.hint?'<div class="hint">'+S.hint+'</div>':'');
     root.innerHTML=html; RC.labelTex(root);
-    const Q=function(s){ return root.querySelector(s); }, cv=Q('.ts-main'), ctx=RC.setup(cv,W,H), vw=Q('.ts-vw'), vc=RC.setup(vw,300,160), out=Q('.ts-out');
+    const Q=function(s){ return root.querySelector(s); }, cv=Q('.ts-main'), ctx=RC.setup(cv,W,H), vw=Q('.ts-vw'), out=Q('.ts-out'); let vc=RC.setup(vw,300,160), VH=160, xMin=-5, xMax=60;
     const OY=H/2; let sc=10, OX=30;
     const tuned=function(){ return Math.abs(st.sep-(st.fo+st.fe))<0.01; };
     function draw(){
@@ -3235,20 +3303,53 @@ window.TS=(function(){
       const X1=OX, X2=OX+sep*sc;
       /* rays: three parallel rays from the star */
       const a=(LHo*.78)/sc, ks=[1,0,-1], tune=tuned(), exits=[];
-      ks.forEach(function(k){ const y0=k*a, xs=-0.28*fo, ys=y0-th*xs, m=-th-y0/fo, ye=y0+m*sep, m2=m-ye/fe;
-        const col=k===0?C.r1:C.ray, A=P(xs,ys), B=P(0,y0), D=P(sep,ye);
-        RC.ray(ctx,A[0],A[1],B[0],B[1],col,1,2.3); RC.ray(ctx,B[0],B[1],D[0],D[1],col,1,2.3);
-        const E=RC.clip(D,[D[0]+3000,D[1]-m2*3000],0,0,W,H); if(E) RC.ray(ctx,E[0][0],E[0][1],E[1][0],E[1][1],col,1,2.3);
-        RC.head(ctx,A[0],A[1],B[0],B[1],col,1,0.55,12); if(E) RC.head(ctx,E[0][0],E[0][1],E[1][0],E[1][1],col,1,0.5,12);
-        exits.push(m2); });
+      /* the screen: a card at xs cm from the objective blocks the light; what it catches is drawn in the inset */
+      xMin=-0.28*fo+0.5; xMax=(W-14-OX)/sc;
+      const xc=st.scr, any=SCR&&xc!==null, zone=!any?null:xc<0?'front':xc<sep?'tube':'back', card=zone==='tube', eyeSpot=any&&!card, sharp=card&&Math.abs(xc-fo)<1e-6;
+      const bundle=function(tt,k,col,lw){ const y0=k*a, xs=-0.28*fo, ys=y0-tt*xs, m=-tt-y0/fo, ye=y0+m*sep, m2=m-ye/fe;
+        const A=P(xs,ys), B=P(0,y0), D=P(sep,ye), E=RC.clip(D,[D[0]+3000,D[1]-m2*3000],0,0,W,H);
+        const yAt=function(x){ return x<=0?y0-tt*x:x<=sep?y0+m*x:ye+m2*(x-sep); };
+        const seg=function(Pa,Pb,xa,xb){ if(!any||xc>=xb){ RC.ray(ctx,Pa[0],Pa[1],Pb[0],Pb[1],col,1,lw); return; }
+          if(xc<=xa){ RC.ray(ctx,Pa[0],Pa[1],Pb[0],Pb[1],col,.16,1.4,[4,5]); return; }
+          const K=P(xc,yAt(xc)); RC.ray(ctx,Pa[0],Pa[1],K[0],K[1],col,1,lw); RC.ray(ctx,K[0],K[1],Pb[0],Pb[1],col,.16,1.4,[4,5]); };
+        seg(A,B,xs,0); if(!any||xc>xs*0.45) RC.head(ctx,A[0],A[1],B[0],B[1],col,1,0.55,12);
+        seg(B,D,0,sep);
+        if(E){ seg(E[0],E[1],sep,(E[1][0]-OX)/sc); if(!any) RC.head(ctx,E[0][0],E[0][1],E[1][0],E[1][1],col,1,0.5,12); }
+        return m2; };
+      if(any) [1,-1].forEach(function(k){ bundle(0,k,C.r2,2); });          /* second star, straight down the axis */
+      ks.forEach(function(k){ exits.push(bundle(th,k,k===0?C.r1:C.ray,2.3)); });
       RC.lensGlyph(ctx,X1,OY,LHo,true,'glass'); RC.lensGlyph(ctx,X2,OY,LHe,true,'glass');
+      const cardLab=[];
+      if(any){ const xp=OX+xc*sc, hh=LHo+10; ctx.save(); ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur=8; ctx.shadowOffsetX=3;
+        ctx.fillStyle=RC.mode==='night'?'#5b6470':'#c9ced6'; ctx.fillRect(xp-3.5,OY-hh,7,2*hh); ctx.restore();
+        ctx.save(); ctx.strokeStyle=sharp?C.good:C.axis; ctx.lineWidth=sharp?2.4:1.2; ctx.strokeRect(xp-3.5,OY-hh,7,2*hh); ctx.restore();
+        if(sharp){ RC.glowDot(ctx,xp,OY,5,C.good,16); RC.glowDot(ctx,xp,OY+th*fo*sc,5,C.good,16); }
+        cardLab.push(function(){ const nar=W<600, y=OY-hh-(nar?22:12);
+          if(sharp){ const L=nar?['real image: a camera sensor','or crosshairs go here']:['real image: a camera sensor or crosshairs go here'];
+            const wHalf=nar?100:170, x=Math.max(wHalf+4,Math.min(W-wHalf-4,xp));
+            L.forEach(function(t,i){ RC.txt(ctx,x,y+i*15,t,C.good,nar?12:13,'center','700'); }); }
+          else RC.txt(ctx,Math.max(30,Math.min(W-30,xp)),OY-hh-8,'screen',C.dim,12,'center','700'); }); }
       /* the image the objective makes: h' */
       const Ft=P(fo,-th*fo), Fb=P(fo,0); if(Math.abs(Ft[1]-Fb[1])>4) RC.bigArrow(ctx,Fb[0],Fb[1],Ft[1],C.img,false);
       const xNe=OX+(sep-fe)*sc, on=tune;
       RC.glowDot(ctx,Fb[0],OY,on?7:4.5,on?C.good:C.accent,on?20:10); if(!on){ RC.glowDot(ctx,xNe,OY,4.5,C.s2,10); }
+      /* the two triangles: same height h', different focal lengths */
+      const triLab=[];
+      if(st.tri && Math.abs(Ft[1]-Fb[1])>3){
+        const tri=function(xa,col,alpha){ ctx.save(); ctx.fillStyle=col; ctx.globalAlpha=alpha; ctx.beginPath(); ctx.moveTo(xa,OY); ctx.lineTo(Fb[0],OY); ctx.lineTo(Ft[0],Ft[1]); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1; ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.stroke(); ctx.restore(); };
+        tri(X1,C.accent,.16);
+        /* eyepiece triangle only when h' sits on the eyepiece's focal point: only then is tan θe = h'/fe */
+        if(tune){ tri(X2,C.s2,.2); const xEnd=W-4; RC.dline(ctx,Ft[0],Ft[1],xEnd,Ft[1]+(OY-Ft[1])*(xEnd-Ft[0])/(X2-Ft[0]),C.s2,1.6,[6,4]); }
+        const hp=Fb[1]<Ft[1]?Ft[1]-OY:0, ly=OY+hp+(W<600?20:26);
+        triLab.push(function(){
+          const tag=function(x,y,segs,col,al){ ctx.save(); ctx.fillStyle=C.face; ctx.globalAlpha=.9; const w=W<600?118:150; ctx.fillRect(al==='right'?x-w:x-w/2,y-15,w,21); ctx.restore(); RC.mlabel(ctx,x,y,segs,col,al||'center',W<600?13:15); };
+          tag((X1+Fb[0])/2,ly,[{s:'tan '},{s:'θ',it:true},{s:'o',sub:true},{s:' = '},{s:'h',it:true},{s:'′/'},{s:'f',it:true},{s:'o',sub:true}],C.accent);
+          if(tune) tag(Math.min(W-6,(Fb[0]+X2)/2+(W<600?60:75)),ly+(W<600?24:28),[{s:'tan '},{s:'θ',it:true},{s:'e',sub:true},{s:' = '},{s:'h',it:true},{s:'′/'},{s:'f',it:true},{s:'e',sub:true}],C.s2,'right');
+        });
+      }
       /* angle marks */
       const mOut=exits[1];
-      RC.arcBetween(ctx,X1,OY,44,Math.PI,Math.PI+Math.atan2(th,1),'rgb('+C.r1+')',1.8);
+      RC.arcArrow(ctx,X1,OY,Math.min(110,X1-8),Math.PI,Math.PI+Math.atan2(th,1),'rgb('+C.r1+')',1.8);
       /* theta_e: vertex where the outgoing centre ray crosses the axis (eye point);
          if it never crosses on the canvas, a short horizontal reference at the ray's exit from the eyepiece */
       const a2=-Math.atan2(mOut,1), yEx=-th*sep, xC=Math.abs(mOut)>1e-6?sep-yEx/mOut:Infinity, pxC=OX+xC*sc;
@@ -3256,8 +3357,8 @@ window.TS=(function(){
       let VX, VY;
       if(crossOK){ VX=pxC; VY=OY; }
       else { const Dx=P(sep,yEx); VX=Dx[0]; VY=Dx[1]; RC.dline(ctx,VX,VY,Math.min(W-4,VX+64),VY,'rgb('+C.r1+')',1.2,[4,4]); }
-      const rE=Math.max(18,Math.min(40,W-VX-8)), midE=RC.arcBetween(ctx,VX,VY,rE,0,a2,'rgb('+C.r1+')',1.8);
-      if(crossOK) RC.glowDot(ctx,VX,VY,3.2,'rgb('+C.r1+')',8);
+      const rE=Math.max(18,Math.min(40,W-VX-8)), midE=any?0:RC.arcArrow(ctx,VX,VY,rE,0,a2,'rgb('+C.r1+')',1.8);
+      if(crossOK&&!any) RC.glowDot(ctx,VX,VY,3.2,'rgb('+C.r1+')',8);
       /* brackets */
       const by=H-20; RC.bracket(ctx,X1,Fb[0],by,C.accent,[{s:'f',it:true},{s:'o',sub:true}]);
       if(on) RC.bracket(ctx,Fb[0],X2,by,C.s2,[{s:'f',it:true},{s:'e',sub:true}]);
@@ -3265,35 +3366,88 @@ window.TS=(function(){
       /* labels last */
       RC.txt(ctx,X1,OY-LHo-8,'Objective',C.ink,13,'center','700'); RC.txt(ctx,X2,OY-LHe-8,'Eyepiece',C.ink,13,'center','700');
       RC.mlabel(ctx,X1-58,OY-14-th*60,[{s:'θ',it:true},{s:'o',sub:true}],'rgb('+C.r1+')','center',15);
-      if(Math.abs(mOut)>0.004){ const up=Math.sin(midE)<0, lx=Math.min(W-22,VX+(rE+14)*Math.cos(midE));
+      if(Math.abs(mOut)>0.004&&!any){ const up=Math.sin(midE)<0, lx=Math.min(W-22,VX+(rE+14)*Math.cos(midE));
         let ly=VY+(rE+14)*Math.sin(midE)+(up?-10:18);
         if(!on && Math.abs(lx-Fb[0])<34) ly+=up?-20:20;   /* keep clear of the FF label and h' */
         RC.mlabel(ctx,lx,ly,[{s:'θ',it:true},{s:'e',sub:true}],'rgb('+C.r1+')','center',15); }
       RC.mlabel(ctx,Fb[0]+13,(Ft[1]+Fb[1])/2+5,[{s:'h',it:true},{s:'′'}],C.img,'left',14);
-      if(on) RC.txt(ctx,Fb[0],OY-13,'focal points coincide',C.good,12,'center','700');
+      triLab.forEach(function(L){ L(); }); cardLab.forEach(function(L){ L(); });
+      if(on){ if(!any) RC.txt(ctx,Fb[0],OY-13,'focal points coincide',C.good,12,'center','700'); }
       else { RC.txt(ctx,Fb[0],OY-11,'FF',C.accent,11,'center','700'); RC.txt(ctx,xNe,OY+18,'NF',C.s2,11,'center','700'); }
       const spread=Math.abs(exits[0]-exits[2]);
-      RC.txt(ctx,W-8,18,on?'rays leave parallel: a relaxed eye can see this':(st.sep<fo+fe?'rays still spreading: pull the eyepiece out':'rays converging: push the eyepiece in'),on?C.good:C.bad,W<600?12:13,'right','700');
+      if(card){ if(!(sharp&&W<600)) RC.txt(ctx,W-8,18,'the screen catches the light: none reaches the eye',C.dim,W<600?12:13,'right','700'); } else if(zone==='front') RC.txt(ctx,W-8,18,'parallel light: an eye here sees sharp stars',C.good,W<600?12:13,'right','700'); else RC.txt(ctx,W-8,18,on?'rays leave parallel: a relaxed eye can see this':(st.sep<fo+fe?'rays still spreading: pull the eyepiece out':'rays converging: push the eyepiece in'),on?C.good:C.bad,W<600?12:13,'right','700');
       /* readout: theta_e measured off the center ray */
-      const thE=-mOut, Mm=thE/th;
-      let h=RC.cell('incoming',kat('\\theta_o='+RC.r2(th)+'\\ \\text{rad}'));
-      if(on){ h+=RC.cell('in the eyepiece, off the rays',kat('\\theta_e='+RC.r2(thE)+'\\ \\text{rad}')); h+=RC.cell('ratio of the angles',kat('\\theta_e/\\theta_o='+RC.r2(Mm))); h+=RC.cell('formula',kat('-f_o/f_e='+RC.r2(-fo/fe))); h+=RC.cell('length',kat('f_o+f_e='+RC.r2(fo+fe)+'\\ \\text{cm}')); }
+      const thE=-mOut, Mm=thE/th;            /* thE keeps the drawing's sense; the signed angles (CCW +) are -th in and +mOut out */
+      let h=RC.cell('incoming',kat('\\theta_o='+RC.r2(-th)+'\\ \\text{rad}'));
+      if(on){ h+=RC.cell('in the eyepiece, off the rays',kat('\\theta_e='+(mOut>0?'+':'')+RC.r2(mOut)+'\\ \\text{rad}')); h+=RC.cell('ratio of the angles',kat('\\theta_e/\\theta_o='+RC.r2(Mm))); h+=RC.cell('formula',kat('-f_o/f_e='+RC.r2(-fo/fe))); h+=RC.cell('length',kat('f_o+f_e='+RC.r2(fo+fe)+'\\ \\text{cm}')); if(st.tri) h+=RC.cell('same height, different f',kat('\\frac{\\tan\\theta_e}{\\tan\\theta_o}=\\frac{h\'/f_e}{h\'/f_o}=\\frac{f_o}{f_e}')); }
       else h+=RC.cell('not a telescope yet','the rays aren’t parallel, so there is no single '+kat('\\theta_e'));
+      if(card){ const D=2*a*Math.abs(1-xc/fo);
+        h=RC.cell('screen',kat('x='+RC.r2(xc)+'\\ \\text{cm}')+' from the objective');
+        h+=RC.cell('blob size',kat('2a\\,|1-x/f_o|='+RC.r2(D)+'\\ \\text{cm}'));
+        h+=RC.cell('centres apart',kat('x\\,|\\tan\\theta_o|='+RC.r2(xc*th)+'\\ \\text{cm}'));
+        if(sharp) h+=RC.cell('at the image',kat("|h'|=f_o\\,|\\tan\\theta_o|="+RC.r2(fo*th)+'\\ \\text{cm}'));
+        else if(sep<=fo) h+=RC.cell('no sharp spot','the image would form past the eyepiece: pull it out'); }
+      if(eyeSpot){ h=RC.cell('screen',zone==='front'?'in front of the objective':'behind the eyepiece');
+        if(zone==='front') h+=RC.cell('stars apart',kat('|\\theta_o|='+RC.r2(th)+'\\ \\text{rad}'));
+        else if(on){ h+=RC.cell('stars apart',kat('|\\theta_e|='+RC.r2(Math.abs(mOut))+'\\ \\text{rad}')); h+=RC.cell('ratio',kat('|\\theta_e/\\theta_o|='+RC.r2(Math.abs(mOut)/th))); }
+        else h+=RC.cell('not a telescope yet','the rays aren’t parallel here, so the stars are blurry'); }
       out.innerHTML=h;
+      /* same scale as the drawing ON SCREEN: both canvases are shrunk by CSS, so match displayed px per cm */
+      const dm=cv.getBoundingClientRect().width/W||1, dv=(vw.getBoundingClientRect().width||300)/300, k=dm/dv, LK=LHo*k;
+      const VH2=any?Math.max(160,Math.ceil(2*LK+84)):160; if(VH2!==VH){ VH=VH2; vc=RC.setup(vw,300,VH); }
+      if(card){ RC.clear(vc,vw); const cx0=150, cy0=24+LK+12, R=a*sc*k*Math.abs(1-xc/fo), yA=cy0+th*xc*sc*k;
+        vc.save(); vc.fillStyle=RC.mode==='night'?'#0b0e12':'#1d2129'; vc.beginPath(); vc.roundRect(cx0-LK-12,cy0-LK-12,2*LK+24,2*LK+24,10); vc.fill(); vc.restore();
+        vc.save(); vc.setLineDash([4,4]); vc.strokeStyle='rgba(200,210,225,.45)'; vc.lineWidth=1.2; vc.beginPath(); vc.arc(cx0,cy0,LK,0,7); vc.stroke(); vc.restore();
+        const blob=function(y,rgb){ if(R<2.5){ RC.glowDot(vc,cx0,y,4.5,'rgb('+rgb+')',16); RC.glowDot(vc,cx0,y,1.8,'#fff',0); return; }
+          const al=Math.max(.24,Math.min(.95,Math.pow(9/R,2))); vc.save(); vc.globalCompositeOperation='lighter';
+          const g=vc.createRadialGradient(cx0,y,0,cx0,y,R); g.addColorStop(0,'rgba('+rgb+','+al+')'); g.addColorStop(.85,'rgba('+rgb+','+al*.85+')'); g.addColorStop(1,'rgba('+rgb+',0)');
+          vc.fillStyle=g; vc.beginPath(); vc.arc(cx0,y,R,0,7); vc.fill(); vc.restore(); };
+        blob(cy0,C.r2); blob(yA,C.ray);
+        if(sharp){ RC.dline(vc,cx0+12,cy0,cx0+12,yA,C.good,1.4); RC.mlabel(vc,cx0+18,(cy0+yA)/2+5,[{s:'h',it:true},{s:'′'}],C.good,'left',13); }
+        RC.txt(vc,150,14,'On the card · same scale as the drawing',C.ink,11,'center','700');
+        RC.txt(vc,150,VH-8,sharp?'two sharp dots, h′ apart: a real image':'blurry: the light isn’t focused here',sharp?C.good:C.dim,11.5,'center','700');
+        RC.glowDot(vc,40,VH-32,3.5,'rgb('+C.r2+')',6); RC.txt(vc,48,VH-28,'star on the axis',C.dim,10.5,'left','600');
+        RC.glowDot(vc,174,VH-32,3.5,'rgb('+C.ray+')',6); RC.mlabel(vc,182,VH-28,[{s:'star at '},{s:'θ',it:true},{s:'o',sub:true}],C.dim,'left',10.5); }
+      else if(eyeSpot){ RC.clear(vc,vw); const cx0=150, cy0=24+LK+12, KA=250*k, front=zone==='front';
+        const up=front?th:-mOut, yA=cy0-up*KA, blur=front||on?0:Math.min(8,spread*150+1.2);
+        vc.save(); vc.fillStyle=RC.mode==='night'?'#0b0e12':'#1d2129'; vc.beginPath(); vc.arc(cx0,cy0,LK+12,0,7); vc.fill(); vc.clip();
+        const star=function(y,rgb){ if(blur>0.4){ for(let i=0;i<10;i++){ const t=i/10*6.283; vc.globalAlpha=.22; RC.glowDot(vc,cx0+blur*Math.cos(t),y+blur*Math.sin(t),4,'rgb('+rgb+')',10); } vc.globalAlpha=1; }
+          else { RC.glowDot(vc,cx0,y,4.5,'rgb('+rgb+')',16); RC.glowDot(vc,cx0,y,1.8,'#fff',0); } };
+        star(cy0,C.r2); star(yA,C.ray); vc.restore();
+        vc.save(); vc.strokeStyle=C.axis; vc.lineWidth=2; vc.beginPath(); vc.arc(cx0,cy0,LK+12,0,7); vc.stroke(); vc.restore();
+        if(!blur && Math.abs(yA-cy0)>6 && Math.abs(yA-cy0)<LK+8){ RC.dline(vc,cx0+12,cy0,cx0+12,yA,C.good,1.4);
+          RC.mlabel(vc,cx0+18,(cy0+yA)/2+5,[{s:'θ',it:true},{s:front?'o':'e',sub:true}],C.good,'left',13); }
+        RC.txt(vc,150,14,'An eye here sees · angles to scale',C.ink,11,'center','700');
+        RC.txt(vc,150,VH-8,front||on?'a card here catches only blur: parallel rays, image at infinity':'rays not parallel: the eye sees blur',C.dim,9.5,'center','600');
+        RC.glowDot(vc,40,VH-32,3.5,'rgb('+C.r2+')',6); RC.txt(vc,48,VH-28,'star on the axis',C.dim,10.5,'left','600');
+        RC.glowDot(vc,174,VH-32,3.5,'rgb('+C.ray+')',6); RC.mlabel(vc,182,VH-28,[{s:'star at '},{s:'θ',it:true},{s:'o',sub:true}],C.dim,'left',10.5); }
+      else {
       /* what you see */
-      RC.clear(vc,vw); const r=58, cy=76, c1=78, c2=222, ks2=250;
+      RC.clear(vc,vw); const r=54, cy=86, c1=78, c2=222, ks2=250;   /* one scale for both views: arrow length = angle at the eye */
       const arrowIn=function(x,y,L,col){ const yb=y+L/2, yt=y-L/2; if(Math.abs(L)>3) RC.bigArrow(vc,x,yb,yt,col,false); };
-      RC.spot(vc,c1,cy,r,function(x,y){ arrowIn(x,y,Math.max(10,th*ks2),C.obj); },0);
+      RC.spot(vc,c1,cy,r,function(x,y){ arrowIn(x,y,th*ks2,C.obj); },0);
       RC.spot(vc,c2,cy,r,function(x,y){ arrowIn(x,y,thE*ks2,C.obj); },on?0:Math.min(6,spread*150+1.2));
-      RC.txt(vc,c1,154,'bare eye',C.dim,12,'center','600'); RC.txt(vc,c2,154,'through the telescope',C.dim,12,'center','600');
+      RC.txt(vc,150,14,'What you see · arrow length = angle',C.ink,11,'center','700');
+      RC.mlabel(vc,c1,153,[{s:'θ',it:true},{s:'o',sub:true},{s:': bare eye'}],C.dim,'center',12.5);
+      RC.mlabel(vc,c2,153,on?[{s:'θ',it:true},{s:'e',sub:true},{s:': telescope, flipped'}]:[{s:'θ',it:true},{s:'e',sub:true},{s:': blurry'}],C.dim,'center',12.5); }
       if(!locked){ Q('.ts-fo').value=fo; Q('.ts-fe').value=fe; Q('.ts-sep').value=sep; Q('.ts-th').value=th;
-        Q('.ts-fov').textContent=fo+' cm'; Q('.ts-fev').textContent=fe.toFixed(1)+' cm'; Q('.ts-sepv').textContent=sep.toFixed(1)+' cm'; Q('.ts-thv').textContent=th.toFixed(2)+' rad'; }
+        Q('.ts-fov').textContent=fo+' cm'; Q('.ts-fev').textContent=fe.toFixed(1)+' cm'; Q('.ts-sepv').textContent=sep.toFixed(1)+' cm'; Q('.ts-thv').textContent='−'+th.toFixed(2)+' rad';
+        if(SCR){ const sl=Q('.ts-scr'), lo=Math.floor(xMin*2)/2; sl.min=lo-1; sl.max=Math.floor(xMax*2)/2; sl.value=any?xc:lo-1;
+          Q('.ts-scrv').textContent=!any?'out':zone==='front'?'in front':zone==='back'?'behind':sharp?'at the image':xc.toFixed(1)+' cm'; } }
     }
+    Q('.ts-tri').onclick=function(){ st.tri=!st.tri; this.classList.toggle('active',st.tri); this.textContent=st.tri?'hide the triangles':'show the two triangles'; draw(); };
     if(!locked){
       Q('.ts-fo').oninput=function(){ st.fo=+this.value; draw(); }; Q('.ts-fe').oninput=function(){ st.fe=+this.value; draw(); };
-      Q('.ts-sep').oninput=function(){ st.sep=+this.value; draw(); }; Q('.ts-th').oninput=function(){ st.th=+this.value; draw(); };
-      const near=function(p){ return Math.abs(p[0]-(OX+st.sep*sc))<18; };
-      RC.drag(cv,near,function(p){ st.sep=Math.max(6,Math.min(65,Math.round((p[0]-OX)/sc*2)/2)); draw(); },near);
+      const fitScr=function(){ if(st.scr===null) return; let x=Math.max(xMin,Math.min(xMax,st.scr));
+        if(st.fo<st.sep&&Math.abs(x-st.fo)<=0.6) x=st.fo;
+        if(Math.abs(x)<0.5) x=x<0?-0.5:0.5; if(Math.abs(x-st.sep)<0.5) x=x<st.sep?st.sep-0.5:st.sep+0.5; st.scr=x; };
+      Q('.ts-sep').oninput=function(){ st.sep=+this.value; fitScr(); draw(); }; Q('.ts-th').oninput=function(){ st.th=+this.value; draw(); };
+      Q('.ts-fo').oninput=function(){ st.fo=+this.value; fitScr(); draw(); };
+      if(SCR) Q('.ts-scr').oninput=function(){ const v=+this.value; st.scr=v<=+this.min+0.01?null:v; fitScr(); draw(); };
+      const nearE=function(p){ return Math.abs(p[0]-(OX+st.sep*sc))<18; }, nearS=function(p){ return SCR&&st.scr!==null&&Math.abs(p[0]-(OX+st.scr*sc))<14; };
+      let grab=null;
+      RC.drag(cv,function(p){ grab=nearS(p)?'s':nearE(p)?'e':null; return !!grab; },function(p){ const v=Math.round((p[0]-OX)/sc*2)/2;
+        if(grab==='s') st.scr=v; else st.sep=Math.max(6,Math.min(65,v)); fitScr(); draw(); },function(p){ return nearS(p)||nearE(p); });
     }
     RC.register(draw);
   }
@@ -3492,7 +3646,7 @@ window.PL=(function(){
     const trace=function(tin){
       if(!scope) return Mv()*tin;
       const fo=st.fo, fe=st.fe, y2=-tin*(fo+fe), m1=-tin, m2=m1-y2/fe;   /* through the objective centre, then the eyepiece */
-      return -m2;                                    /* angle of the direction you look along: + above the axis */
+      return -m2;                                    /* canvas slope (down +); the signed angle, CCW +, is minus this */
     };
     const Mm=function(){ return trace(1e-3)/1e-3; };  /* measured off the traced ray */
     const outOf=function(a){ return Math.abs(Mm())*a.th>FIELD; };
@@ -3566,19 +3720,20 @@ window.PL=(function(){
       STARS.forEach(function(a){ const P=skyP(a); starDot(ct,P[0],P[1],a,outOf(a)?.4:1); });
       STARS.forEach(function(a,i){ if(!lab(i)) return; const on=sel.indexOf(i)>=0, P=skyP(a);
         if(i===0) RC.txt(ct,P[0]+a.r+3,P[1]+a.r+11,a.n,on?'#fff':K.name,on?12:11,'left',on?'700':'500'); else outward(ct,P,SC,a,a.n,on?'#fff':K.name,on?12:11,on?'700':'500'); });
-      if(sel.length){ const a=STARS[sel[0]], P=skyP(a); along(ct,SC,P,[{s:'θ',it:true},{s:'o',sub:true},{s:' = '+fA(a.th)+'′'}],'rgb('+K.p+')',14); }
+      if(sel.length){ const a=STARS[sel[0]], P=skyP(a); along(ct,SC,P,[{s:'θ',it:true},{s:'o',sub:true},{s:' = −'+fA(a.th)+'′'}],'rgb('+K.p+')',14); }
       bar(ct,sky.x+16,sky.y+sky.h-16,K.name,sk());
       RC.txt(ct,sky.x+14,sky.y+22,st.zoom?'SKY · ZOOMED ×'+(sZ/s).toFixed(1):'SKY · BARE EYE',st.zoom?'#ffc86b':K.name,11,'left','800');
       if(st.zoom) RC.txt(ct,sky.x+14,sky.y+38,'not the eyepiece scale',  '#ffc86b',10.5,'left','700');
+      if(sel.length) RC.txt(ct,sky.x+sky.w-12,sky.y+sky.h-30,'starlight comes in heading down: θo < 0',K.dim,10,'right','700');
       RC.txt(ct,sky.x+sky.w-14,sky.y+22,'+ = optical axis',K.dim,11,'right','600');
       ct.restore();
       /* ---------- desktop: a big readout card under the sky ---------- */
       if(card){ const b=card; ct.save(); ct.fillStyle=night?'#151b23':'#f4f7fb'; ct.strokeStyle=C.grid; ct.lineWidth=1; ct.beginPath(); ct.roundRect(b.x+2,b.y,b.w-4,b.h,12); ct.fill(); ct.stroke(); ct.restore();
         RC.txt(ct,b.x+16,b.y+24,st.zoom?'SKY ZOOMED: SCALES DIFFER':'SAME SCALE IN BOTH VIEWS',st.zoom?C.bad:C.dim,11,'left','800');
-        if(sel.length){ const a=STARS[sel[0]], te=M*a.th;
+        if(sel.length){ const a=STARS[sel[0]], te=-M*a.th;
           RC.txt(ct,b.x+16,b.y+56,a.n,C.ink,17,'left','800');
-          RC.mlabel(ct,b.x+16,b.y+92,[{s:'θ',it:true},{s:'o',sub:true},{s:' = +'+fA(a.th)+'′'}],'rgb('+C.r2+')','left',22);
-          RC.mlabel(ct,b.x+16,b.y+128,[{s:'θ',it:true},{s:'e',sub:true},{s:' = '+fA(te).replace('-','−')+'′'}],'rgb('+C.r1+')','left',22);
+          RC.mlabel(ct,b.x+16,b.y+92,[{s:'θ',it:true},{s:'o',sub:true},{s:' = −'+fA(a.th)+'′'}],'rgb('+C.r2+')','left',22);
+          RC.mlabel(ct,b.x+16,b.y+128,[{s:'θ',it:true},{s:'e',sub:true},{s:' = +'+fA(te)+'′'}],'rgb('+C.r1+')','left',22);
           RC.mlabel(ct,b.x+16,b.y+164,[{s:'× M = '+fM(M).replace('-','−')}],C.accent,'left',20);
           RC.txt(ct,b.x+16,b.y+194,'On screen, the red line is',C.dim,12,'left','600');
           RC.txt(ct,b.x+16,b.y+211,fM(aM)+'× as long as the purple one.',C.dim,12,'left','600');
@@ -3605,7 +3760,7 @@ window.PL=(function(){
         outward(ct,epP(p[0],p[1]),EC,STARS[i],STARS[i].n,on?'#fff':K.name,11.5,on?'700':'500'); });
       /* live readout next to the newest star */
       if(sel.length && pos[sel[0]]){ const a=STARS[sel[0]], p=pos[sel[0]];
-        if(p[2]>=1 && !outOf(a)){ tag(ct,epP(p[0],p[1]),EC,a.r*1.1,[[a.n,'#fff'],['θo '+fA(a.th)+'′ → θe '+fA(M*a.th).replace('-','−')+'′','rgb('+K.s+')'],['× '+fM(M).replace('-','−'),'rgb('+K.p+')']]); } }
+        if(p[2]>=1 && !outOf(a)){ tag(ct,epP(p[0],p[1]),EC,a.r*1.1,[[a.n,'#fff'],['θo '+fA(-a.th).replace('-','−')+'′ → θe +'+fA(-M*a.th)+'′','rgb('+K.s+')'],['× '+fM(M).replace('-','−'),'rgb('+K.p+')']]); } }
       ct.restore();
       ct.save(); ct.strokeStyle=night?'#58616e':'#9aa5b4'; ct.lineWidth=1.5; ct.beginPath(); ct.arc(EC[0],EC[1],R,0,7); ct.stroke(); ct.restore();
       bar(ct,EC[0]-15*s,EC[1]+R*.86,K.name);
@@ -3653,9 +3808,9 @@ window.PL=(function(){
         else End=[W-6,OY+(W-6-XE)*tout];
         RC.ray(cs,Ex[0],Ex[1],XE,OY,col,1,2.4); RC.ray(cs,XE,OY,End[0],End[1],col,1,2.4); if(!st.eye) RC.head(cs,XE,OY,End[0],End[1],col,1,.55,12);
         RC.head(cs,Ex[0],Ex[1],XE,OY,col,1,.6,11);
-        const r0=48+16*j, r1=st.eye?Math.min(eR*.75,26)+10*j:40+16*j;
-        RC.arcBetween(cs,X1,OY,r0,Math.PI,Math.PI+Math.atan(tin),'rgb('+col+')',1.8);
-        RC.arcBetween(cs,XE,OY,r1,0,Math.atan(tout),'rgb('+C.r1+')',1.8);
+        const r0=Math.min(130,X1-30)+16*j, r1=st.eye?Math.min(eR*.75,26)+10*j:40+16*j;
+        RC.arcArrow(cs,X1,OY,r0,Math.PI,Math.PI+Math.atan(tin),'rgb('+col+')',1.8);
+        RC.arcArrow(cs,XE,OY,r1,0,Math.atan(tout),'rgb('+C.r1+')',1.8);
         labels.push(function(){
           if(j>0) return;
           RC.mlabel(cs,X1-r0-14,OY-6-r0*tin*.5,[{s:'θ',it:true},{s:'o',sub:true}],'rgb('+col+')','center',15);
@@ -3692,14 +3847,14 @@ window.PL=(function(){
       const M=Mm(), aM=Math.abs(M);
       let h='';
       if(!st.sel.length){ h=RC.cell('this '+word,kat('M='+fM(M))); if(scope) h+=RC.cell('formula',kat('-f_o/f_e='+fM(-st.fo/st.fe))); out.innerHTML=h; return; }
-      const a=STARS[st.sel[0]], te=M*a.th;
-      h+=RC.cell(a.n+' comes in at',kat("\\theta_o=+"+fA(a.th)+"'=+"+fR(a.th)+"\\ \\text{rad}"));
-      h+=RC.cell('and leaves at','<span class="ans">'+kat("\\theta_e="+fA(te)+"'="+fR(te)+"\\ \\text{rad}")+'</span>');
-      h+=RC.cell('ratio, off the ray',kat('\\theta_e/\\theta_o='+fM(te/a.th)));
+      const a=STARS[st.sel[0]], to=-a.th, te=M*to;
+      h+=RC.cell(a.n+' comes in at',kat("\\theta_o="+fA(to)+"'="+fR(to)+"\\ \\text{rad}"));
+      h+=RC.cell('and leaves at','<span class="ans">'+kat("\\theta_e=+"+fA(te)+"'=+"+fR(te)+"\\ \\text{rad}")+'</span>');
+      h+=RC.cell('ratio, off the ray',kat('\\theta_e/\\theta_o='+fM(te/to)));
       if(scope) h+=RC.cell('formula',kat('-f_o/f_e='+fM(-st.fo/st.fe)));
       if(st.sel.length>1){ const b=STARS[st.sel[1]], d=Math.hypot(a.x-b.x,a.y-b.y);
         h+=RC.cell(a.n+' ↔ '+b.n,kat("\\Delta\\theta_o="+fA(d)+"'\\;\\to\\;\\Delta\\theta_e="+fA(aM*d)+"'")); }
-      if(st.eye){ const ho=EYE*10*a.th*AM, he=EYE*10*te*AM;
+      if(st.eye){ const ho=EYE*10*to*AM, he=EYE*10*te*AM;
         h+=RC.cell('on your retina',kat('h_o='+ho.toFixed(2)+'\\ \\text{mm}\\to h_e='+he.toFixed(2)+'\\ \\text{mm}'));
         h+=RC.cell('ratio of the spots',kat('h_e/h_o='+fM(he/ho))); }
       out.innerHTML=h;
@@ -3710,10 +3865,10 @@ window.PL=(function(){
       if(!sel.length && scope){ coach.innerHTML='Here is the whole cluster through the eyepiece, '+kat(fM(aM))+'× bigger and flipped. <b>Slide</b> '+kat('f_o')+' and '+kat('f_e')+' and watch it grow or shrink. Click a star to trace it.'+(lost?' '+lost+(lost>1?' stars are':' star is')+' past the edge.':''); return; }
       if(!sel.length){ coach.innerHTML='<b>Click any star.</b> The <b>+</b> is the optical axis, where the '+word+' is pointed. Each star sits at an angle '+kat('\\theta_o')+' from it.'; return; }
       const a=STARS[sel[0]];
-      if(st.view==='ray'){ coach.innerHTML='<b>'+a.n+'</b>: in at '+kat("\\theta_o=+"+fA(a.th)+"'")+', out at '+kat("\\theta_e="+fA(M*a.th)+"'")+'. Drag '+(scope?kat('f_o')+' or '+kat('f_e'):kat('M'))+' and watch '+kat('\\theta_e')+' change. The ray climbs out after crossing the axis, so you look <b>down</b> along it: '+kat('\\theta_e')+' is negative.'; return; }
-      if(outOf(a)){ coach.innerHTML='<b>'+a.n+'</b> would leave at '+kat(fA(M*a.th)+"'")+', past the edge of the field. More '+kat('M')+' means a smaller patch of sky.'; return; }
+      if(st.view==='ray'){ coach.innerHTML='<b>'+a.n+'</b>: in at '+kat("\\theta_o="+fA(-a.th)+"'")+' (heading down: clockwise, −), out at '+kat("\\theta_e=+"+fA(-M*a.th)+"'")+' (heading up: counterclockwise, +). Drag '+(scope?kat('f_o')+' or '+kat('f_e'):kat('M'))+' and watch '+kat('\\theta_e')+' change.'; return; }
+      if(outOf(a)){ coach.innerHTML='<b>'+a.n+'</b> would leave at '+kat('+'+fA(-M*a.th)+"'")+', past the edge of the field. More '+kat('M')+' means a smaller patch of sky.'; return; }
       if(st.revealed && n===STARS.length){ coach.innerHTML='<b>Same shape, '+fM(aM)+'× bigger, upside down.</b> Every angle got multiplied by the same '+kat('M='+fM(M))+'. The minus sign is the flip.'+(lost?' '+lost+(lost>1?' stars land':' star lands')+' past the edge: more '+kat('M')+', less sky.':''); return; }
-      if(outOf(a)){ coach.innerHTML='<b>'+a.n+'</b> would leave at '+kat(fA(M*a.th)+"'")+', past the edge of the field. More '+kat('M')+' means a smaller patch of sky.'; return; }
+      if(outOf(a)){ coach.innerHTML='<b>'+a.n+'</b> would leave at '+kat('+'+fA(-M*a.th)+"'")+', past the edge of the field. More '+kat('M')+' means a smaller patch of sky.'; return; }
       if(sel.length>1){ const b=STARS[sel[1]], d=Math.hypot(a.x-b.x,a.y-b.y);
         coach.innerHTML='<b>'+b.n+' to '+a.n+':</b> '+kat(fA(d)+"'")+' apart in the sky, '+kat(fA(aM*d)+"'")+' apart through the '+word+'. Same '+kat('\\times'+fM(aM))+'.'+(n>=3&&!scope?' Try <b>Reveal all</b>.':''); return; }
       coach.innerHTML='<b>'+a.n+'</b> is '+kat(fA(a.th)+"'")+' off the axis. Through the '+word+' it is '+kat(fA(aM*a.th)+"'")+' off, on the <b>opposite</b> side. Click another star.';
@@ -3763,26 +3918,23 @@ window.PLS=(function(){
     const root=document.getElementById(id); if(!root) return;
     root.innerHTML='<canvas class="pls"></canvas>';
     const W0=RC.logicalW(), cvG=root.querySelector('canvas'), cg=RC.setup(cvG,W0,W0<600?170:190);
-    /* the sign rule: from the optical axis to the line of sight (where the light appears to come from) */
+    /* the sign rule: from the optical axis (pointing the way light travels) to the ray; counterclockwise +, clockwise - */
     function drawSign(){
       const W=RC.logicalW(), narrow=W<600, GH=narrow?170:190, C=RC.C; RC.clear(cg,cvG);
-      RC.txt(cg,W/2,18,'SIGN RULE: from the optical axis to your line of sight (dashed), the way you look to see the star',C.dim,narrow?10:11.5,'center','800');
-      [[1,C.r2,'+θ','looking above the axis'],[-1,C.r1,'−θ','looking below the axis']].forEach(function(q,k){
-        const sg=q[0], x0=k*W/2, w=W/2, OY=sg>0?GH*.64:GH*.42, ex=x0+w-40, al=0.36;
-        const room=sg>0?OY-46:GH-OY-16, L=Math.min(w-90,room/Math.sin(al));
-        const dx=-Math.cos(al), dy=-sg*Math.sin(al);                 /* unit vector from the eye toward the star (canvas) */
-        const sx=ex+dx*L, sy=OY+dy*L, nx=Math.sin(al), ny=-sg*Math.cos(al);   /* unit normal pointing away from the axis */
-        cg.save(); cg.strokeStyle=C.axis; cg.lineWidth=1.2; cg.beginPath(); cg.moveTo(x0+16,OY); cg.lineTo(x0+w-12,OY); cg.stroke(); cg.restore();
-        RC.txt(cg,x0+18,OY+16,'optical axis',C.dim,10.5,'left','600');
-        RC.dline(cg,ex-16,OY+dy*16/Math.cos(al)*Math.cos(al),sx,sy,'rgb('+q[1]+')',1.6,[6,5]);
-        const o=11, a0=[sx+(ex-sx)*.12+nx*o, sy+(OY-sy)*.12+ny*o], a1=[sx+(ex-sx)*.82+nx*o, sy+(OY-sy)*.82+ny*o];
-        RC.ray(cg,a0[0],a0[1],a1[0],a1[1],C.ray,1,2.2); RC.head(cg,a0[0],a0[1],a1[0],a1[1],C.ray,1,.62,11);
-        RC.txt(cg,(a0[0]+a1[0])/2-nx*10,(a0[1]+a1[1])/2+ny*(sg>0?24:30)+(sg>0?0:2),'light from the star','rgb('+C.ray+')',10.5,'center','700');
-        RC.glowDot(cg,sx,sy,4.5,RC.mode==='night'?'#eef4ff':'#7b8fb8',12);
-        RC.eye(cg,ex+10,OY,sx,sy,15);
-        RC.arcBetween(cg,ex,OY,L*.36,Math.PI,Math.PI+sg*al,'rgb('+q[1]+')',2);
-        RC.txt(cg,ex-L*.6*Math.cos(al/2),OY-sg*L*.6*Math.sin(al/2)+5,q[2],'rgb('+q[1]+')',16,'center','800');
-        RC.txt(cg,x0+18,sg>0?GH-12:44,q[3],'rgb('+q[1]+')',12,'left','800');
+      RC.txt(cg,W/2,18,narrow?'SIGN RULE: from the axis (the way light travels) to the ray. CCW +, CW −':'SIGN RULE: measure from the optical axis (pointing the way light travels) to the ray: counterclockwise +, clockwise −',C.dim,narrow?10.5:11.5,'center','800');
+      [[1,C.r2,'+θ','counterclockwise','heading up'],[-1,C.r1,'−θ','clockwise','heading down']].forEach(function(q,k){
+        const sg=q[0], x0=k*W/2, w=W/2, OY=sg>0?GH*.66:GH*.40, vx=x0+46, al=0.42, L=Math.min(w-90,(sg>0?OY-44:GH-OY-22)/Math.sin(al));
+        /* the optical axis, with its arrow: the way the light travels */
+        RC.arrow(cg,x0+18,OY,x0+w-14,OY,C.axis,1.6,9);
+        RC.txt(cg,x0+w-16,OY+16,'optical axis →',C.dim,10.5,'right','600');
+        /* the ray, leaving the vertex at angle sg*al above/below the axis */
+        const ex=vx+L*Math.cos(al), ey=OY-sg*L*Math.sin(al);
+        RC.ray(cg,vx,OY,ex,ey,C.ray,1,2.6); RC.head(cg,vx,OY,ex,ey,C.ray,1,.62,12); RC.head(cg,vx,OY,ex,ey,C.ray,1,.98,12);
+        { const px=vx+(ex-vx)*.72, py=OY+(ey-OY)*.72, nx=-Math.sin(al), ny=-sg*Math.cos(al); RC.txt(cg,px+nx*18-12,py+ny*18+(sg>0?0:8),'ray, '+q[4],'rgb('+C.ray+')',10.5,'center','700'); }
+        RC.glowDot(cg,vx,OY,3.5,C.ink,0);
+        RC.arcArrow(cg,vx,OY,L*.42,0,-sg*al,'rgb('+q[1]+')',2.2);
+        RC.txt(cg,vx+L*.62*Math.cos(al/2),OY-sg*L*.62*Math.sin(al/2)+5,q[2],'rgb('+q[1]+')',17,'center','800');
+        RC.txt(cg,x0+18,sg>0?GH-12:44,q[2]+'  '+q[3],'rgb('+q[1]+')',12.5,'left','800');
       });
       cg.save(); cg.strokeStyle=C.grid; cg.beginPath(); cg.moveTo(W/2,30); cg.lineTo(W/2,GH-12); cg.stroke(); cg.restore();
     }
@@ -3896,8 +4048,8 @@ rcQuiz('q1',[
 <div class="key-box">
 <p><strong>Angular magnification:</strong></p>
 <p><span class="math display">M = \frac{\theta_e}{\theta_o}</span></p>
-<p><span class="math inline">\theta_o</span> is the angle the light comes <strong>in</strong> at. <span class="math inline">\theta_e</span> is the angle it leaves at, toward your eye.</p>
-<p><strong>Angles have a sign.</strong> Measure from the optical axis <strong>to your line of sight</strong>: the direction you look to see the star. Looking above the axis is <strong>+</strong>, looking below is <strong>−</strong>. A negative <span class="math inline">M</span> means the picture comes out flipped.</p>
+<p><span class="math inline">\theta_o</span> is the angle at your eye <strong>without</strong> the instrument: your best bare-eye view. <span class="math inline">\theta_e</span> is the angle at your eye <strong>with</strong> it. For a far object like a star, <span class="math inline">\theta_o</span> is just the angle the light comes in at.</p>
+<p><strong>Angles have a sign.</strong> Measure from the optical axis (pointing the way the light travels) to the ray: <strong>counterclockwise is +, clockwise is −.</strong> Light from a star above the axis comes in heading down, so its <span class="math inline">\theta_o</span> is negative. A negative <span class="math inline">M</span> means the picture comes out flipped.</p>
 </div>
 <div class="panel">
 <div id="plSign"></div>
@@ -3922,19 +4074,53 @@ rcQuiz('q1',[
 </section>
 <section id="the-near-point-and-the-magnifying-glass" class="level2">
 <h2 class="anchored" data-anchor-id="the-near-point-and-the-magnifying-glass">3 · The near point and the magnifying glass</h2>
-<p><strong>Near point.</strong> When you look at objects, the angle they <strong>subtend</strong> gets larger and larger as you bring the object closer. But there is a max angle, as you can’t focus on anything past your near point (NP), which is about 10 in or 25 cm for most people.</p>
-<p><span class="math display">\theta_{NP} = \frac{h}{25\ \text{cm}}</span></p>
-<div class="info-box">
-<p><strong>Demo: measure your NP.</strong> Hold this page at arm’s length and slowly bring it toward your eye. Stop when the words start to blur. Have a partner measure from your eye to the page. How close to 25 cm are you?</p>
+<div class="key-box">
+<ol type="1">
+<li>Your eye can’t focus closer than 25 cm, the <strong>near point</strong>. That sets <span class="math inline">\theta_o = h/25</span>.</li>
+<li>Closer means a bigger angle. The glass doesn’t change the angle. It makes the close-up view sharp.</li>
+<li><span class="math inline">M = \dfrac{\theta_e}{\theta_o} = \boxed{\dfrac{25\ \text{cm}}{f}}</span></li>
+</ol>
 </div>
-<p><strong>Magnifying glass.</strong> The object is inside the focus of a converging lens. The angle subtended by the image is approximately:</p>
-<p><span class="math display">\theta = \frac{h}{f}</span></p>
-<p>The angular magnification is thus:</p>
-<p><span class="math display">M = \frac{\theta}{\theta_{NP}} = \frac{h/f}{h/25} = \boxed{\frac{25\ \text{cm}}{f}}</span></p>
+<div class="info-box">
+<p><strong>Demo: measure your near point.</strong> Hold this page at arm’s length. Bring it slowly toward your eye. Stop when the words blur. Have a partner measure from your eye to the page. How close to 25 cm are you?</p>
+</div>
+<p>Follow one 1 cm bug through three cases.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>angle at your eye</th>
+<th>what you see</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A</strong> · bug at 25 cm, no glass</td>
+<td><span class="math inline">1/25 = 0.04</span> rad</td>
+<td>sharp</td>
+</tr>
+<tr class="even">
+<td><strong>B</strong> · bug at 5 cm, no glass</td>
+<td><span class="math inline">1/5 = 0.20</span> rad</td>
+<td>blurry</td>
+</tr>
+<tr class="odd">
+<td><strong>C</strong> · bug at 5 cm, glass (<span class="math inline">f = 5</span> cm)</td>
+<td><span class="math inline">0.20</span> rad</td>
+<td>sharp</td>
+</tr>
+</tbody>
+</table>
+<p>B and C have the same angle. The ray through the centre of the glass goes straight. So the glass doesn’t change the angle. It changes <strong>where</strong> you see the bug: out past 25 cm, where your eye can focus.</p>
+<p>The <span class="math inline">\theta_e</span> line fans wider than the <span class="math inline">\theta_o</span> line. That is how a magnifier magnifies.</p>
+<p>Why is <span class="math inline">\theta_o</span> at 25 cm here? Because you can move a bug. You compare with your best sharp view. A telescope is different: you can’t move a star.</p>
 <div class="panel">
 <div id="agW"></div>
-<script>AG.build('agW',{ title:'How big does it look?' });</script>
+<script>AG.build('agW',{ title:'One bug, three cases' });</script>
 </div>
+<p><strong>Image size is not the magnification.</strong> The image is bigger and farther away by the same factor (<span class="math inline">h_i/|d_i| = h/d_o</span>). So it makes the same angle.</p>
+<p><strong>Sharp zone.</strong> The image must be at least 25 cm away. So the bug must sit between <span class="math inline">\dfrac{25f}{25+f}</span> and <span class="math inline">f</span>: 4.17 to 5 cm for this glass.</p>
+<p><strong>Most magnification.</strong> With the image right at 25 cm, <span class="math inline">M = 1 + \dfrac{25\ \text{cm}}{f} = 6</span> for <span class="math inline">f = 5</span> cm. We use <span class="math inline">25/f</span>.</p>
 <div class="panel example-box">
 <div class="ex-head"><span class="ex-tag">Ex. 3 · A magnifying lens</span><button class="popout-btn" onclick="popOut(this)">⛶ Present</button></div>
 <p>What is the magnification of a 5 cm focal length magnifying lens?</p>
@@ -3944,7 +4130,7 @@ Reveal solution
 </summary>
 <div class="soln-body">
 <p><span class="math display">M = \frac{25\ \text{cm}}{f} = \frac{25}{5} = \boxed{5\times}</span></p>
-<p>Shorter focal length, more magnification. Set <span class="math inline">f = 5</span> cm in the widget above and check.</p>
+<p>Shorter focal length, more magnification. Press <strong>C</strong> in the widget above to check.</p>
 </div>
 </details>
 </div>
@@ -3954,8 +4140,8 @@ Reveal solution
 <h2 class="anchored" data-anchor-id="telescopes">4 · Telescopes</h2>
 <p>Two converging lenses separated so that their two focuses overlap. The <strong>objective</strong> faces the distant object. The <strong>eyepiece</strong> acts as a magnifier, forming an image at infinity that is seen by a relaxed eye.</p>
 <p>Parallel rays from a distant object come in at the angle <span class="math inline">\theta_o</span>. The objective brings them to a focus, making a small image of height <span class="math inline">h&#39;</span> right at the focal point the two lenses share. So:</p>
-<p><span class="math display">\tan\theta_o = -\frac{h&#39;}{f_o} \quad \text{(negative because the image is inverted)}</span></p>
-<p><span class="math display">\theta_o \approx -\frac{h&#39;}{f_o} \quad \text{(small angle approximation)} \qquad\qquad \theta_e \approx \frac{h&#39;}{f_e}</span></p>
+<p><span class="math display">\tan\theta_o = \frac{h&#39;}{f_o} \quad \text{(both negative: the ray heads down and the image is inverted)}</span></p>
+<p><span class="math display">\theta_o \approx \frac{h&#39;}{f_o} \quad \text{(small angle approximation)} \qquad\qquad \theta_e \approx -\frac{h&#39;}{f_e}</span></p>
 <div class="key-box">
 <p><strong>Angular magnification of a telescope:</strong></p>
 <p><span class="math display">M = \frac{\theta_e}{\theta_o} = -\frac{f_o}{f_e}</span></p>
@@ -3963,7 +4149,7 @@ Reveal solution
 </div>
 <div class="panel">
 <div id="tsW"></div>
-<script>TS.build('tsW',{ title:'Build a telescope', fo:30, fe:5, sep:28, th:0.06, hint:'Slide the eyepiece, or drag it. The rays only leave parallel at one spacing. Then try a longer objective, or a shorter eyepiece.' });</script>
+<script>TS.build('tsW',{ title:'Build a telescope', fo:30, fe:5, sep:28, th:0.06, screen:true, hint:'Slide the eyepiece, or drag it. The rays only leave parallel at one spacing. Then try a longer objective, or a shorter eyepiece. Parallel rays mean the image is at infinity; the real image is at the shared focal plane. Slide the screen to find it.' });</script>
 </div>
 <p>Remember the magnifier box from §2? Here it is opened up: an objective and an eyepiece that share a focal point. Now the only thing that sets <span class="math inline">M</span> is the two focal lengths.</p>
 <div class="panel">
@@ -3987,7 +4173,8 @@ Reveal solution
 <p><strong>C.</strong></p>
 <p><span class="math display">M = -\frac{f_o}{f_e} = -\frac{20}{4} = \boxed{-5}</span></p>
 <p><strong>D.</strong></p>
-<p><span class="math display">\theta_e = M\,\theta_o = (-5)(0.1) = \boxed{-0.5\ \text{rad}}</span></p>
+<p>The light comes in heading down, so <span class="math inline">\theta_o = -0.1</span> rad:</p>
+<p><span class="math display">\theta_e = M\,\theta_o = (-5)(-0.1) = \boxed{+0.5\ \text{rad}}</span></p>
 <p>Five times as big, and upside down.</p>
 </div>
 </details>

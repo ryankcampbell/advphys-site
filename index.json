@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-11-06T21:20:23+00:00",
+ "published": "2026-11-09T15:53:57+00:00",
  "units": [
   {
    "n": 1,
@@ -418,8 +418,8 @@
        "kind": "quarto",
        "label": "Lesson L1.7a",
        "file": "q/1-7-quarto-l1-7a.html",
-       "hash": "3f9c1c7f5cd57123b3a8e4244dd57d385bb9b2eb1cde5c8f5586069b7666d49d",
-       "bytes": 3774598
+       "hash": "0dfd4bcb0af97f86d19ae86893f409f95c277de188d6e6b8bd3723a9da1cff5d",
+       "bytes": 3793443
       },
       {
        "kind": "notes",
@@ -1805,7 +1805,7 @@
   {
    "code": "1.7",
    "file": "q/1-7-quarto-l1-7a.html",
-   "hash": "3f9c1c7f5cd57123b3a8e4244dd57d385bb9b2eb1cde5c8f5586069b7666d49d",
+   "hash": "0dfd4bcb0af97f86d19ae86893f409f95c277de188d6e6b8bd3723a9da1cff5d",
    "sections": [
     {
      "id": "what-happens-when-you-have-multiple-lenses",
