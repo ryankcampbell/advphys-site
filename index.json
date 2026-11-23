@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-11-09T15:53:57+00:00",
+ "published": "2026-11-23T21:48:13+00:00",
  "units": [
   {
    "n": 1,
@@ -525,6 +525,13 @@
      "part": 1,
      "items": [
       {
+       "kind": "quarto",
+       "label": "Lesson L2.1a",
+       "file": "q/2-1-quarto-l2-1a.html",
+       "hash": "74947ed4c72587637526dbdb573de25f502ab22f0fb46e266e193128db81a095",
+       "bytes": 3727521
+      },
+      {
        "kind": "notes",
        "label": "Class notes",
        "file": "p/2-1-notes-l2-1.pdf",
@@ -548,6 +555,14 @@
        "file": "p/2-1-hw-hw2-1.pdf",
        "hash": "7260277be50ad32249713e917f03aa21fa22eaa8a79cc31ac11538bb731cfab4",
        "bytes": 183010
+      },
+      {
+       "kind": "ticket",
+       "label": "Entry ticket, day 2",
+       "file": "p/2-1-ticket-day-2-warmup2-1.pdf",
+       "hash": "569943db35e661fb438601ce20e6ebf1b6735fc9a65409f979003e6dee83bdd6",
+       "bytes": 122412,
+       "day": 2
       }
      ]
     },
@@ -1833,6 +1848,42 @@
     }
    ],
    "title": "1.7 Optical Systems"
+  },
+  {
+   "code": "2.1",
+   "file": "q/2-1-quarto-l2-1a.html",
+   "hash": "74947ed4c72587637526dbdb573de25f502ab22f0fb46e266e193128db81a095",
+   "sections": [
+    {
+     "id": "what-is-light",
+     "text": "What is light?"
+    },
+    {
+     "id": "constructive-and-destructive",
+     "text": "Constructive and destructive"
+    },
+    {
+     "id": "take-superposition-literally-pulses",
+     "text": "Take superposition literally: pulses"
+    },
+    {
+     "id": "how-fast-does-a-pulse-travel",
+     "text": "How fast does a pulse travel?"
+    },
+    {
+     "id": "what-is-impedance",
+     "text": "What is impedance?"
+    },
+    {
+     "id": "reflection-at-a-discontinuity",
+     "text": "Reflection at a discontinuity"
+    },
+    {
+     "id": "fixed-and-free-ends-the-limits",
+     "text": "Fixed and free ends: the limits"
+    }
+   ],
+   "title": "2.1 Superposition"
   },
   {
    "code": "3.4",
