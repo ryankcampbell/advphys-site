@@ -1,7 +1,7 @@
 {
  "course": "Advanced Physics",
  "meets": "Mon/Wed/Fri · Block 3",
- "published": "2026-11-23T21:48:13+00:00",
+ "published": "2026-11-24T21:12:05+00:00",
  "units": [
   {
    "n": 1,
@@ -553,8 +553,8 @@
        "kind": "hw",
        "label": "Homework",
        "file": "p/2-1-hw-hw2-1.pdf",
-       "hash": "7260277be50ad32249713e917f03aa21fa22eaa8a79cc31ac11538bb731cfab4",
-       "bytes": 183010
+       "hash": "c647777dd2e96255b2ec7ce0001069dbbfeb753cf9dade304cbc3c310f497e3e",
+       "bytes": 272077
       },
       {
        "kind": "ticket",
